@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { Pin, Crown, ArrowRight } from "lucide-react";
 import { motion as Motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 const WalletList = () => {
   const { wallets, togglePinWallet, selectedWalletId, setSelectedWalletId } =
@@ -63,10 +64,7 @@ const WalletList = () => {
           </div>
 
           <p className="text-lg md:text-xl font-semibold text-black dark:text-neutral-200 whitespace-nowrap tracking-tight">
-            {wallet.balance}
-            <span className="ml-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">
-              {wallet.currency}
-            </span>
+            {formatCurrency(wallet.balance, wallet.currency)}
           </p>
         </Motion.li>
       ))}
