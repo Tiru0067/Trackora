@@ -10,8 +10,8 @@ const Header = ({ showMenu, setShowMenu }) => {
     "p-3 rounded-full cursor-pointer bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-800";
 
   return (
-    <header className="w-full shrink-0 h-18 px-7 max-lg:px-6 flex items-center justify-between">
-      <h1 className="text-xl font-semibold text-emerald-700">
+    <header className="w-full shrink-0 h-18 px-7 max-lg:px-6 flex items-center justify-between gap-3">
+      <h1 className="text-xl font-semibold text-emerald-700 truncate">
         {currentPath.charAt(0).toUpperCase() + currentPath.slice(1)}
       </h1>
 

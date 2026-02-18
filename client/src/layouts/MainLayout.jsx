@@ -13,7 +13,7 @@ const MainLayout = () => {
       <Sidebar showMenu={showMenu} setShowMenu={setShowMenu} />
       <main className="w-full flex flex-col">
         <Header showMenu={showMenu} setShowMenu={setShowMenu} />
-        <div className="px-6 py-3 flex-1 min-h-0">
+        <div className="px-6 py-3 flex-1 min-h-0 overflow-y-auto hide-scrollbar">
           <Outlet />
         </div>
       </main>

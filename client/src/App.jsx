@@ -11,6 +11,8 @@ import { SettingsProvider } from "./context/SettingsContext";
 import Wallets from "./pages/Wallets";
 import Categories from "./pages/Categories";
 import Settings from "./pages/Settings";
+import Transactions from "./pages/Transactions";
+import WalletDetails from "./pages/Wallets/WalletDetails";
 
 const App = () => {
   return (
@@ -24,6 +26,11 @@ const App = () => {
                 <Route element={<MainLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/wallets" element={<Wallets />} />
+                  <Route
+                    path="/wallets/:walletId"
+                    element={<WalletDetails />}
+                  />
+                  <Route path="/transactions/" element={<Transactions />} />
                   <Route path="/categories" element={<Categories />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>

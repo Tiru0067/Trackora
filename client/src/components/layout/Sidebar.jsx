@@ -9,6 +9,7 @@ import {
   Settings,
   PanelLeftClose,
   PiggyBank,
+  ArrowLeftRight,
 } from "lucide-react";
 
 const Sidebar = ({ showMenu, setShowMenu }) => {
@@ -39,6 +40,10 @@ const Sidebar = ({ showMenu, setShowMenu }) => {
     {
       name: "Wallets",
       icon: <Wallet size={18} />,
+    },
+    {
+      name: "Transactions",
+      icon: <ArrowLeftRight size={18} />,
     },
     {
       name: "Categories",
