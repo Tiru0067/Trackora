@@ -31,13 +31,13 @@ const WalletList = () => {
             duration: 0.22,
             ease: [0.4, 0, 0.2, 1],
           }}
-          className={`w-full max-w-90 px-4 py-3 flex flex-col gap-2 items-start rounded-xl cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all ${isWalletActive(wallet.id) ? activeWalletClass : defaultWalletClass}`}
+          className={`w-full max-w-90 px-4 py-3 flex flex-col gap-1 items-start rounded-xl cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all ${isWalletActive(wallet.id) ? activeWalletClass : defaultWalletClass}`}
           onClick={() => setSelectedWalletId(wallet.id)}
         >
           <div className="w-full flex items-center justify-between gap-3">
             <button
               type="buton"
-              className={`text-sm truncate hover:text-emerald-500 ${isWalletActive(wallet.id) ? "text-emerald-700 dark:text-emerald-500" : "text-neutral-700 dark:text-neutral-300"}`}
+              className={`text-sm truncate hover:text-emerald-500 ${isWalletActive(wallet.id) ? "text-emerald-700 dark:text-emerald-500" : "text-neutral-700 dark:text-neutral-400"}`}
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/wallets/${wallet.id}`);
