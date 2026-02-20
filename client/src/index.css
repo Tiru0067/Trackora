@@ -23,6 +23,7 @@
 
   body {
     font-family: var(--font-sans);
+    @apply bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-200;
   }
 
   input {

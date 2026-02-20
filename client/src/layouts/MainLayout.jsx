@@ -8,7 +8,7 @@ const MainLayout = () => {
   const [showMenu, setShowMenu] = useState(false);
 
   return (
-    <div className="w-full min-w-[320px] min-h-dvh sm:max-h-dvh sm:overflow-hidden flex bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-200 relative">
+    <div className="w-full min-w-[320px] min-h-screen sm:max-h-dvh sm:overflow-hidden flex relative">
       {showMenu && <Overlay />}
       <Sidebar showMenu={showMenu} setShowMenu={setShowMenu} />
       <main className="w-full flex flex-col">
