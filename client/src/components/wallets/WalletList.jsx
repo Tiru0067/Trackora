@@ -1,13 +1,16 @@
 import WalletContext from "../../context/WalletContext";
 import { useContext } from "react";
-import { Pin, Crown, ArrowRight } from "lucide-react";
+import { Pin, Crown } from "lucide-react";
 import { motion as Motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { getWalletSummary } from "../../utils/walletCalculation";
+import TransactionsContext from "../../context/TransactionsContext";
 
 const WalletList = () => {
   const { wallets, togglePinWallet, selectedWalletId, setSelectedWalletId } =
     useContext(WalletContext);
+  const { transactions } = useContext(TransactionsContext);
 
   const navigate = useNavigate();
 
@@ -64,7 +67,10 @@ const WalletList = () => {
           </div>
 
           <p className="text-lg md:text-xl font-semibold text-black dark:text-neutral-200 whitespace-nowrap tracking-tight">
-            {formatCurrency(wallet.balance, wallet.currency)}
+            {formatCurrency(
+              getWalletSummary(wallet, transactions).totalBalance,
+              wallet.currency,
+            )}
           </p>
         </Motion.li>
       ))}
