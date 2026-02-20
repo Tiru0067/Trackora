@@ -11,7 +11,7 @@ export const getWalletSummary = (wallet, transactions) => {
     .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalBalance = wallet.balance + totalIncome - totalExpense;
+  const totalBalance = wallet.initialBalance + totalIncome - totalExpense;
 
   return {
     totalIncome,

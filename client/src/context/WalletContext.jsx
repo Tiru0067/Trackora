@@ -6,7 +6,7 @@ const initalWallets = [
   {
     id: 1,
     name: "Personal",
-    balance: 12500,
+    initialBalance: 12500,
     currency: "INR",
     primary: true,
     pinned: false,
@@ -14,7 +14,7 @@ const initalWallets = [
   {
     id: 2,
     name: "Savings",
-    balance: 85000,
+    initialBalance: 85000,
     currency: "INR",
     primary: false,
     pinned: false,
@@ -22,7 +22,7 @@ const initalWallets = [
   {
     id: 3,
     name: "Freelance",
-    balance: 3200,
+    initialBalance: 3200,
     currency: "USD",
     primary: false,
     pinned: false,
@@ -30,7 +30,7 @@ const initalWallets = [
   {
     id: 4,
     name: "Emergency Fund",
-    balance: 50000,
+    initialBalance: 50000,
     currency: "INR",
     primary: false,
     pinned: true,
@@ -38,7 +38,7 @@ const initalWallets = [
   {
     id: 5,
     name: "Travel Fund",
-    balance: 1500,
+    initialBalance: 1500,
     currency: "USD",
     primary: false,
     pinned: false,
@@ -46,7 +46,7 @@ const initalWallets = [
   {
     id: 6,
     name: "Business Account",
-    balance: 27000,
+    initialBalance: 27000,
     currency: "PHP",
     primary: false,
     pinned: true,
