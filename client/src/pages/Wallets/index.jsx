@@ -5,7 +5,7 @@ const Wallets = () => {
   return (
     <div className="w-full h-full flex max-md:flex-col gap-9 overflow-y-auto hide-scrollbar">
       {/* Wallet Overview */}
-      <section className="max-md:mb-6 md:w-2/5 p-5 h-fit rounded-xl bg-neutral-100 shadow-sm dark:bg-neutral-900">
+      <section className="max-md:mb-6 md:w-2/5 p-6 h-fit rounded-xl bg-neutral-100 shadow-sm dark:bg-neutral-900">
         <WalletOverview />
       </section>
 
