@@ -7,7 +7,7 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import { getWalletSummary } from "../../utils/walletCalculation";
 import TransactionsContext from "../../context/TransactionsContext";
 
-const WalletList = () => {
+const WalletList = ({ overviewRef }) => {
   const { wallets, togglePinWallet, selectedWalletId, setSelectedWalletId } =
     useContext(WalletContext);
   const { transactions } = useContext(TransactionsContext);
@@ -25,6 +25,21 @@ const WalletList = () => {
     togglePinWallet(walletId);
   };
 
+  const handleWalletClick = (walletId) => {
+    setSelectedWalletId(walletId);
+    if (overviewRef?.current) {
+      const yOffset = -25; // Move overview slightly higher than its actual position for visual appeal
+      const elementPosition =
+        overviewRef.current.getBoundingClientRect().top + window.pageYOffset;
+      const offsetPosition = elementPosition + yOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
     <ul className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3">
       {wallets.map((wallet) => (
@@ -36,11 +51,11 @@ const WalletList = () => {
             ease: [0.4, 0, 0.2, 1],
           }}
           className={`w-full max-w-90 px-4 py-3 flex flex-col gap-1 items-start rounded-xl cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all ${isWalletActive(wallet.id) ? activeWalletClass : defaultWalletClass}`}
-          onClick={() => setSelectedWalletId(wallet.id)}
+          onClick={() => handleWalletClick(wallet.id)}
         >
           <div className="w-full flex items-center justify-between gap-3">
             <button
-              type="buton"
+              type="button"
               className={`text-sm truncate hover:text-emerald-500 ${isWalletActive(wallet.id) ? "text-emerald-700 dark:text-emerald-500" : "text-neutral-700 dark:text-neutral-400"}`}
               onClick={(e) => {
                 e.stopPropagation();
