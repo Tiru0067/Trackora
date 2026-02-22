@@ -57,7 +57,11 @@ export const WalletProvider = ({ children }) => {
   const [wallets, setWallets] = useState(initalWallets);
   // const [loading, setLoading] = useState(false);
   // const [error, setError] = useState(null);
-  const [selectedWalletId, setSelectedWalletId] = useState(null);
+
+  const primaryWallet = wallets.find((w) => w.primary);
+  const [selectedWalletId, setSelectedWalletId] = useState(
+    primaryWallet?.id || wallets[0]?.id || null,
+  );
 
   // Add a new wallet
   const addWallet = (wallet) => {
