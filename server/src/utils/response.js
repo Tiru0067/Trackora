@@ -1,4 +1,7 @@
-const sendResponse = (res, statusCode, message, data = null) => {
+const sendResponse = (
+  res,
+  { statusCode, message, data = null, errors = null },
+) => {
   const response = {
     success: statusCode < 400,
     statusCode,
@@ -6,6 +9,7 @@ const sendResponse = (res, statusCode, message, data = null) => {
   };
 
   if (data) response.data = data;
+  if (errors) response.errors = errors;
   return res.status(statusCode).json(response);
 };
 
