@@ -1,17 +1,34 @@
 import AppError from "#/utils/AppError.js";
 
 const errorHandler = (err, req, res, next) => {
-  const isAppError = err instanceof AppError;
-  const statusCode = isAppError && err.statusCode ? err.statusCode : 500;
-  const message = isAppError ? err.message : "Internal server error";
-  const stack = process.env.NODE_ENV === "development" ? err.stack : undefined;
+  const isInvalidJson =
+    err instanceof SyntaxError &&
+    err.status === 400 &&
+    err.type === "entity.parse.failed";
 
-  res.status(statusCode).json({
+  const isAppError = err instanceof AppError;
+  let statusCode = 500;
+  let message = "Internal server error";
+
+  if (isInvalidJson) {
+    statusCode = 400;
+    message = "Invalid JSON syntax";
+  } else if (isAppError) {
+    statusCode = err.statusCode || 500;
+    message = err.message;
+  }
+
+  const response = {
     success: false,
     statusCode,
     message,
-    stack,
-  });
+  };
+
+  if (process.env.NODE_ENV === "development") {
+    response.stack = err.stack?.split("\n").map((line) => line.trim());
+  }
+
+  res.status(statusCode).json(response);
 };
 
 export default errorHandler;
