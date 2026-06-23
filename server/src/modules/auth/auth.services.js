@@ -43,3 +43,36 @@ export const registerService = async (input) => {
     throw error;
   }
 };
+
+export const loginService = async ({ email, password }) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const passwordMatches = await bcrypt.compare(password, user.password);
+
+  if (!passwordMatches) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const { password: _password, ...safeUser } = user;
+
+  return safeUser;
+};
+
+export const getCurrentUserService = async (id) => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    omit: { password: true },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  return user;
+};

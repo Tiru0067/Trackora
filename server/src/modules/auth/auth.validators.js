@@ -8,6 +8,17 @@ import {
   isValidPassword,
 } from "#/utils/validation.js";
 
+const sendValidationError = (res, missingFields, invalidFields) => {
+  return sendResponse(res, {
+    statusCode: 400,
+    message: "Validation failed",
+    errors: {
+      ...(missingFields.length > 0 && { missingFields }),
+      ...(Object.keys(invalidFields).length > 0 && { invalidFields }),
+    },
+  });
+};
+
 export const validateRegister = (req, res, next) => {
   if (!hasBody(req.body)) {
     return sendResponse(res, {
@@ -20,6 +31,14 @@ export const validateRegister = (req, res, next) => {
   const missingFields = getMissingFields(req.body, requiredFields);
 
   const { name, email, baseCurrency, password } = req.body;
+  if (!missingFields.includes("name"))
+    req.body.name = name.trim().toLowerCase();
+  if (!missingFields.includes("email"))
+    req.body.email = email.trim().toLowerCase();
+  if (!missingFields.includes("baseCurrency"))
+    req.body.baseCurrency = baseCurrency.trim().toUpperCase();
+  if (!missingFields.includes("password")) req.body.password = password.trim();
+
   const invalidFields = {};
 
   if (!missingFields.includes("name")) {
@@ -55,14 +74,37 @@ export const validateRegister = (req, res, next) => {
   }
 
   if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
+    return sendValidationError(res, missingFields, invalidFields);
+  }
+
+  next();
+};
+
+export const validateLogin = (req, res, next) => {
+  if (!hasBody(req.body)) {
     return sendResponse(res, {
       statusCode: 400,
-      message: "Validation failed",
-      errors: {
-        ...(missingFields.length > 0 && { missingFields }),
-        ...(Object.keys(invalidFields).length > 0 && { invalidFields }),
-      },
+      message: "Request body is required",
     });
+  }
+
+  const requiredFields = ["email", "password"];
+  const missingFields = getMissingFields(req.body, requiredFields);
+
+  const { email, password } = req.body;
+  if (!missingFields.includes("email"))
+    req.body.email = email.trim().toLowerCase();
+
+  if (!missingFields.includes("password")) req.body.password = password.trim();
+
+  const invalidFields = {};
+
+  if (!missingFields.includes("email") && !isValidEmail(email)) {
+    invalidFields.email = "Enter a valid email address";
+  }
+
+  if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
+    return sendValidationError(res, missingFields, invalidFields);
   }
 
   next();
