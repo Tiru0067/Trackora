@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
+import cookieParser from "cookie-parser";
 
 import authRoutes from "#/modules/auth/auth.routes.js";
 import dashboardRoutes from "#/modules/dashboard/dashboard.routes.js";
@@ -20,6 +21,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(cookieParser());
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
