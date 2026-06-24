@@ -1,19 +1,4 @@
 /**
- * Checks whether a request body contains at least one own property.
- *
- * @param {object | undefined | null} body
- * @returns {boolean}
- */
-export const hasBody = (body) => {
-  return (
-    body !== null &&
-    typeof body === "object" &&
-    !Array.isArray(body) &&
-    Object.keys(body).length > 0
-  );
-};
-
-/**
  * Returns required fields that are absent, null, undefined,
  * or empty strings
  *
