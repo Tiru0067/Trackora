@@ -5,6 +5,7 @@ import {
   registerService,
   loginService,
   getCurrentUserService,
+  updateUserService,
 } from "./auth.services.js";
 
 export const authCookieOptions = {
@@ -66,6 +67,17 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
   return sendResponse(res, {
     statusCode: 200,
     message: "User retrieved successfully",
+    data: user,
+  });
+});
+
+export const updateCurrentUser = asyncHandler(async (req, res) => {
+  const { name, email, baseCurrency } = req.body;
+  const { id } = req.user;
+  const user = await updateUserService({ id, name, email, baseCurrency });
+  return sendResponse(res, {
+    statusCode: 201,
+    message: "updated successfully",
     data: user,
   });
 });

@@ -5,7 +5,7 @@ import AppError from "#/utils/AppError.js";
 
 export const registerService = async (input) => {
   if (input === undefined) {
-    throw new Error("Registration input is required");
+    throw new Error("registerService: input is required");
   }
 
   if (input === null || typeof input !== "object" || Array.isArray(input)) {
@@ -44,7 +44,12 @@ export const registerService = async (input) => {
   }
 };
 
-export const loginService = async ({ email, password }) => {
+export const loginService = async (input) => {
+  if (input === undefined) {
+    throw new Error("loginService: input is required");
+  }
+
+  const { email, password } = input;
   const user = await prisma.user.findUnique({
     where: { email },
   });
@@ -65,6 +70,10 @@ export const loginService = async ({ email, password }) => {
 };
 
 export const getCurrentUserService = async (id) => {
+  if (id === undefined) {
+    throw new Error("getCurrentUserService: user ID is required");
+  }
+
   const user = await prisma.user.findUnique({
     where: { id },
     omit: { password: true },
@@ -75,4 +84,23 @@ export const getCurrentUserService = async (id) => {
   }
 
   return user;
+};
+
+export const updateUserService = async (input) => {
+  if (input === undefined) {
+    throw new Error("updateUserService: input is required");
+  }
+
+  const { id, ...data } = input;
+  const existingUser = await prisma.user.findUnique({
+    where: { id },
+    omit: { password: true },
+  });
+
+  if (!existingUser) {
+    throw new AppError("User not found", 404);
+  }
+
+  const updatedUser = await prisma.user.update({ where: { id }, data });
+  return updatedUser;
 };
