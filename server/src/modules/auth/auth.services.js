@@ -1,7 +1,9 @@
+import crypto from "crypto";
 import bcrypt from "bcrypt";
 
 import { prisma } from "#/config/db.js";
 import AppError from "#/utils/AppError.js";
+import sendVerificationEmail from "./sendVerificationEmail.js";
 
 export const registerService = async (input) => {
   if (input === undefined) {
@@ -24,15 +26,35 @@ export const registerService = async (input) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  const verificationToken = crypto.randomUUID();
+
+  const verificationTokenHash = crypto
+    .createHash("sha256")
+    .update(verificationToken)
+    .digest("hex");
+
+  const verificationTokenExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
   try {
-    return await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         name,
         email,
         baseCurrency,
         password: hashedPassword,
+        emailVerificationTokenHash: verificationTokenHash,
+        emailVerificationTokenExpiresAt: verificationTokenExpiresAt,
       },
-      omit: { password: true },
+      select: {
+        name: true,
+        email: true,
+      },
+    });
+
+    await sendVerificationEmail({
+      name: user.name,
+      email: user.email,
+      token: verificationToken,
     });
   } catch (error) {
     console.log(error);
