@@ -12,13 +12,13 @@ import {
   Folder,
   Settings,
   PanelLeftClose,
-  PiggyBank,
   ArrowLeftRight,
 } from "lucide-react";
 
 import { cn } from "@/utils/cn";
 import useWindowSize from "@/hooks/useWindowSize";
 import Backdrop from "@/components/ui/Backdrop";
+import Logo from "../../assets/trend-up.svg?react";
 
 const navItems = [
   {
@@ -68,7 +68,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         {isCompact && isSidebarOpen && <Backdrop onClose={onClose} />}
       </AnimatePresence>
       <Motion.aside
-        className="h-full w-65 max-lg:z-100 max-lg:h-full bg-(--surface-1) max-lg:absolute border-r border-(--border-1) dark:border-(--border-0)"
+        className="h-full w-60 px-4 py-5.5 flex flex-col gap-2 max-lg:z-100 max-lg:h-full bg-(--bg-warm) max-lg:absolute border-r border-black/2 dark:border-white/5"
         ref={sidebarRef}
         initial={false}
         animate={
@@ -81,14 +81,12 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         transition={transition}
       >
         {/* title */}
-        <div className="w-full h-18 px-5 flex items-center">
-          <NavLink to="/dashboard" className="flex items-center">
-            <PiggyBank
-              size={32}
-              className="text-(--accent-6)"
-              aria-hidden="true"
-            />
-            <span className="text-xl font-bold bg-linear-to-r from-(--accent-6) via-(--accent-5) to-(--accent-4) bg-clip-text text-transparent">
+        <div className="w-full px-2.5 pt-1.5 pb-5 flex items-center border-b border-(--line-soft)">
+          <NavLink to="/dashboard" className="flex items-center gap-2.5">
+            <span className="bg-(--accent) w-6 h-6 flex-center rounded-md">
+              <Logo className="size-3.5 text-(--bg-warm)" />
+            </span>
+            <span className="text-[17px] font-semibold bg-(--accent-ink) bg-clip-text text-transparent">
               Trackora
             </span>
           </NavLink>
@@ -103,8 +101,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         </div>
 
         {/* menu */}
-        <nav aria-label="Primary navigation" className="px-6 py-2.5">
-          <ul className="flex flex-col gap-1 text-sm">
+        <nav aria-label="Primary navigation" className="mt-3">
+          <ul className="flex flex-col gap-px text-sm">
             {navItems.map((item) => {
               const Icon = item.icon;
 
@@ -114,16 +112,16 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                     to={item.path}
                     className={({ isActive }) =>
                       cn(
-                        "flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-(--text-2)",
+                        "flex items-center gap-2.5 px-2.5 py-2.25 rounded-lg text-(--ink-soft) text-sm",
                         isActive
-                          ? "bg-(--accent-6) text-white"
-                          : "hover:bg-(--accent-2) hover:text-(--text-3)/85",
+                          ? "dark:bg-white/2 bg-white shadow-xs font-medium text-(--ink)"
+                          : "hover:bg-white dark:hover:bg-white/2 hover:text-(--ink)",
                       )
                     }
                     onClick={() => setIsSidebarOpen(false)}
                   >
-                    <Icon size={18} aria-hidden="true" />
-                    <span>{item.name}</span>
+                    <Icon size={15} aria-hidden="true" />
+                    <span className="text-[13.5px]">{item.name}</span>
                   </NavLink>
                 </li>
               );

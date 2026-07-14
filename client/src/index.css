@@ -1,9 +1,52 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@font-face {
+  font-family: "Geist";
+  src: url("/assets/fonts/geist-sans-latin-300-normal.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("/assets/fonts/geist-sans-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("/assets/fonts/geist-sans-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("/assets/fonts/geist-sans-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/assets/fonts/geist-mono-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/assets/fonts/geist-mono-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@custom-variant dark
+  (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  --font-sans: Inter, sans-serif;
+  --font-sans: "Geist", sans-serif;
 
   --breakpoint-xs: 480px;
   --breakpoint-xxs: 360px;
@@ -11,79 +54,30 @@
 
 @layer base {
   :root {
-    /* Surfaces */
-    --surface-0: #f4f4f4;
-    --surface-1: #fafafa;
-    --surface-2: #ffffff;
-    --surface-3: #eeeeee;
-
-    /* Controls */
-    --control: #e6e6e6;
-    --control-hover: #dedede;
-    --control-active: #d2d2d2;
-
-    /* Borders */
-    --border-0: rgba(0, 0, 0, 0.03);
-    --border-1: rgba(0, 0, 0, 0.06);
-    --border-2: rgba(0, 0, 0, 0.12);
-    --border-3: rgba(0, 0, 0, 0.22);
-
-    /* Accent */
-    --accent-0: #ecfdf5;
-    --accent-1: #d1fae5;
-    --accent-2: #a7f3d0;
-    --accent-3: #6ee7b7;
-    --accent-4: #34d399;
-    --accent-5: #10b981;
-    --accent-6: #059669;
-    --accent-7: #047857;
-    --accent-8: #065f46;
-    --accent-9: #064e3b;
-
-    /* Text */
-    --text-0: #a3abc0;
-    --text-1: #858ca3;
-    --text-2: #6b7285;
-    --text-3: #232531;
-    --text-4: #0d0e14;
+    --bg: #ffffff;
+    --bg-warm: #f7f7f8;
+    --bg-card: #ffffff;
+    --ink: #0d0d0d;
+    --ink-soft: #374151;
+    --ink-muted: #9ca3af;
+    --line: #e5e7eb;
+    --line-soft: #f3f4f6;
+    --accent: #19c37d;
+    --accent-ink: #0a8c55;
+    --accent-bg: #f0fdf4;
   }
 
   [data-theme="dark"] {
-    /* Surfaces */
-    --surface-0: #0f0f0f;
-    --surface-1: #111111;
-    --surface-2: #161616;
-    --surface-3: #222222;
-
-    /* Controls */
-    --control: #1f1f1f;
-    --control-hover: #2a2a2a;
-    --control-active: #333333;
-
-    /* Borders */
-    --border-0: rgba(255, 255, 255, 0.03);
-    --border-1: rgba(255, 255, 255, 0.06);
-    --border-2: rgba(255, 255, 255, 0.1);
-    --border-3: rgba(255, 255, 255, 0.18);
-
-    /* Accent */
-    --accent-0: rgba(5, 150, 105, 0.08);
-    --accent-1: rgba(5, 150, 105, 0.15);
-    --accent-2: rgba(5, 150, 105, 0.25);
-    --accent-3: rgba(5, 150, 105, 0.35);
-    --accent-4: #065f46;
-    --accent-5: #047857;
-    --accent-6: #059669;
-    --accent-7: #10b981;
-    --accent-8: #34d399;
-    --accent-9: #6ee7b7;
-
-    /* Text */
-    --text-0: #6b6b6b;
-    --text-1: #858585;
-    --text-2: #a3a3a3;
-    --text-3: #d4d4d4;
-    --text-4: #f5f5f5;
+    --bg: #0d0d0d;
+    --bg-warm: #161616;
+    --bg-card: #1a1a1a;
+    --ink: #f3f4f6;
+    --ink-soft: #d1d5db;
+    --ink-muted: #9ca3af;
+    --line: #2a2a2a;
+    --line-soft: #1f1f1f;
+    --accent-ink: #34d399;
+    --accent-bg: #052e1a;
   }
 
   * {
@@ -102,7 +96,12 @@
   }
 
   body {
-    font-family: var(--font-sans);
+    font-family:
+      "Geist",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Helvetica Neue",
+      sans-serif;
     @apply bg-(--surface-0) text-(--text-4);
   }
 
@@ -217,8 +216,7 @@
       border
       border-(--border-2)
       bg-transparent
-      px-3
-      py-2.5
+      p-2.5
       text-sm
       text-(--text-3)
       placeholder:text-(--text-0)
