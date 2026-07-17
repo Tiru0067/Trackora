@@ -7,20 +7,24 @@ const errorHandler = (err, req, res, next) => {
     err.type === "entity.parse.failed";
 
   const isAppError = err instanceof AppError;
-  let statusCode = 500;
   let message = "Internal server error";
+  let statusCode = 500;
+  let code = "INTERNAL_SERVER_ERROR";
 
   if (isInvalidJson) {
     statusCode = 400;
     message = "Invalid JSON syntax";
+    code = "INVALID_JSON";
   } else if (isAppError) {
     statusCode = err.statusCode || 500;
     message = err.message;
+    code = err.code;
   }
 
   const response = {
     success: false,
     statusCode,
+    code,
     message,
   };
 
