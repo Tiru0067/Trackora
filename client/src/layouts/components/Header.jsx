@@ -21,7 +21,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
         <ThemeToggle buttonStyle={buttonStyle} />
 
         <div className={buttonStyle}>
-          <span className="text-xs font-bold">
+          <span className="text-xs font-semibold">
             <User2 size={18} />
           </span>
         </div>

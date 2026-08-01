@@ -2,42 +2,42 @@
 
 @font-face {
   font-family: "Geist";
-  src: url("/assets/fonts/geist-sans-latin-300-normal.woff2") format("woff2");
+  src: url("./assets/fonts/geist-sans-latin-300-normal.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Geist";
-  src: url("/assets/fonts/geist-sans-latin-400-normal.woff2") format("woff2");
+  src: url("./assets/fonts/geist-sans-latin-400-normal.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Geist";
-  src: url("/assets/fonts/geist-sans-latin-500-normal.woff2") format("woff2");
+  src: url("./assets/fonts/geist-sans-latin-500-normal.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Geist";
-  src: url("/assets/fonts/geist-sans-latin-600-normal.woff2") format("woff2");
+  src: url("./assets/fonts/geist-sans-latin-600-normal.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Geist Mono";
-  src: url("/assets/fonts/geist-mono-latin-400-normal.woff2") format("woff2");
+  src: url("./assets/fonts/geist-mono-latin-400-normal.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Geist Mono";
-  src: url("/assets/fonts/geist-mono-latin-500-normal.woff2") format("woff2");
+  src: url("./assets/fonts/geist-mono-latin-500-normal.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
 }
@@ -102,7 +102,7 @@
       BlinkMacSystemFont,
       "Helvetica Neue",
       sans-serif;
-    @apply bg-(--surface-0) text-(--text-4);
+    @apply bg-(--bg) text-(--ink) transition-colors;
   }
 
   input {
@@ -210,21 +210,18 @@
     @apply hover:border-(--border-3);
   }
 
-  .form-input {
-    @apply w-full
+  .input-group {
+    @apply flex
+      items-center
       rounded-lg
       border
-      border-(--border-2)
+      border-(--line)
       bg-transparent
-      p-2.5
       text-sm
-      text-(--text-3)
-      placeholder:text-(--text-0)
+      text-(--ink)
+      placeholder:text-(--ink-muted)
       transition
-      focus:border-(--accent-6)
-      focus:outline-none
-      focus:ring-1
-      focus:ring-(--accent-6);
+      focus-within:border-(--accent);
   }
 
   .toggle-track {

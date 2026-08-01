@@ -8,7 +8,7 @@ const AppLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="w-full min-w-[320px] min-h-dvh bg-(--surface-0) sm:h-dvh sm:overflow-hidden flex relative">
+    <div className="w-full min-w-[320px] min-h-dvh bg-(--bg) sm:h-dvh sm:overflow-hidden flex relative">
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
