@@ -11,6 +11,7 @@ export const allowFields =
       return sendResponse(res, {
         statusCode: 400,
         message: "Validation failed",
+        code: "VALIDATION_FAILED",
         errors: { unknownFields: unknownFields },
       });
     }
