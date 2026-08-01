@@ -26,6 +26,7 @@ const errorHandler = (err, req, res, next) => {
     statusCode,
     code,
     message,
+    ...(err.data && err.data),
   };
 
   if (process.env.NODE_ENV === "development") {
