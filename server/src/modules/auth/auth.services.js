@@ -52,7 +52,8 @@ export const loginService = async (input) => {
 
   if (!user.emailVerifiedAt) {
     let cooldownData = {
-      verificationEmailResendBlockedUntil: user.verificationEmailResendBlockedUntil,
+      verificationEmailResendBlockedUntil:
+        user.verificationEmailResendBlockedUntil,
       verificationEmailResendCount: user.verificationEmailResendCount,
     };
 
