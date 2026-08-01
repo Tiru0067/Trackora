@@ -10,6 +10,7 @@ import {
 const sendValidationError = (res, missingFields, invalidFields) => {
   return sendResponse(res, {
     statusCode: 400,
+    code: "VALIDATION_ERROR",
     message: "Validation failed",
     errors: {
       ...(missingFields.length > 0 && { missingFields }),

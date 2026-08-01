@@ -2,6 +2,8 @@ import { Router } from "express";
 import {
   register,
   login,
+  resendVerificationEmail,
+  verifyEmail,
   logout,
   getCurrentUser,
   updateCurrentUser,
@@ -34,6 +36,15 @@ router.post(
   validateLogin,
   login,
 );
+
+router.post(
+  "/resend-verify-email",
+  validateBody,
+  allowFields("email"),
+  resendVerificationEmail,
+);
+
+router.post("/verify-email", validateBody, allowFields("token"), verifyEmail);
 
 router.post("/logout", logout);
 
