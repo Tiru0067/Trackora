@@ -7,7 +7,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
   const token = req.cookies.accessToken;
 
   if (!token) {
-    throw new AppError("Authentication required", 401);
+    throw new AppError("Authentication required", 401, "UNAUTHORIZED");
   }
 
   try {
@@ -19,6 +19,6 @@ export const authenticate = asyncHandler(async (req, res, next) => {
 
     next();
   } catch (error) {
-    throw new AppError("Invalid or expired authentication", 401);
+    throw new AppError("Invalid or expired authentication", 401, "INVALID_TOKEN");
   }
 });

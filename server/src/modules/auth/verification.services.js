@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "#/config/db.js";
 import AppError from "#/utils/AppError.js";
-import sendVerificationEmail from "./sendVerificationEmail.js";
+import { sendVerificationEmail } from "./email.services.js";
 import { generateToken, getUserByEmailOrThrow } from "./auth.helpers.js";
 
 const RESEND_COOLDOWN_MS = 1 * 60 * 1000;
@@ -16,25 +16,23 @@ export const issueVerificationToken = async (user, resendCount = 1) => {
     token,
   });
 
-  const newUser = await prisma.user.update({
+  const emailVerificationState = await prisma.user.update({
     where: { email: user.email },
     data: {
       emailVerificationTokenHash: tokenHash,
       emailVerificationTokenExpiresAt: tokenExpiresAt,
-      verificationEmailLastSentAt: new Date(),
-      verificationEmailResendCount: resendCount,
-      verificationEmailResendBlockedUntil: new Date(
-        Date.now() + RESEND_COOLDOWN_MS,
-      ),
+      emailVerificationLastSentAt: new Date(),
+      emailVerificationResendCount: resendCount,
+      emailVerificationBlockedUntil: new Date(Date.now() + RESEND_COOLDOWN_MS),
     },
     select: {
-      verificationEmailLastSentAt: true,
-      verificationEmailResendCount: true,
-      verificationEmailResendBlockedUntil: true,
+      emailVerificationLastSentAt: true,
+      emailVerificationResendCount: true,
+      emailVerificationBlockedUntil: true,
     },
   });
 
-  return newUser;
+  return emailVerificationState;
 };
 
 // Throws if blocked, otherwise returns the count to use for this attempt
@@ -42,11 +40,11 @@ export const assertResendAllowed = (user) => {
   const now = new Date();
 
   if (
-    user.verificationEmailResendBlockedUntil &&
-    now < user.verificationEmailResendBlockedUntil
+    user.emailVerificationBlockedUntil &&
+    now < user.emailVerificationBlockedUntil
   ) {
     const remainingMs =
-      user.verificationEmailResendBlockedUntil.getTime() - now.getTime();
+      user.emailVerificationBlockedUntil.getTime() - now.getTime();
     let message = "Too many requests. Please try again later";
 
     if (remainingMs > 60 * 60 * 1000) {
@@ -61,16 +59,15 @@ export const assertResendAllowed = (user) => {
     }
 
     throw new AppError(message, 429, "TOO_MANY_REQUESTS", {
-      verificationEmailResendBlockedUntil:
-        user.verificationEmailResendBlockedUntil,
-      verificationEmailResendCount: user.verificationEmailResendCount,
+      emailVerificationBlockedUntil: user.emailVerificationBlockedUntil,
+      emailVerificationResendCount: user.emailVerificationResendCount,
     });
   }
 
   const isNewWindow =
-    !user.verificationEmailLastSentAt ||
-    now - user.verificationEmailLastSentAt > RESEND_LOCKOUT_MS;
-  const currentCount = isNewWindow ? 0 : user.verificationEmailResendCount || 0;
+    !user.emailVerificationLastSentAt ||
+    now - user.emailVerificationLastSentAt > RESEND_LOCKOUT_MS;
+  const currentCount = isNewWindow ? 0 : user.emailVerificationResendCount || 0;
 
   return { isNewWindow, currentCount, now };
 };
@@ -83,7 +80,7 @@ export const sendVerificationWithCooldown = async (
     const blockedUntil = new Date(now.getTime() + RESEND_LOCKOUT_MS);
     await prisma.user.update({
       where: { email: user.email },
-      data: { verificationEmailResendBlockedUntil: blockedUntil },
+      data: { emailVerificationBlockedUntil: blockedUntil },
     });
 
     throw new AppError(
@@ -91,8 +88,8 @@ export const sendVerificationWithCooldown = async (
       429,
       "TOO_MANY_REQUESTS",
       {
-        verificationEmailResendCount: currentCount,
-        verificationEmailResendBlockedUntil: blockedUntil,
+        emailVerificationResendCount: currentCount,
+        emailVerificationBlockedUntil: blockedUntil,
       },
     );
   }
@@ -102,10 +99,10 @@ export const sendVerificationWithCooldown = async (
   const blockedUntil = new Date(now.getTime() + RESEND_COOLDOWN_MS);
   const data = await prisma.user.update({
     where: { email: user.email },
-    data: { verificationEmailResendBlockedUntil: blockedUntil },
+    data: { emailVerificationBlockedUntil: blockedUntil },
     select: {
-      verificationEmailResendCount: true,
-      verificationEmailResendBlockedUntil: true,
+      emailVerificationResendCount: true,
+      emailVerificationBlockedUntil: true,
     },
   });
 

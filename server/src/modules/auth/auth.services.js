@@ -52,9 +52,8 @@ export const loginService = async (input) => {
 
   if (!user.emailVerifiedAt) {
     let cooldownData = {
-      verificationEmailResendBlockedUntil:
-        user.verificationEmailResendBlockedUntil,
-      verificationEmailResendCount: user.verificationEmailResendCount,
+      emailVerificationBlockedUntil: user.emailVerificationBlockedUntil,
+      emailVerificationResendCount: user.emailVerificationResendCount,
     };
 
     try {
@@ -81,9 +80,8 @@ export const loginService = async (input) => {
     email: user.email,
     baseCurrency: user.baseCurrency,
     emailVerifiedAt: user.emailVerifiedAt,
-    verificationEmailResendCount: user.verificationEmailResendCount,
-    verificationEmailResendBlockedUntil:
-      user.verificationEmailResendBlockedUntil,
+    emailVerificationResendCount: user.emailVerificationResendCount,
+    emailVerificationBlockedUntil: user.emailVerificationBlockedUntil,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
@@ -103,8 +101,8 @@ export const getCurrentUserService = async (id) => {
       email: true,
       baseCurrency: true,
       emailVerifiedAt: true,
-      verificationEmailResendCount: true,
-      verificationEmailResendBlockedUntil: true,
+      emailVerificationResendCount: true,
+      emailVerificationBlockedUntil: true,
       createdAt: true,
       updatedAt: true,
     },
