@@ -7,12 +7,18 @@ import {
   logout,
   getCurrentUser,
   updateCurrentUser,
+  forgotPassword,
+  resetPassword,
+  changePassword,
 } from "./auth.controllers.js";
 
 import {
   validateLogin,
   validateRegister,
   validateUpdateCurrentUser,
+  validateForgotPassword,
+  validateResetPassword,
+  validateChangePassword,
 } from "./auth.validators.js";
 
 import { authenticate } from "#/middlewares/authenticate.js";
@@ -46,6 +52,22 @@ router.post(
 
 router.post("/verify-email", validateBody, allowFields("token"), verifyEmail);
 
+router.post(
+  "/forgot-password",
+  validateBody,
+  allowFields("email"),
+  validateForgotPassword,
+  forgotPassword,
+);
+
+router.post(
+  "/reset-password",
+  validateBody,
+  allowFields("token", "password"),
+  validateResetPassword,
+  resetPassword,
+);
+
 router.post("/logout", logout);
 
 router
@@ -57,6 +79,16 @@ router
     allowFields("name", "email", "baseCurrency"),
     validateUpdateCurrentUser,
     updateCurrentUser,
+  );
+
+router
+  .route("/me/password")
+  .all(authenticate)
+  .patch(
+    validateBody,
+    allowFields("oldPassword", "newPassword"),
+    validateChangePassword,
+    changePassword,
   );
 
 export default router;

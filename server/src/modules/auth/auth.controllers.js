@@ -13,6 +13,12 @@ import {
   verifyEmailService,
 } from "./verification.services.js";
 
+import {
+  forgotPasswordService,
+  resetPasswordService,
+  changePasswordService,
+} from "./password.services.js";
+
 // ─── Cookie Options ─────────────────────────────────────────────────────────────
 export const authCookieOptions = {
   httpOnly: true,
@@ -76,6 +82,29 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   });
 });
 
+// ─── Forgot Password ────────────────────────────────────────────────────────────
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const data = await forgotPasswordService(email);
+
+  return sendResponse(res, {
+    statusCode: 200,
+    message: "Password reset email sent successfully",
+    data,
+  });
+});
+
+// ─── Reset Password ─────────────────────────────────────────────────────────────
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token, password } = req.body;
+  const result = await resetPasswordService(token, password);
+
+  return sendResponse(res, {
+    statusCode: 200,
+    message: result.message,
+  });
+});
+
 // ─── Logout ─────────────────────────────────────────────────────────────────────
 export const logout = asyncHandler(async (req, res) => {
   res.clearCookie("accessToken", authCookieOptions);
@@ -108,5 +137,18 @@ export const updateCurrentUser = asyncHandler(async (req, res) => {
     statusCode: 200,
     message: "updated successfully",
     data: user,
+  });
+});
+
+// ─── Change Password (Logged In) ────────────────────────────────────────────────
+export const changePassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const { id } = req.user;
+
+  const result = await changePasswordService(id, oldPassword, newPassword);
+
+  return sendResponse(res, {
+    statusCode: 200,
+    message: result.message,
   });
 });

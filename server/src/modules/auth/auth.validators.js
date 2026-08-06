@@ -114,6 +114,44 @@ export const validateLogin = (req, res, next) => {
   next();
 };
 
+export const validateForgotPassword = (req, res, next) => {
+  const requiredFields = ["email"];
+  const missingFields = getMissingFields(req.body, requiredFields);
+
+  const { email } = req.body;
+  const invalidFields = {};
+
+  if (!missingFields.includes("email")) {
+    validateEmail(email, invalidFields);
+  }
+
+  if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
+    return sendValidationError(res, missingFields, invalidFields);
+  }
+
+  req.body.email = email.trim().toLowerCase();
+
+  next();
+};
+
+export const validateResetPassword = (req, res, next) => {
+  const requiredFields = ["token", "password"];
+  const missingFields = getMissingFields(req.body, requiredFields);
+
+  const { password } = req.body;
+  const invalidFields = {};
+
+  if (!missingFields.includes("password")) {
+    validatePassword(password, invalidFields);
+  }
+
+  if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
+    return sendValidationError(res, missingFields, invalidFields);
+  }
+
+  next();
+};
+
 export const validateUpdateCurrentUser = (req, res, next) => {
   const { name, email, baseCurrency } = req.body;
   const providedFields = Object.keys(req.body);
@@ -145,6 +183,36 @@ export const validateUpdateCurrentUser = (req, res, next) => {
 
   if (providedFields.includes("baseCurrency")) {
     req.body.baseCurrency = baseCurrency.trim().toUpperCase();
+  }
+
+  next();
+};
+
+export const validateChangePassword = (req, res, next) => {
+  const requiredFields = ["oldPassword", "newPassword"];
+  const missingFields = getMissingFields(req.body, requiredFields);
+
+  const { oldPassword, newPassword } = req.body;
+  const invalidFields = {};
+
+  if (!missingFields.includes("oldPassword")) {
+    if (typeof oldPassword !== "string") {
+      invalidFields.oldPassword = "Old password must be a string";
+    }
+  }
+
+  if (!missingFields.includes("newPassword")) {
+    validatePassword(newPassword, invalidFields);
+    
+    // validatePassword populates invalidFields.password, so map it to newPassword
+    if (invalidFields.password) {
+      invalidFields.newPassword = invalidFields.password;
+      delete invalidFields.password;
+    }
+  }
+
+  if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
+    return sendValidationError(res, missingFields, invalidFields);
   }
 
   next();
