@@ -10,20 +10,25 @@ datasource db {
 }
 
 model User {
-  id                                      String      @id @default(cuid())
-  name                                    String      
-  email                                   String      @unique
-  baseCurrency                            String      @default("INR")
-  password                                String
+  id                                 String       @id @default(cuid())
+  name                               String       
+  email                              String       @unique
+  baseCurrency                       String       @default("INR")
+  password                           String 
 
-  emailVerifiedAt                         DateTime?
-  emailVerificationTokenHash              String?     @unique
-  emailVerificationTokenExpiresAt         DateTime?
+  emailVerifiedAt                    DateTime?  
+  emailVerificationTokenHash         String?      @unique
+  emailVerificationTokenExpiresAt    DateTime?  
+  emailVerificationLastSentAt        DateTime?  
+  emailVerificationResendCount       Int          @default(0)
+  emailVerificationBlockedUntil      DateTime?  
 
-  verificationEmailLastSentAt             DateTime?
-  verificationEmailResendCount            Int         @default(0)
-  verificationEmailResendBlockedUntil     DateTime?
-
-  createdAt                               DateTime    @default(now())
-  updatedAt                               DateTime    @updatedAt
+  passwordResetTokenHash             String?  
+  passwordResetTokenExpiresAt        DateTime?  
+  passwordResetLastSentAt            DateTime?  
+  passwordResetResendCount           Int          @default(0)
+  passwordResetBlockedUntil          DateTime?  
+  
+  createdAt                          DateTime     @default(now())
+  updatedAt                          DateTime     @updatedAt
 }
