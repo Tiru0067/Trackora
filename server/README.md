@@ -12,9 +12,15 @@ The API and database layer for Trackora, built with Node.js, Express, and Prisma
 
 ## What's Implemented
 
-**Authentication**
+**Authentication & Accounts**
 
 - Registration and login endpoints, with passwords hashed via bcrypt
+- Password recovery flows (generating secure, short-lived tokens and sending reset emails)
+- Password change endpoints for logged-in users
+
+**Email Service**
+
+- Centralized email service using Nodemailer to handle verification links and password resets reliably
 
 **Email Verification**
 
@@ -27,7 +33,7 @@ The API and database layer for Trackora, built with Node.js, Express, and Prisma
 
 ## Status
 
-- [x] Auth endpoints (register, login)
+- [x] Auth endpoints (register, login, password recovery/change)
 - [x] Email verification + rate limiting
 - [x] Centralized error handling
 - [ ] Wallet endpoints

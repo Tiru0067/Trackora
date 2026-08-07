@@ -15,6 +15,8 @@ The React frontend for Trackora, built with Vite.
 **Authentication UI**
 
 - Login and registration forms
+- Forgot password and reset password flows
+- Global dark/light mode theme toggle for the app
 
 **Email Verification UX**
 
@@ -35,7 +37,7 @@ The React frontend for Trackora, built with Vite.
 
 ## Status
 
-- [x] Auth UI (login, register)
+- [x] Auth UI (login, register, forgot/reset password)
 - [x] Email verification UX
 - [x] Toast system + route guards
 - [ ] Wallets UI

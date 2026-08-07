@@ -9,10 +9,12 @@ A personal finance web app built from scratch, with a React frontend and a Node/
 
 ## What's Working So Far
 
-**Authentication**
+**Authentication & User Flows**
 
 - Registration with hashed passwords (bcrypt)
 - Login using HTTP-only cookies for JWT sessions — no tokens sitting in localStorage
+- Full forgot password and reset password flow using secure email tokens
+- A built-in dark/light mode theme toggle for the auth screens
 
 **Email Verification**
 
@@ -26,7 +28,7 @@ A personal finance web app built from scratch, with a React frontend and a Node/
 
 ## Status
 
-- [x] Authentication (registration, login, sessions)
+- [x] Authentication (registration, login, sessions, password recovery)
 - [x] Email verification
 - [x] Centralized error handling & route guarding
 - [ ] Wallets
