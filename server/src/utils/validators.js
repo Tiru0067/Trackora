@@ -3,7 +3,7 @@ import emojiRegex from "emoji-regex";
 import sendResponse from "#/utils/response.js";
 import { isValidCurrency } from "#/utils/validation.js";
 
-const regex = emojiRegex();
+const strictEmojiRegex = new RegExp(`^(?:${emojiRegex().source})$`);
 
 export const sendZodValidationError = (res, zError) => {
   const invalidFields = {};
@@ -53,7 +53,7 @@ export const iconSchema = z.discriminatedUnion(
       value: z
         .string()
         .refine(
-          (val) => regex.test(val),
+          (val) => strictEmojiRegex.test(val),
           "Icon 'value' must be a valid emoji when type is 'emoji'",
         ),
     }),
@@ -63,7 +63,7 @@ export const iconSchema = z.discriminatedUnion(
         .string()
         .min(1, "Icon must have a valid 'value' string")
         .refine(
-          (val) => !regex.test(val),
+          (val) => !strictEmojiRegex.test(val),
           "Icon 'value' cannot be an emoji when type is 'icon'",
         ),
       pack: z

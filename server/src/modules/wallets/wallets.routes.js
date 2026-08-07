@@ -1,4 +1,9 @@
 import { Router } from "express";
+import { authenticate } from "#/middlewares/authenticate.js";
+import {
+  validateCreateWallet,
+  validateUpdateWallet,
+} from "./wallets.validators.js";
 import {
   getAllWallets,
   getWallet,
@@ -9,12 +14,14 @@ import {
 
 const router = Router();
 
-router.get("/", getAllWallets);
+router.use(authenticate);
+
+router.route("/").get(getAllWallets).post(validateCreateWallet, createWallet);
+
 router
   .route("/:id")
   .get(getWallet)
-  .post(createWallet)
-  .put(updateWallet)
+  .patch(validateUpdateWallet, updateWallet)
   .delete(deleteWallet);
 
 export default router;

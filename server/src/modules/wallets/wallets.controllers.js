@@ -1,21 +1,77 @@
+import asyncHandler from "#/utils/asyncHandler.js";
 import sendResponse from "#/utils/response.js";
+import {
+  createWalletService,
+  getWalletsService,
+  getWalletByIdService,
+  updateWalletService,
+  deleteWalletService,
+} from "./wallets.services.js";
 
-export const getAllWallets = (req, res) => {
-  sendResponse(res, { statusCode: 200, message: "Get All Wallets Route" });
-};
+export const getAllWallets = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const wallets = await getWalletsService(userId);
 
-export const getWallet = (req, res) => {
-  sendResponse(res, { statusCode: 200, message: "Get Wallet Route" });
-};
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Wallets fetched successfully",
+    data: wallets,
+  });
+});
 
-export const createWallet = (req, res) => {
-  sendResponse(res, { statusCode: 201, message: "Create Wallet Route" });
-};
+export const getWallet = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const walletId = req.params.id;
+  const wallet = await getWalletByIdService(userId, walletId);
 
-export const updateWallet = (req, res) => {
-  sendResponse(res, { statusCode: 200, message: "Update Wallet Route" });
-};
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Wallet fetched successfully",
+    data: wallet,
+  });
+});
 
-export const deleteWallet = (req, res) => {
-  sendResponse(res, { statusCode: 200, message: "Delete Wallet Route" });
-};
+export const createWallet = asyncHandler(async (req, res) => {
+  const { name, currency, initialBalance, color, icon, isPrimary } = req.body;
+  const userId = req.user.id;
+
+  const wallet = await createWalletService(userId, {
+    name,
+    currency,
+    initialBalance,
+    color,
+    icon,
+    isPrimary,
+  });
+
+  sendResponse(res, {
+    statusCode: 201,
+    message: "Wallet created successfully",
+    data: wallet,
+  });
+});
+
+export const updateWallet = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const walletId = req.params.id;
+
+  const wallet = await updateWalletService(userId, walletId, req.body);
+
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Wallet updated successfully",
+    data: wallet,
+  });
+});
+
+export const deleteWallet = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const walletId = req.params.id;
+
+  await deleteWalletService(userId, walletId);
+
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Wallet deleted successfully",
+  });
+});
