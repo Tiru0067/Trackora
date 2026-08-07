@@ -1,16 +1,67 @@
-# React + Vite
+# Trackora Frontend (Client)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The React frontend for Trackora, built with Vite.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Framework:** React
+- **Build Tool:** Vite
+- **Styling:** Tailwind CSS
+- **Routing:** React Router DOM
+- **Icons:** Lucide React
 
-## React Compiler
+## What's Implemented
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Authentication UI**
 
-## Expanding the ESLint configuration
+- Login and registration forms
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**Email Verification UX**
+
+- Countdown timers for resend cooldowns and lockouts, so the 1-minute/24-hour limits from the backend show up as a live timer instead of a raw error message
+
+**Toast Notifications**
+
+- A small reusable toast system for success/error feedback across the app
+
+**Route Guards**
+
+- `ProtectedRoute` — keeps unauthenticated users out of the dashboard
+- `PublicOnlyRoute` — keeps logged-in users off the login/register pages
+
+**Reusable Components**
+
+- `FormField`, `ComboBox`, and `Popover` — built to be extensible rather than one-off
+
+## Status
+
+- [x] Auth UI (login, register)
+- [x] Email verification UX
+- [x] Toast system + route guards
+- [ ] Wallets UI
+- [ ] Transactions UI
+- [ ] Categories UI
+- [ ] Dashboard / analytics
+
+## Getting Started
+
+1. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+2. **Set up environment variables**
+   Create a `.env` (or `.env.local`) in `/client`:
+
+   ```env
+   VITE_API_URL="http://localhost:3000/api"
+   ```
+
+3. **Run the dev server**
+
+   ```bash
+   npm run dev
+   ```
+
+   The app will be available at `http://localhost:5173`.
