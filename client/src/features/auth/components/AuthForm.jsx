@@ -112,7 +112,7 @@ const AuthForm = ({ type, form, onChange, onSubmit }) => {
           state: {
             email: response.data?.email || form.email,
             name: response.data?.name || form.name,
-            blockedUntil: response.data?.verificationEmailResendBlockedUntil,
+            blockedUntil: response.data?.emailVerificationBlockedUntil,
           },
         });
       } else {
@@ -124,8 +124,8 @@ const AuthForm = ({ type, form, onChange, onSubmit }) => {
       const {
         code,
         message,
-        verificationEmailResendBlockedUntil,
-        verificationEmailResendCount,
+        emailVerificationBlockedUntil,
+        emailVerificationResendCount,
       } = err.response?.data ?? err;
 
       switch (code) {
@@ -138,8 +138,8 @@ const AuthForm = ({ type, form, onChange, onSubmit }) => {
             replace: true,
             state: {
               email: form.email,
-              blockedUntil: verificationEmailResendBlockedUntil,
-              count: verificationEmailResendCount,
+              blockedUntil: emailVerificationBlockedUntil,
+              count: emailVerificationResendCount,
             },
           });
           addToast(message, "warning");

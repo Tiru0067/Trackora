@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadUser().catch(() => console.error);
+    loadUser();
   }, [loadUser]);
 
   const value = useMemo(() => {

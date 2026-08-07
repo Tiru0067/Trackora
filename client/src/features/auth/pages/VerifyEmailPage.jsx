@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { verifyEmail, resendVerifyEmail } from "../api/auth";
 import { useToast } from "@/hooks/useToast";
@@ -30,14 +30,14 @@ const VerifyEmailPage = () => {
   const email = user?.email || unverifiedData.email;
   const emailVerificationTokenExpiresAt = user?.emailVerificationTokenExpiresAt;
 
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
+  const [searchParams] = useSearchParams();
+  const [token] = useState(() => searchParams.get("token"));
 
   // Track resend cooldown/lockout, seeded from the user object if present
   const [resendState, setResendState] = useState({
-    count: user?.verificationEmailResendCount ?? unverifiedData.count ?? 0,
-    blockedUntil: user?.verificationEmailResendBlockedUntil
-      ? new Date(user.verificationEmailResendBlockedUntil)
+    count: user?.emailVerificationResendCount ?? unverifiedData.count ?? 0,
+    blockedUntil: user?.emailVerificationBlockedUntil
+      ? new Date(user.emailVerificationBlockedUntil)
       : unverifiedData.blockedUntil
         ? new Date(unverifiedData.blockedUntil)
         : null,
@@ -99,15 +99,13 @@ const VerifyEmailPage = () => {
     setResending(true);
     try {
       const response = await resendVerifyEmail(email);
-      const {
-        verificationEmailResendCount,
-        verificationEmailResendBlockedUntil,
-      } = response.data || {};
+      const { emailVerificationResendCount, emailVerificationBlockedUntil } =
+        response.data || {};
 
       setResendState({
-        count: verificationEmailResendCount ?? resendState.count,
-        blockedUntil: verificationEmailResendBlockedUntil
-          ? new Date(verificationEmailResendBlockedUntil)
+        count: emailVerificationResendCount ?? resendState.count,
+        blockedUntil: emailVerificationBlockedUntil
+          ? new Date(emailVerificationBlockedUntil)
           : null,
       });
 
@@ -121,10 +119,10 @@ const VerifyEmailPage = () => {
 
 // Sync the latest blockedUntil/count from the response.
 // Keep the countdown in sync after failed requests.
-      if (errData?.verificationEmailResendBlockedUntil) {
+      if (errData?.emailVerificationBlockedUntil) {
         setResendState({
-          count: errData.verificationEmailResendCount ?? resendState.count,
-          blockedUntil: new Date(errData.verificationEmailResendBlockedUntil),
+          count: errData.emailVerificationResendCount ?? resendState.count,
+          blockedUntil: new Date(errData.emailVerificationBlockedUntil),
         });
       }
     } finally {
@@ -136,6 +134,10 @@ const VerifyEmailPage = () => {
     return <Navigate to="/login" replace />;
   }
 
+  if (user?.emailVerifiedAt) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   if (token && verifying) {
     return (
       <Auth>
@@ -143,8 +145,6 @@ const VerifyEmailPage = () => {
       </Auth>
     );
   }
-
-  const isLockedOut = resendState.count >= 3 && remainingMs > 0;
 
   return (
     <Auth>
