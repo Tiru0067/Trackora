@@ -1,7 +1,13 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "@/layouts/AppLayout";
 import AuthLayout from "@/layouts/AuthLayout";
-import { LoginPage, RegisterPage, VerifyEmailpage } from "@/features/auth";
+import {
+  LoginPage,
+  RegisterPage,
+  VerifyEmailpage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+} from "@/features/auth";
 import { DashboardPage } from "@/features/dashboard";
 import { WalletsPage, WalletDetailsPage } from "@/features/wallets";
 import { CategoriesPage } from "@/features/categories";
@@ -20,6 +26,8 @@ const AppRoutes = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailpage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
       </Route>
 
