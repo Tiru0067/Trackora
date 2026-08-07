@@ -97,6 +97,9 @@ model Transaction {
   categoryId        String?            @db.Uuid
   type              TransactionType
   amount            Decimal            @db.Decimal(14, 2)
+  originalAmount    Decimal            @db.Decimal(14, 2)
+  originalCurrency  String
+  exchangeRate      Decimal            @db.Decimal(14, 6)
   date              DateTime           @db.Date
   title             String
   note              String?
