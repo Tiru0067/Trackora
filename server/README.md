@@ -31,12 +31,28 @@ The API and database layer for Trackora, built with Node.js, Express, and Prisma
 
 - A custom `AppError` class plus centralized middleware, so error responses (including metadata like cooldown timestamps) come back as consistent, clean JSON instead of ad-hoc error shapes per route
 
+**Validation**
+
+- Fully migrated validation logic to use **Zod** schemas natively within Express middlewares.
+- Centralized reusable Zod schemas (e.g., currency codes, hex colors, and extremely strict emoji validation).
+
+**Wallets API**
+
+- Full CRUD operations for managing user wallets.
+- Smart `isPrimary` promotion logic utilizing Prisma transactions (promoting a new wallet demotes the old primary automatically).
+- Schema ensures no duplicate wallet names per user.
+
+**Database Schema (Prisma)**
+
+- Setup schemas for Wallets, Categories, and Transactions.
+- Transactions include currency conversion tracking fields (`originalAmount`, `originalCurrency`, `exchangeRate`) to ensure resilient historical data.
+
 ## Status
 
 - [x] Auth endpoints (register, login, password recovery/change)
 - [x] Email verification + rate limiting
-- [x] Centralized error handling
-- [ ] Wallet endpoints
+- [x] Centralized error handling & Zod Validation
+- [x] Wallets API endpoints
 - [ ] Transaction endpoints
 - [ ] Category endpoints
 - [ ] Budget / analytics endpoints

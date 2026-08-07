@@ -26,12 +26,19 @@ A personal finance web app built from scratch, with a React frontend and a Node/
 - Centralized error handling on the API
 - Routes are split between public-only and protected, enforced consistently on both ends
 
+**Backend Architecture & Data**
+
+- Strict input validation using centralized Zod schemas on the Express layer
+- Wallets API CRUD complete, featuring smart constraint handling (e.g., automatically demoting the previous primary wallet in a transaction)
+- Prisma Schema configured for Wallets, Categories, and historical Transaction currency tracking
+
 ## Status
 
 - [x] Authentication (registration, login, sessions, password recovery)
 - [x] Email verification
 - [x] Centralized error handling & route guarding
-- [ ] Wallets
+- [x] Wallets (Backend API Complete)
+- [ ] Wallets (Frontend UI)
 - [ ] Core transaction tracking
 - [ ] Categories & budgeting
 - [ ] Dashboard / analytics
