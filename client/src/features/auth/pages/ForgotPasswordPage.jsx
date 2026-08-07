@@ -148,6 +148,7 @@ const ForgotPasswordPage = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   autoComplete="email"
+                  spellCheck="false"
                   aria-invalid={!!emailError}
                   aria-describedby={emailError ? "email-error" : undefined}
                   required

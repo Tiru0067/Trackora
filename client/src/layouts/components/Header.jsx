@@ -1,6 +1,6 @@
 import { Menu, User2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import ThemeToggle from "@/layouts/components/ThemeToggle";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { cn } from "@/utils/cn";
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {

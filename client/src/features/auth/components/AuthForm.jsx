@@ -253,6 +253,7 @@ const AuthForm = ({ type, form, onChange, onSubmit }) => {
                 onChange={handleChange}
                 onBlur={handleBlur}
                 autoComplete="email"
+                spellCheck="false"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? emailErrorId : undefined}
                 required
