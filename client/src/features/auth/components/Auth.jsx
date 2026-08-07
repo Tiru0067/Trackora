@@ -8,7 +8,7 @@ const Auth = ({ children }) => {
       <div className="hidden lg:flex min-w-123 max-w-[45%] grow lg:items-center shrink-0 h-full bg-(--bg-warm) border-r dark:border-white/5 border-black/5">
         <AuthBranding />
       </div>
-      <main className="flex-1 h-full flex flex-col items-center justify-center p-6 sm:p-10 overflow-y-auto relative">
+      <main className="flex-1 h-full flex flex-col items-center justify-center p-6 xxs:p-8 xs:p-10 overflow-y-auto relative">
         <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
           <ThemeToggle buttonStyle="p-3 rounded-full bg-(--line-soft) hover:bg-(--line) text-(--ink-soft) transition-colors" />
         </div>
