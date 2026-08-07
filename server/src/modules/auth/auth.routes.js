@@ -19,54 +19,29 @@ import {
   validateForgotPassword,
   validateResetPassword,
   validateChangePassword,
+  validateResendVerificationEmail,
+  validateVerifyEmail,
 } from "./auth.validators.js";
 
 import { authenticate } from "#/middlewares/authenticate.js";
-import { validateBody } from "#/middlewares/validateBody.js";
-import { allowFields } from "#/middlewares/allowFields.js";
 
 const router = Router();
 
-router.post(
-  "/register",
-  validateBody,
-  allowFields("name", "email", "baseCurrency", "password"),
-  validateRegister,
-  register,
-);
+router.post("/register", validateRegister, register);
 
-router.post(
-  "/login",
-  validateBody,
-  allowFields("email", "password"),
-  validateLogin,
-  login,
-);
+router.post("/login", validateLogin, login);
 
 router.post(
   "/resend-verify-email",
-  validateBody,
-  allowFields("email"),
+  validateResendVerificationEmail,
   resendVerificationEmail,
 );
 
-router.post("/verify-email", validateBody, allowFields("token"), verifyEmail);
+router.post("/verify-email", validateVerifyEmail, verifyEmail);
 
-router.post(
-  "/forgot-password",
-  validateBody,
-  allowFields("email"),
-  validateForgotPassword,
-  forgotPassword,
-);
+router.post("/forgot-password", validateForgotPassword, forgotPassword);
 
-router.post(
-  "/reset-password",
-  validateBody,
-  allowFields("token", "password"),
-  validateResetPassword,
-  resetPassword,
-);
+router.post("/reset-password", validateResetPassword, resetPassword);
 
 router.post("/logout", logout);
 
@@ -74,21 +49,11 @@ router
   .route("/me")
   .all(authenticate)
   .get(getCurrentUser)
-  .patch(
-    validateBody,
-    allowFields("name", "email", "baseCurrency"),
-    validateUpdateCurrentUser,
-    updateCurrentUser,
-  );
+  .patch(validateUpdateCurrentUser, updateCurrentUser);
 
 router
   .route("/me/password")
   .all(authenticate)
-  .patch(
-    validateBody,
-    allowFields("oldPassword", "newPassword"),
-    validateChangePassword,
-    changePassword,
-  );
+  .patch(validateChangePassword, changePassword);
 
 export default router;

@@ -1,219 +1,144 @@
-import AppError from "#/utils/AppError.js";
-import sendResponse from "#/utils/response.js";
+import { z } from "zod";
+import { isValidPassword } from "#/utils/validation.js";
 import {
-  getMissingFields,
-  isValidEmail,
-  isValidCurrency,
-  isValidPassword,
-} from "#/utils/validation.js";
+  sendZodValidationError,
+  nameSchema,
+  currencyCodeSchema,
+} from "#/utils/validators.js";
 
-const sendValidationError = (res, missingFields, invalidFields) => {
-  return sendResponse(res, {
-    statusCode: 400,
-    code: "VALIDATION_ERROR",
-    message: "Validation failed",
-    errors: {
-      ...(missingFields.length > 0 && { missingFields }),
-      ...(Object.keys(invalidFields).length > 0 && { invalidFields }),
-    },
-  });
-};
+const emailSchema = z
+  .string({ required_error: "Email is required" })
+  .trim()
+  .toLowerCase()
+  .email("Enter a valid email address");
 
-const validateName = (name, invalidFields) => {
-  if (typeof name !== "string") {
-    invalidFields.name = "Name must be a string";
-  } else if (name.trim().length < 2) {
-    invalidFields.name = "Name must be at least 2 characters";
-  }
-};
+const passwordSchema = z
+  .string({ required_error: "Password is required" })
+  .min(8, "Password must be at least 8 characters")
+  .max(128, "Password must not exceed 128 characters")
+  .refine(
+    isValidPassword,
+    "Password must include uppercase, lowercase, number, and symbol",
+  );
 
-const validateEmail = (email, invalidFields) => {
-  if (!isValidEmail(email)) {
-    invalidFields.email = "Enter a valid email address";
-  }
-};
-
-const validateBaseCurrency = (baseCurrency, invalidFields) => {
-  if (!isValidCurrency(baseCurrency)) {
-    invalidFields.baseCurrency = "Enter a valid currency code";
-  }
-};
-
-const validatePassword = (password, invalidFields) => {
-  if (typeof password !== "string") {
-    invalidFields.password = "Password must be a string";
-  } else if (password.length < 8) {
-    invalidFields.password = "Password must be at least 8 characters";
-  } else if (password.length > 128) {
-    invalidFields.password = "Password must not exceed 128 characters";
-  } else if (!isValidPassword(password)) {
-    invalidFields.password =
-      "Password must include uppercase, lowercase, number, and symbol";
-  }
-};
+const registerSchema = z
+  .object({
+    name: nameSchema,
+    email: emailSchema,
+    baseCurrency: currencyCodeSchema,
+    password: passwordSchema,
+  })
+  .strict();
 
 export const validateRegister = (req, res, next) => {
-  const requiredFields = ["name", "email", "baseCurrency", "password"];
-  const missingFields = getMissingFields(req.body, requiredFields);
-
-  const { name, email, baseCurrency, password } = req.body;
-  const invalidFields = {};
-
-  if (!missingFields.includes("name")) {
-    validateName(name, invalidFields);
-  }
-
-  if (!missingFields.includes("email")) {
-    validateEmail(email, invalidFields);
-  }
-
-  if (!missingFields.includes("baseCurrency")) {
-    validateBaseCurrency(baseCurrency, invalidFields);
-  }
-
-  if (!missingFields.includes("password")) {
-    validatePassword(password, invalidFields);
-  }
-
-  if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
-    return sendValidationError(res, missingFields, invalidFields);
-  }
-
-  req.body.name = name.trim();
-  req.body.email = email.trim().toLowerCase();
-  req.body.baseCurrency = baseCurrency.trim().toUpperCase();
-
+  const result = registerSchema.safeParse(req.body);
+  if (!result.success) return sendZodValidationError(res, result.error);
+  req.body = result.data;
   next();
 };
+
+const loginSchema = z
+  .object({
+    email: emailSchema,
+    password: z
+      .string({ required_error: "Password is required" })
+      .max(128, "Password must not exceed 128 characters"),
+  })
+  .strict();
 
 export const validateLogin = (req, res, next) => {
-  const requiredFields = ["email", "password"];
-  const missingFields = getMissingFields(req.body, requiredFields);
-
-  const { email, password } = req.body;
-  const invalidFields = {};
-
-  if (!missingFields.includes("email")) {
-    validateEmail(email, invalidFields);
-  }
-
-  if (!missingFields.includes("password")) {
-    if (typeof password !== "string") {
-      invalidFields.password = "Password must be a string";
-    } else if (password.length > 128) {
-      invalidFields.password = "Password must not exceed 128 characters";
-    }
-  }
-
-  if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
-    return sendValidationError(res, missingFields, invalidFields);
-  }
-
-  req.body.email = email.trim().toLowerCase();
-
+  const result = loginSchema.safeParse(req.body);
+  if (!result.success) return sendZodValidationError(res, result.error);
+  req.body = result.data;
   next();
 };
+
+const forgotPasswordSchema = z
+  .object({
+    email: emailSchema,
+  })
+  .strict();
 
 export const validateForgotPassword = (req, res, next) => {
-  const requiredFields = ["email"];
-  const missingFields = getMissingFields(req.body, requiredFields);
-
-  const { email } = req.body;
-  const invalidFields = {};
-
-  if (!missingFields.includes("email")) {
-    validateEmail(email, invalidFields);
-  }
-
-  if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
-    return sendValidationError(res, missingFields, invalidFields);
-  }
-
-  req.body.email = email.trim().toLowerCase();
-
+  const result = forgotPasswordSchema.safeParse(req.body);
+  if (!result.success) return sendZodValidationError(res, result.error);
+  req.body = result.data;
   next();
 };
+
+const resetPasswordSchema = z
+  .object({
+    token: z
+      .string({ required_error: "Token is required" })
+      .min(1, "Token is required"),
+    password: passwordSchema,
+  })
+  .strict();
 
 export const validateResetPassword = (req, res, next) => {
-  const requiredFields = ["token", "password"];
-  const missingFields = getMissingFields(req.body, requiredFields);
-
-  const { password } = req.body;
-  const invalidFields = {};
-
-  if (!missingFields.includes("password")) {
-    validatePassword(password, invalidFields);
-  }
-
-  if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
-    return sendValidationError(res, missingFields, invalidFields);
-  }
-
+  const result = resetPasswordSchema.safeParse(req.body);
+  if (!result.success) return sendZodValidationError(res, result.error);
+  req.body = result.data;
   next();
 };
+
+const resendVerificationSchema = z
+  .object({
+    email: emailSchema,
+  })
+  .strict();
+
+export const validateResendVerificationEmail = (req, res, next) => {
+  const result = resendVerificationSchema.safeParse(req.body);
+  if (!result.success) return sendZodValidationError(res, result.error);
+  req.body = result.data;
+  next();
+};
+
+const verifyEmailSchema = z
+  .object({
+    token: z
+      .string({ required_error: "Token is required" })
+      .min(1, "Token is required"),
+  })
+  .strict();
+
+export const validateVerifyEmail = (req, res, next) => {
+  const result = verifyEmailSchema.safeParse(req.body);
+  if (!result.success) return sendZodValidationError(res, result.error);
+  req.body = result.data;
+  next();
+};
+
+const updateCurrentUserSchema = z
+  .object({
+    name: nameSchema.optional(),
+    email: emailSchema.optional(),
+    baseCurrency: currencyCodeSchema.optional(),
+  })
+  .strict()
+  .refine(
+    (data) => Object.keys(data).length > 0,
+    "At least one field must be provided to update",
+  );
 
 export const validateUpdateCurrentUser = (req, res, next) => {
-  const { name, email, baseCurrency } = req.body;
-  const providedFields = Object.keys(req.body);
-  const invalidFields = {};
-
-  if (providedFields.includes("name")) {
-    validateName(name, invalidFields);
-  }
-
-  if (providedFields.includes("email")) {
-    validateEmail(email, invalidFields);
-  }
-
-  if (providedFields.includes("baseCurrency")) {
-    validateBaseCurrency(baseCurrency, invalidFields);
-  }
-
-  if (Object.keys(invalidFields).length > 0) {
-    return sendValidationError(res, [], invalidFields);
-  }
-
-  if (providedFields.includes("name")) {
-    req.body.name = name.trim();
-  }
-
-  if (providedFields.includes("email")) {
-    req.body.email = email.trim().toLowerCase();
-  }
-
-  if (providedFields.includes("baseCurrency")) {
-    req.body.baseCurrency = baseCurrency.trim().toUpperCase();
-  }
-
+  const result = updateCurrentUserSchema.safeParse(req.body);
+  if (!result.success) return sendZodValidationError(res, result.error);
+  req.body = result.data;
   next();
 };
 
+const changePasswordSchema = z
+  .object({
+    oldPassword: z.string({ required_error: "Old password is required" }),
+    newPassword: passwordSchema,
+  })
+  .strict();
+
 export const validateChangePassword = (req, res, next) => {
-  const requiredFields = ["oldPassword", "newPassword"];
-  const missingFields = getMissingFields(req.body, requiredFields);
-
-  const { oldPassword, newPassword } = req.body;
-  const invalidFields = {};
-
-  if (!missingFields.includes("oldPassword")) {
-    if (typeof oldPassword !== "string") {
-      invalidFields.oldPassword = "Old password must be a string";
-    }
-  }
-
-  if (!missingFields.includes("newPassword")) {
-    validatePassword(newPassword, invalidFields);
-    
-    // validatePassword populates invalidFields.password, so map it to newPassword
-    if (invalidFields.password) {
-      invalidFields.newPassword = invalidFields.password;
-      delete invalidFields.password;
-    }
-  }
-
-  if (missingFields.length > 0 || Object.keys(invalidFields).length > 0) {
-    return sendValidationError(res, missingFields, invalidFields);
-  }
-
+  const result = changePasswordSchema.safeParse(req.body);
+  if (!result.success) return sendZodValidationError(res, result.error);
+  req.body = result.data;
   next();
 };
