@@ -1,7 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-  moduleFormat = "esm"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
   importFileExtension = "ts"
 }
 
@@ -10,25 +10,109 @@ datasource db {
 }
 
 model User {
-  id                                 String       @id @default(cuid())
-  name                               String       
-  email                              String       @unique
-  baseCurrency                       String       @default("INR")
-  password                           String 
+  id           String @id @default(uuid()) @db.Uuid
+  name         String
+  email        String @unique
+  baseCurrency String @default("INR")
+  password     String
 
-  emailVerifiedAt                    DateTime?  
-  emailVerificationTokenHash         String?      @unique
-  emailVerificationTokenExpiresAt    DateTime?  
-  emailVerificationLastSentAt        DateTime?  
-  emailVerificationResendCount       Int          @default(0)
-  emailVerificationBlockedUntil      DateTime?  
+  emailVerifiedAt                 DateTime?
+  emailVerificationTokenHash      String?   @unique
+  emailVerificationTokenExpiresAt DateTime?
+  emailVerificationLastSentAt     DateTime?
+  emailVerificationResendCount    Int       @default(0)
+  emailVerificationBlockedUntil   DateTime?
 
-  passwordResetTokenHash             String?  
-  passwordResetTokenExpiresAt        DateTime?  
-  passwordResetLastSentAt            DateTime?  
-  passwordResetResendCount           Int          @default(0)
-  passwordResetBlockedUntil          DateTime?  
-  
-  createdAt                          DateTime     @default(now())
-  updatedAt                          DateTime     @updatedAt
+  passwordResetTokenHash      String?
+  passwordResetTokenExpiresAt DateTime?
+  passwordResetLastSentAt     DateTime?
+  passwordResetResendCount    Int       @default(0)
+  passwordResetBlockedUntil   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wallets      Wallet[]
+  categories   Category[]
+  transactions Transaction[]
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum TransferDirection {
+  IN
+  OUT
+}
+
+model Wallet {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  name           String
+  currency       String
+  initialBalance Decimal   @default(0) @db.Decimal(14, 2)
+  color          String
+  icon           Json
+  isPrimary      Boolean   @default(false)
+  pinnedAt       DateTime?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Category {
+  id     String          @id @default(uuid()) @db.Uuid
+  userId String          @db.Uuid
+  name   String
+  type   TransactionType
+  icon   Json
+  color  String
+  note   String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Transaction {
+  id                String             @id @default(uuid()) @db.Uuid
+  userId            String             @db.Uuid
+  walletId          String             @db.Uuid
+  categoryId        String?            @db.Uuid
+  type              TransactionType
+  amount            Decimal            @db.Decimal(14, 2)
+  date              DateTime           @db.Date
+  title             String
+  note              String?
+  transferId        String?            @unique @db.Uuid
+  transferDirection TransferDirection?
+  transferLeg       Transaction?       @relation("TransferPair", fields: [transferId], references: [id], onDelete: Cascade)
+  linkedTransfer    Transaction?       @relation("TransferPair")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallet   Wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, date])
+  @@index([walletId])
+  @@index([categoryId])
 }
