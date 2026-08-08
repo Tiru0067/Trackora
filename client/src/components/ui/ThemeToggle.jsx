@@ -8,10 +8,17 @@ import {
 import useTheme from "@/hooks/useTheme";
 
 const ThemeToggle = ({ buttonStyle }) => {
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === "dark";
+  const { theme, setTheme } = useTheme();
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
   const shouldReduceMotion = useReducedMotion();
   const transition = shouldReduceMotion ? { duration: 0 } : { duration: 0.25 };
+
+  const toggleTheme = () => {
+    setTheme(isDark ? "light" : "dark");
+  };
 
   return (
     <button

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   motion as Motion,
@@ -19,6 +20,7 @@ import { cn } from "@/utils/cn";
 import useWindowSize from "@/hooks/useWindowSize";
 import Logo from "../../assets/trend-up.svg?react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import AccountMenu from "./AccountMenu";
 
 const navGroups = [
   {
@@ -86,32 +88,41 @@ const NavSections = ({ onNavigate }) => (
   </div>
 );
 
-const ProfileRow = ({ user }) => (
-  <div className="mt-auto pt-4 relative">
-    <div className="w-full h-px bg-(--line-soft) mb-2"></div>
-    <button
-      type="button"
-      className="w-full p-2 rounded-lg flex items-center gap-2 hover:bg-white/4 transition-colors text-left"
-    >
-      <div className="w-8 h-8 shrink-0 bg-(--accent) text-white rounded-full flex-center font-medium">
-        {user.name.charAt(0).toUpperCase()}
-      </div>
-      <div className="min-w-0 flex-1">
-        <span className="text-sm text-(--ink) font-medium truncate capitalize block">
-          {user.name}
-        </span>
-        <span className="text-xs text-(--ink-muted) truncate block">
-          {user.email}
-        </span>
-      </div>
-      <ChevronsUpDown
-        size={15}
-        className="shrink-0 text-(--ink-muted)"
-        aria-hidden="true"
-      />
-    </button>
-  </div>
-);
+const ProfileRow = ({ user }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  return (
+    <div className="mt-auto pt-4 relative">
+      <AccountMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <div className="w-full h-px bg-(--line-soft) mb-2"></div>
+
+      <button
+        type="button"
+        onClick={() => setIsMenuOpen((prev) => !prev)}
+        aria-haspopup="menu"
+        aria-expanded={isMenuOpen}
+        className="w-full p-2 rounded-lg flex items-center gap-2 hover:bg-white/4 transition-colors text-left"
+      >
+        <div className="w-8 h-8 shrink-0 bg-(--accent) text-white rounded-full flex-center font-medium">
+          {user.name.charAt(0).toUpperCase()}
+        </div>
+        <div className="min-w-0 flex-1">
+          <span className="text-sm text-(--ink) font-medium truncate capitalize block">
+            {user.name}
+          </span>
+          <span className="text-xs text-(--ink-muted) truncate block">
+            {user.email}
+          </span>
+        </div>
+        <ChevronsUpDown
+          size={15}
+          className="shrink-0 text-(--ink-muted)"
+          aria-hidden="true"
+        />
+      </button>
+    </div>
+  );
+};
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const shouldReduceMotion = useReducedMotion();
