@@ -12,7 +12,7 @@ const WalletDetailsPage = () => {
             <ArrowLeft size={16} />
           </Link>
           <span className="text-[11px] font-semibold tracking-wider text-(--ink-muted) uppercase">
-            § Wallet Details
+            Wallet Details
           </span>
         </div>
         <h1 className="page-title">Wallet {id}</h1>

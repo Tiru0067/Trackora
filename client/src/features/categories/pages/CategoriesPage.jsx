@@ -2,7 +2,7 @@ const CategoriesPage = () => {
   return (
     <div>
       <header className="page-header">
-        <span className="page-section">§ Categories</span>
+        <span className="page-section">Categories</span>
         <h1 className="page-title">Manage Categories</h1>
         <p className="page-subtitle">Organize your spending into different categories</p>
       </header>

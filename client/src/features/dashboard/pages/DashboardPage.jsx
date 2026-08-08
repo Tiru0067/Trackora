@@ -12,7 +12,7 @@ const DashboardPage = () => {
   return (
     <div>
       <header className="page-header">
-        <span className="page-section">§ Home</span>
+        <span className="page-section">Home</span>
         <h1 className="page-title">Welcome back, {user?.name || 'User'}</h1>
         <p className="page-subtitle">{today}</p>
       </header>

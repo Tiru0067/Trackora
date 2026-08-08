@@ -2,7 +2,7 @@ const WalletsPage = () => {
   return (
     <div>
       <header className="page-header">
-        <span className="page-section">§ Wallets</span>
+        <span className="page-section">Wallets</span>
         <h1 className="page-title">Manage Wallets</h1>
         <p className="page-subtitle">View and manage your different accounts and cash reserves</p>
       </header>

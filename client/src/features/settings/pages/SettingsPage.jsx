@@ -2,7 +2,7 @@ const SettingsPage = () => {
   return (
     <div>
       <header className="page-header">
-        <span className="page-section">§ Account</span>
+        <span className="page-section">Account</span>
         <h1 className="page-title">Settings</h1>
         <p className="page-subtitle">Manage your account preferences and application settings</p>
       </header>
