@@ -224,6 +224,22 @@
       focus-within:border-(--accent);
   }
 
+  .page-header {
+    @apply flex flex-col pb-4 mb-6 border-b border-(--line);
+  }
+
+  .page-section {
+    @apply text-[11px] font-semibold tracking-wider text-(--ink-muted) uppercase mb-2;
+  }
+
+  .page-title {
+    @apply text-[22px] font-semibold text-(--ink) tracking-tight mb-1;
+  }
+
+  .page-subtitle {
+    @apply text-[13.5px] text-(--ink-muted);
+  }
+
   .toggle-track {
     @apply relative
       h-5
