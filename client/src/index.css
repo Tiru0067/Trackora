@@ -155,7 +155,7 @@
       disabled:opacity-60
       focus-visible:outline-2
       focus-visible:outline-offset-2
-      focus-visible:outline-(--accent-6);
+      focus-visible:outline-(--accent);
   }
 
   .btn-scale {
@@ -168,25 +168,25 @@
   }
 
   .btn-primary {
-    @apply bg-(--accent-6)
+    @apply bg-(--accent)
       text-white
-      hover:bg-(--accent-7)
-      active:bg-(--accent-8);
+      hover:bg-(--accent-ink)
+      active:bg-(--accent-ink);
   }
 
   .btn-secondary {
-    @apply bg-(--control)
-      text-(--text-3)
-      hover:bg-(--control-hover)
-      active:bg-(--control-active);
+    @apply bg-(--line-soft)
+      text-(--ink-soft)
+      hover:bg-(--line)
+      active:bg-(--line);
   }
 
   .btn-ghost {
     @apply bg-transparent
-      text-(--accent-6)
-      hover:bg-(--accent-1)
-      dark:text-(--accent-8)
-      dark:hover:bg-(--accent-1);
+      text-(--accent-ink)
+      hover:bg-(--accent-bg)
+      dark:text-(--accent-ink)
+      dark:hover:bg-(--accent-bg);
   }
 
   .btn-danger {
@@ -199,15 +199,15 @@
   .card {
     @apply rounded-xl
       border
-      border-(--border-1)
-      bg-(--surface-2)
+      border-(--line)
+      bg-(--bg-card)
       shadow-xs
       transition-colors
-      dark:border-(--border-0);
+      dark:border-(--line-soft);
   }
 
   .card-hover {
-    @apply hover:border-(--border-3);
+    @apply hover:border-(--ink-muted);
   }
 
   .input-group {
@@ -232,7 +232,7 @@
       transition-colors
       duration-300
       focus-visible:ring-2
-      focus-visible:ring-(--accent-6);
+      focus-visible:ring-(--accent);
   }
 
   .toggle-thumb {
@@ -244,7 +244,7 @@
       -translate-y-1/2
       rounded-full
       border
-      border-(--border-2)
+      border-(--line)
       bg-white
       shadow-sm
       transition-transform

@@ -96,7 +96,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           <button
             type="button"
             aria-label="Close sidebar"
-            className="hidden max-lg:block ml-auto btn-secondary text-(--text-3) p-3 rounded-full"
+            className="hidden max-lg:block ml-auto btn-secondary text-(--ink-soft) p-3 rounded-full"
             onClick={onClose}
           >
             <PanelLeftClose size={18} aria-hidden="true" />

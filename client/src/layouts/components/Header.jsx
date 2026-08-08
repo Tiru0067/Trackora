@@ -8,11 +8,11 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const currentPath = location.pathname.split("/")[1]; // Get the first segment of the path
 
   const buttonStyle =
-    "p-3 rounded-full cursor-pointer btn-secondary text-(--text-3)";
+    "p-3 rounded-full cursor-pointer btn-secondary text-(--ink-soft)";
 
   return (
     <header className="w-full shrink-0 h-18 px-7 max-lg:px-6 flex items-center justify-between gap-3">
-      <h1 className="text-xl font-semibold text-(--accent-6) truncate">
+      <h1 className="text-xl font-semibold text-(--accent-ink) truncate">
         {currentPath.charAt(0).toUpperCase() + currentPath.slice(1)}
       </h1>
 
