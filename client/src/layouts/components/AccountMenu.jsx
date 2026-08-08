@@ -11,7 +11,11 @@ const AccountMenu = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      if (
+        menuRef.current && 
+        !menuRef.current.contains(event.target) &&
+        !event.target.closest('#account-menu-toggle')
+      ) {
         onClose();
       }
     };

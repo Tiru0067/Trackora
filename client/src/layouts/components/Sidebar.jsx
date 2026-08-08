@@ -98,6 +98,7 @@ const ProfileRow = ({ user }) => {
 
       <button
         type="button"
+        id="account-menu-toggle"
         onClick={() => setIsMenuOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={isMenuOpen}
