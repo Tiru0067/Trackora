@@ -66,7 +66,7 @@ model Wallet {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
 
-  @@unique([userId, name])
+
   @@index([userId])
 }
 
@@ -86,7 +86,7 @@ model Category {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
 
-  @@unique([userId, name])
+
   @@index([userId])
 }
 

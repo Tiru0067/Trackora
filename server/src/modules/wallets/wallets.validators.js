@@ -20,6 +20,8 @@ export const createWalletSchema = z.object({
 
   isPrimary: z.boolean({ invalid_type_error: "isPrimary must be a boolean" })
     .optional(),
+
+  pinnedAt: z.string().datetime().nullable().optional(),
 }).strict("Unrecognized fields are not allowed");
 
 export const updateWalletSchema = createWalletSchema.omit({ currency: true }).partial().strict("Unrecognized fields are not allowed");
