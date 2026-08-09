@@ -32,7 +32,11 @@ export const createWalletService = async (userId, walletData) => {
     });
   } catch (err) {
     if (err.code === "P2002") {
-      throw new AppError("A wallet with this name already exists", 409);
+      throw new AppError(
+        "A wallet with this name already exists",
+        409,
+        "DUPLICATE_WALLET_NAME"
+      );
     }
     throw err;
   }
@@ -92,7 +96,11 @@ export const updateWalletService = async (userId, walletId, updateData) => {
     });
   } catch (err) {
     if (err.code === "P2002") {
-      throw new AppError("A wallet with this name already exists", 409);
+      throw new AppError(
+        "A wallet with this name already exists",
+        409,
+        "DUPLICATE_WALLET_NAME"
+      );
     }
     throw err;
   }

@@ -74,7 +74,6 @@ model Category {
   id     String          @id @default(uuid()) @db.Uuid
   userId String          @db.Uuid
   name   String
-  type   TransactionType
   icon   Json
   color  String
   note   String?

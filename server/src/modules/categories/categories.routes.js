@@ -1,4 +1,9 @@
 import { Router } from "express";
+import { authenticate } from "#/middlewares/authenticate.js";
+import {
+  validateCreateCategory,
+  validateUpdateCategory,
+} from "./categories.validators.js";
 import {
   getAllCategories,
   getCategory,
@@ -9,12 +14,14 @@ import {
 
 const router = Router();
 
-router.get("/", getAllCategories);
+router.use(authenticate);
+
+router.route("/").get(getAllCategories).post(validateCreateCategory, createCategory);
+
 router
   .route("/:id")
   .get(getCategory)
-  .post(createCategory)
-  .put(updateCategory)
+  .patch(validateUpdateCategory, updateCategory)
   .delete(deleteCategory);
 
 export default router;
