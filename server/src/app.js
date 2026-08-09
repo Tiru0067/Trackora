@@ -8,6 +8,7 @@ import dashboardRoutes from "#/modules/dashboard/dashboard.routes.js";
 import walletsroutes from "#/modules/wallets/wallets.routes.js";
 import categoriesRoutes from "#/modules/categories/categories.routes.js";
 import transactionsRoutes from "#/modules/transactions/transactions.routes.js";
+import { currenciesRouter, exchangeRatesRouter } from "#/modules/currencies/currencies.routes.js";
 
 import errorHandler from "#/middlewares/errorHandler.js";
 import notFound from "#/middlewares/notFound.js";
@@ -32,6 +33,8 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/wallets", walletsroutes);
 app.use("/api/transactions", transactionsRoutes);
 app.use("/api/categories", categoriesRoutes);
+app.use("/api/currencies", currenciesRouter);
+app.use("/api/exchange-rates", exchangeRatesRouter);
 
 app.use(notFound);
 app.use(errorHandler);
