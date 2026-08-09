@@ -12,9 +12,9 @@ const AccountMenu = ({ isOpen, onClose }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        menuRef.current && 
+        menuRef.current &&
         !menuRef.current.contains(event.target) &&
-        !event.target.closest('#account-menu-toggle')
+        !event.target.closest("#account-menu-toggle")
       ) {
         onClose();
       }
@@ -54,7 +54,7 @@ const AccountMenu = ({ isOpen, onClose }) => {
               <button
                 key={t.value}
                 type="button"
-                className="w-full flex items-center justify-between px-2 py-1.5 text-sm text-(--ink) hover:bg-white/5 rounded-lg transition-colors text-left"
+                className="w-full flex items-center justify-between px-2 py-1.5 text-sm text-(--ink) hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors text-left"
                 onClick={() => {
                   setTheme(t.value);
                   // Don't close on theme change to let them test
