@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 
 import AppError from "#/utils/AppError.js";
 import asyncHandler from "#/utils/asyncHandler.js";
+import { prisma } from "#/config/db.js";
 
 export const authenticate = asyncHandler(async (req, res, next) => {
   const token = req.cookies.accessToken;
@@ -13,8 +14,16 @@ export const authenticate = asyncHandler(async (req, res, next) => {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
 
+    const user = await prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
+
+    if (!user) {
+      throw new AppError("User no longer exists", 401, "USER_NOT_FOUND");
+    }
+
     req.user = {
-      id: payload.sub,
+      id: user.id,
     };
 
     next();
