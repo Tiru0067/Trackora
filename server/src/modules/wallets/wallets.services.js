@@ -35,7 +35,7 @@ export const createWalletService = async (userId, walletData) => {
       throw new AppError(
         "A wallet with this name already exists",
         409,
-        "DUPLICATE_WALLET_NAME"
+        "DUPLICATE_WALLET_NAME",
       );
     }
     throw err;
@@ -58,7 +58,59 @@ export const getWalletByIdService = async (userId, walletId) => {
     throw new AppError("Wallet not found", 404);
   }
 
-  return wallet;
+  const groups = await prisma.transaction.groupBy({
+    by: ["type", "transferDirection"],
+    where: { walletId },
+    _sum: { amount: true },
+    _count: { _all: true },
+  });
+
+  let totalIncome = 0;
+  let totalExpense = 0;
+  let transactionCount = 0;
+  let netTransfers = 0;
+
+  for (const group of groups) {
+    const sum = Number(group._sum.amount || 0);
+    const count = group._count._all;
+
+    transactionCount += count;
+
+    if (group.type === "INCOME") {
+      totalIncome += sum;
+    } else if (group.type === "EXPENSE") {
+      totalExpense += sum;
+    } else if (group.type === "TRANSFER") {
+      if (group.transferDirection === "IN") {
+        netTransfers += sum;
+      } else if (group.transferDirection === "OUT") {
+        netTransfers -= sum;
+      }
+    }
+  }
+
+  const totalBalance =
+    Number(wallet.initialBalance || 0) +
+    totalIncome -
+    totalExpense +
+    netTransfers;
+
+  const lastTx = await prisma.transaction.findFirst({
+    where: { walletId },
+    orderBy: { date: "desc" },
+    select: { date: true },
+  });
+
+  return {
+    ...wallet,
+    stats: {
+      totalIncome,
+      totalExpense,
+      totalBalance,
+      transactionCount,
+      lastTransactionDate: lastTx?.date || null,
+    },
+  };
 };
 
 export const updateWalletService = async (userId, walletId, updateData) => {
@@ -99,7 +151,7 @@ export const updateWalletService = async (userId, walletId, updateData) => {
       throw new AppError(
         "A wallet with this name already exists",
         409,
-        "DUPLICATE_WALLET_NAME"
+        "DUPLICATE_WALLET_NAME",
       );
     }
     throw err;
@@ -114,8 +166,6 @@ export const deleteWalletService = async (userId, walletId) => {
   if (!wallet) {
     throw new AppError("Wallet not found", 404);
   }
-
-
 
   // Soft delete
   await prisma.wallet.update({
