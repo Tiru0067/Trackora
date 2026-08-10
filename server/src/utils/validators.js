@@ -80,3 +80,20 @@ export const iconSchema = z.discriminatedUnion(
     }),
   },
 );
+
+export const validateUUIDParam = (req, res, next) => {
+  const result = z.string().uuid().safeParse(req.params.id);
+  if (!result.success) {
+    return sendResponse(res, {
+      statusCode: 400,
+      code: "VALIDATION_ERROR",
+      message: "Invalid UUID format in URL parameter",
+      errors: {
+        invalidFields: {
+          id: "Invalid UUID format",
+        },
+      },
+    });
+  }
+  next();
+};

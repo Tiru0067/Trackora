@@ -1,20 +1,31 @@
 import { Router } from "express";
+import { authenticate } from "#/middlewares/authenticate.js";
+
 import {
-  getAllTransactions,
-  getTransaction,
+  getTransactions,
   createTransaction,
   updateTransaction,
   deleteTransaction,
 } from "./transactions.controllers.js";
+import {
+  validateCreateTransaction,
+  validateUpdateTransaction,
+} from "./transactions.validators.js";
+import { validateUUIDParam } from "#/utils/validators.js";
 
 const router = Router();
 
-router.get("/", getAllTransactions);
+router.use(authenticate);
+
+router
+  .route("/")
+  .get(getTransactions)
+  .post(validateCreateTransaction, createTransaction);
+
 router
   .route("/:id")
-  .get(getTransaction)
-  .post(createTransaction)
-  .put(updateTransaction)
+  .all(validateUUIDParam)
+  .patch(validateUpdateTransaction, updateTransaction)
   .delete(deleteTransaction);
 
 export default router;

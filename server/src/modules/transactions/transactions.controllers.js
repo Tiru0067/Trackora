@@ -1,21 +1,73 @@
+import asyncHandler from "#/utils/asyncHandler.js";
 import sendResponse from "#/utils/response.js";
+import {
+  createTransactionService,
+  updateTransactionService,
+  deleteTransactionService,
+  getTransactionsService,
+} from "./transactions.services.js";
 
-export const getAllTransactions = (req, res) => {
-  sendResponse(res, { statusCode: 200, message: "Get All Transactions Route" });
-};
+// ─── Get Transactions ────────────────────────────────────────────────────────
+export const getTransactions = asyncHandler(async (req, res) => {
+  const filters = {
+    walletId: req.query.walletId,
+    categoryId: req.query.categoryId,
+    type: req.query.type,
+    startDate: req.query.startDate,
+    endDate: req.query.endDate,
+    limit: req.query.limit,
+    page: req.query.page,
+  };
 
-export const getTransaction = (req, res) => {
-  sendResponse(res, { statusCode: 200, message: "Get Transaction Route" });
-};
+  const { transactions, pagination } = await getTransactionsService(
+    req.user.id,
+    filters,
+  );
 
-export const createTransaction = (req, res) => {
-  sendResponse(res, { statusCode: 201, message: "Create Transaction Route" });
-};
+  return sendResponse(res, {
+    statusCode: 200,
+    message: "Transactions retrieved successfully",
+    data: transactions,
+    pagination,
+  });
+});
 
-export const updateTransaction = (req, res) => {
-  sendResponse(res, { statusCode: 200, message: "Update Transaction Route" });
-};
+// ─── Create Transaction ──────────────────────────────────────────────────────
+export const createTransaction = asyncHandler(async (req, res) => {
+  const transaction = await createTransactionService(
+    req.user.id,
+    req.validatedBody,
+  );
 
-export const deleteTransaction = (req, res) => {
-  sendResponse(res, { statusCode: 200, message: "Delete Transaction Route" });
-};
+  return sendResponse(res, {
+    statusCode: 201,
+    message: "Transaction created successfully",
+    data: { transaction },
+  });
+});
+
+// ─── Update Transaction ──────────────────────────────────────────────────────
+export const updateTransaction = asyncHandler(async (req, res) => {
+  const transaction = await updateTransactionService(
+    req.user.id,
+    req.params.id,
+    req.validatedBody,
+  );
+
+  return sendResponse(res, {
+    statusCode: 200,
+    message: "Transaction updated successfully",
+    data: { transaction },
+  });
+});
+
+// ─── Delete Transaction ──────────────────────────────────────────────────────
+export const deleteTransaction = asyncHandler(async (req, res) => {
+  await deleteTransactionService(req.user.id, req.params.id);
+
+  return sendResponse(res, {
+    statusCode: 200,
+    message: "Transaction deleted successfully",
+    data: null,
+  });
+});
