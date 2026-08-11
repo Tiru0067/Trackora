@@ -14,7 +14,7 @@ const ComboBox = ({
   onChange,
   className,
   placeholder = "Select",
-  searchPlaceholder = "Eg: INR",
+  searchPlaceholder = "Search...",
 }) => {
   // ─── State ────────────────────────────────────────────────────────────────
   const [open, setOpen] = useState(false);

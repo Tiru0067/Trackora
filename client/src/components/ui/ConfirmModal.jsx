@@ -1,5 +1,5 @@
 import Modal from "./Modal";
-import { AlertCircle, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { BsExclamation } from "react-icons/bs";
 
 const ConfirmModal = ({

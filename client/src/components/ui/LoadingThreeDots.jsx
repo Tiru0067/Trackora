@@ -1,9 +1,10 @@
 import { motion } from "motion/react";
+import { cn } from "@/utils/cn";
 
-function LoadingThreeDotsJumping() {
+function LoadingThreeDots({ fullScreen = true, className }) {
   const dotVariants = {
     jump: {
-      transform: "translateY(-30px)",
+      transform: fullScreen ? "translateY(-24px)" : "translateY(-12px)",
       transition: {
         duration: 0.8,
         repeat: Infinity,
@@ -17,22 +18,24 @@ function LoadingThreeDotsJumping() {
     <motion.div
       animate="jump"
       transition={{ staggerChildren: -0.2, staggerDirection: -1 }}
-      className="w-screen h-dvh flex items-center justify-center gap-2.5"
+      className={cn(
+        "flex items-center justify-center gap-2",
+        fullScreen ? "w-screen h-dvh" : "w-full p-12",
+        className
+      )}
     >
-      <motion.div
-        className="h-5 w-5 rounded-full bg-indigo-500 will-change-transform"
-        variants={dotVariants}
-      />
-      <motion.div
-        className="h-5 w-5 rounded-full bg-indigo-500 will-change-transform"
-        variants={dotVariants}
-      />
-      <motion.div
-        className="h-5 w-5 rounded-full bg-indigo-500 will-change-transform"
-        variants={dotVariants}
-      />
+      {[1, 2, 3].map((i) => (
+        <motion.div
+          key={i}
+          className={cn(
+            "rounded-full bg-(--accent) will-change-transform",
+            fullScreen ? "h-4 w-4" : "h-2.5 w-2.5"
+          )}
+          variants={dotVariants}
+        />
+      ))}
     </motion.div>
   );
 }
 
-export default LoadingThreeDotsJumping;
+export default LoadingThreeDots;
