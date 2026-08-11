@@ -1,12 +1,12 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import LoadingThreeDotsJumping from "@/components/ui/LoadingThreeDots";
+import LoadingThreeDots from "@/components/ui/LoadingThreeDots";
 
 const PublicOnlyRoute = () => {
   const { loading, user } = useAuth();
 
   if (loading) {
-    return <LoadingThreeDotsJumping />;
+    return <LoadingThreeDots />;
   }
 
   if (user) {
