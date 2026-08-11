@@ -8,6 +8,7 @@ import WalletStats from "../components/WalletStats";
 import WalletToolbar from "../components/WalletToolbar";
 import WalletCard from "../components/WalletCard";
 import EmptyState from "@/components/ui/EmptyState";
+import Skeleton from "@/components/ui/Skeleton";
 import { getWalletSummary } from "../utils/walletCalculation";
 
 const WalletsPage = () => {
@@ -87,14 +88,6 @@ const WalletsPage = () => {
     setIsModalOpen(true);
   };
 
-  if (isLoading) {
-    return <div className="p-4 text-(--ink-soft)">Loading wallets...</div>;
-  }
-
-  if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
-  }
-
   return (
     <div>
       <header className="page-header lg:flex-row lg:justify-between gap-3 lg:items-end items-start">
@@ -105,11 +98,11 @@ const WalletsPage = () => {
             View and manage your different accounts and cash reserves
           </p>
         </div>
-        {wallets.length > 0 && (
+        {!isLoading && wallets.length > 0 && (
           <button
             type="button"
             onClick={handleCreate}
-            className="inline-flex items-center gap-1.5 bg-(--ink)/90 text-(--bg) px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-(--ink)/80 transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 h-9 bg-(--ink) text-(--bg) px-3.5 rounded-[9px] text-[13px] font-medium hover:bg-(--ink)/80 transition-all shadow-sm"
           >
             <Plus size={16} />
             <span>New Wallet</span>
@@ -117,66 +110,92 @@ const WalletsPage = () => {
         )}
       </header>
 
-      {wallets.length > 0 && (
+      {isLoading ? (
+        <div className="w-full">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <Skeleton className="h-22.5 flex-1" />
+            <Skeleton className="h-22.5 flex-1" />
+            <Skeleton className="h-22.5 flex-1 hidden sm:block" />
+          </div>
+          <div className="flex justify-between mb-4">
+            <Skeleton className="h-9 w-64" />
+            <Skeleton className="h-9 w-24" />
+          </div>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3 pt-4">
+            <Skeleton className="h-35 w-full" />
+            <Skeleton className="h-35 w-full" />
+            <Skeleton className="h-35 w-full" />
+            <Skeleton className="h-35 w-full hidden sm:block" />
+            <Skeleton className="h-35 w-full hidden lg:block" />
+            <Skeleton className="h-35 w-full hidden lg:block" />
+          </div>
+        </div>
+      ) : error ? (
+        <div className="p-4 text-red-500">{error}</div>
+      ) : (
         <>
-          <WalletStats
-            totalWalletsCount={totalWalletsCount}
-            balancesByCurrency={balancesByCurrency}
-            uniqueCurrenciesCount={uniqueCurrenciesCount}
-          />
+          {wallets.length > 0 && (
+            <>
+              <WalletStats
+                totalWalletsCount={totalWalletsCount}
+                balancesByCurrency={balancesByCurrency}
+                uniqueCurrenciesCount={uniqueCurrenciesCount}
+              />
 
-          <WalletToolbar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            filterCurrency={filterCurrency}
-            setFilterCurrency={setFilterCurrency}
-            balancesByCurrency={balancesByCurrency}
-            isSortMenuOpen={isSortMenuOpen}
-            setIsSortMenuOpen={setIsSortMenuOpen}
-            isFilterMenuOpen={isFilterMenuOpen}
-            setIsFilterMenuOpen={setIsFilterMenuOpen}
-          />
+              <WalletToolbar
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                filterCurrency={filterCurrency}
+                setFilterCurrency={setFilterCurrency}
+                balancesByCurrency={balancesByCurrency}
+                isSortMenuOpen={isSortMenuOpen}
+                setIsSortMenuOpen={setIsSortMenuOpen}
+                isFilterMenuOpen={isFilterMenuOpen}
+                setIsFilterMenuOpen={setIsFilterMenuOpen}
+              />
+            </>
+          )}
+
+          <LayoutGroup>
+            <Motion.ul
+              role="list"
+              layout
+              className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3 pt-4"
+            >
+              <AnimatePresence mode="popLayout">
+                {wallets.length === 0 ? (
+                  <EmptyState
+                    key="empty-wallets"
+                    icon={Wallet}
+                    title="No wallets yet"
+                    description="Create your first wallet to start tracking your balances and transactions."
+                    actionLabel="Create Wallet"
+                    onAction={handleCreate}
+                  />
+                ) : filteredAndSortedWallets.length === 0 ? (
+                  <EmptyState
+                    key="empty-search"
+                    icon={SearchX}
+                    title="No wallets found"
+                    description="We couldn't find any wallets matching your search or filter criteria."
+                  />
+                ) : (
+                  filteredAndSortedWallets.map((wallet) => (
+                    <WalletCard
+                      key={wallet.id}
+                      wallet={wallet}
+                      togglePinWallet={togglePinWallet}
+                      handleEdit={handleEdit}
+                    />
+                  ))
+                )}
+              </AnimatePresence>
+            </Motion.ul>
+          </LayoutGroup>
         </>
       )}
-
-      <LayoutGroup>
-        <Motion.ul
-          role="list"
-          layout
-          className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3 pt-4"
-        >
-          <AnimatePresence mode="popLayout">
-            {wallets.length === 0 ? (
-              <EmptyState
-                key="empty-wallets"
-                icon={Wallet}
-                title="No wallets yet"
-                description="Create your first wallet to start tracking your balances and transactions."
-                actionLabel="Create Wallet"
-                onAction={handleCreate}
-              />
-            ) : filteredAndSortedWallets.length === 0 ? (
-              <EmptyState
-                key="empty-search"
-                icon={SearchX}
-                title="No wallets found"
-                description="We couldn't find any wallets matching your search or filter criteria."
-              />
-            ) : (
-              filteredAndSortedWallets.map((wallet) => (
-                <WalletCard
-                  key={wallet.id}
-                  wallet={wallet}
-                  togglePinWallet={togglePinWallet}
-                  handleEdit={handleEdit}
-                />
-              ))
-            )}
-          </AnimatePresence>
-        </Motion.ul>
-      </LayoutGroup>
 
       <WalletFormModal
         isOpen={isModalOpen}

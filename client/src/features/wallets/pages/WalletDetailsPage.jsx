@@ -1,54 +1,87 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, Edit2, TrendingDown } from "lucide-react";
-import { LayoutGroup, motion as Motion } from "motion/react";
+import {
+  ArrowLeft,
+  Trash2,
+  Edit2,
+  TrendingDown,
+  Clock,
+  MoreVertical,
+  Plus,
+} from "lucide-react";
 import { useWallets } from "../hooks/useWallets";
+import { walletsApi } from "../api/wallets";
 import WalletFormModal from "../components/WalletFormModal";
-import AnimatedNumber from "@/components/ui/AnimatedNumber";
+import { useTransactions } from "../../transactions/hooks/useTransactions";
+import WalletTransactionList from "../components/WalletTransactionList";
+import TransactionFormModal from "../../transactions/components/TransactionFormModal";
+import TransactionDetailsModal from "../../transactions/components/TransactionDetailsModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
-import { getWalletSummary } from "../utils/walletCalculation";
-import { formatCurrency, getCurrencySymbol } from "@/utils/currency";
-import { cn } from "@/utils/cn";
+import Skeleton from "@/components/ui/Skeleton";
+import Popover from "@/components/ui/Popover";
+import { formatCurrency } from "@/utils/currency";
 import { useToast } from "@/hooks/useToast";
 
 const WalletDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToast } = useToast();
-  const { wallets, deleteWallet, isLoading } = useWallets();
+  const { wallets, deleteWallet, isLoading, fetchWallets } = useWallets();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [isTransactionDetailsModalOpen, setIsTransactionDetailsModalOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const prevBalanceRef = useRef(0);
+  const contextWallet = wallets.find((w) => w.id === id);
+  const [wallet, setWallet] = useState(contextWallet);
+  const [isWalletLoading, setIsWalletLoading] = useState(true);
 
-  const wallet = wallets.find((w) => w.id === id);
+  const fetchWallet = useCallback(async () => {
+    setIsWalletLoading(true);
+    try {
+      const data = await walletsApi.getById(id);
+      setWallet(data);
+    } catch (err) {
+      console.error("Failed to fetch wallet details:", err);
+      addToast("Failed to fetch wallet details", "error");
+    } finally {
+      setIsWalletLoading(false);
+    }
+  }, [id, addToast]);
 
-  const { totalIncome, totalExpense, totalBalance } = useMemo(
-    () => getWalletSummary(wallet, []),
-    [wallet],
-  );
+  useEffect(() => {
+    //eslint-disable-next-line
+    fetchWallet();
+  }, [fetchWallet]);
+
+  const {
+    transactions,
+    isLoading: isTransactionsLoading,
+    refetch: refetchTransactions,
+    deleteTransaction,
+  } = useTransactions({
+    walletId: id,
+  });
+
+  const {
+    totalIncome = 0,
+    totalExpense = 0,
+    totalBalance = wallet?.initialBalance || 0,
+  } = wallet?.stats || {};
 
   const burnRate =
     wallet?.initialBalance > 0
       ? Math.min((totalExpense / wallet.initialBalance) * 100, 100)
       : 0;
 
-  const burnColor =
-    burnRate > 90
-      ? "from-red-500 to-red-400"
-      : burnRate > 70
-        ? "from-amber-500 to-amber-400"
-        : "from-emerald-500 to-emerald-400";
-
-  const currencySymbol = getCurrencySymbol(wallet?.currency);
-
   useEffect(() => {
     // Redirect if wallet not found and we finished loading
-    if (!isLoading && !wallet) {
+    if (!isLoading && !isWalletLoading && !wallet) {
       navigate("/wallets");
     }
-  }, [isLoading, wallet, navigate]);
+  }, [isLoading, isWalletLoading, wallet, navigate]);
 
   const handleDelete = () => {
     setIsDeleteModalOpen(true);
@@ -69,7 +102,14 @@ const WalletDetailsPage = () => {
   };
 
   if (isLoading || !wallet) {
-    return <div className="p-4 text-(--ink-soft)">Loading...</div>;
+    return (
+      <div className="w-full mt-6">
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-10 w-1/3" />
+          <Skeleton className="h-8 w-1/4" />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -101,123 +141,177 @@ const WalletDetailsPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 ml-auto">
           <button
-            onClick={() => setIsEditModalOpen(true)}
-            className="sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-white/5 border border-(--line) text-(--ink) rounded-md font-medium hover:bg-(--line-soft) transition-colors"
+            type="button"
+            onClick={() => setIsTransactionModalOpen(true)}
+            className="inline-flex items-center gap-1.5 h-9 bg-(--ink) text-(--bg) px-3.5 rounded-[9px] text-[13px] font-medium hover:bg-(--ink)/80 transition-all shadow-sm"
           >
-            <Edit2 size={14} />
-            <span>Edit</span>
+            <Plus size={14} />
+            <span>New Transaction</span>
           </button>
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="flex items-center justify-center p-1.5 bg-red-500/10 text-red-500 border border-red-500/20 rounded-md hover:bg-red-500/20 transition-colors disabled:opacity-50"
-            title="Delete Wallet"
+
+          <Popover
+            placement="bottom-end"
+            trigger={<MoreVertical size={14} className="text-(--ink)" />}
+            triggerClassName="flex items-center justify-center h-9 bg-(--line) rounded-[9px] hover:bg-(--line-soft) transition-colors h-[34px] w-[34px]"
           >
-            <Trash2 size={14} />
-          </button>
+            {({ close }) => (
+              <div className="flex flex-col w-36 bg-(--bg-card) border border-(--line) rounded-lg shadow-lg overflow-hidden py-1">
+                <button
+                  onClick={() => {
+                    close();
+                    setIsEditModalOpen(true);
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-(--ink) hover:bg-(--line-soft) transition-colors text-left"
+                >
+                  <Edit2 size={14} />
+                  <span>Edit Wallet</span>
+                </button>
+                <button
+                  onClick={() => {
+                    close();
+                    handleDelete();
+                  }}
+                  disabled={isDeleting}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors text-left disabled:opacity-50"
+                >
+                  <Trash2 size={14} />
+                  <span>Delete Wallet</span>
+                </button>
+              </div>
+            )}
+          </Popover>
         </div>
       </header>
 
-      {/* Wallet Overview Stats */}
-      <section className="flex flex-col gap-5 p-6 mt-6 bg-(--bg-card) border border-(--line) rounded-2xl shadow-sm">
-        {/* Balance & Burn Rate */}
-        <div className="flex items-end flex-wrap gap-1">
-          <div className="flex flex-col gap-1 w-full sm:w-auto">
-            <h2 className="text-sm font-medium text-(--ink-soft)">
-              Total Balance
-            </h2>
-            <div
-              className={cn(
-                "text-2xl sm:text-[30px] font-semibold leading-none tracking-tight",
-                totalBalance >= 0 ? "text-(--ink)" : "text-red-500",
-              )}
-            >
-              {currencySymbol}
-              <AnimatedNumber
-                from={prevBalanceRef}
-                to={totalBalance}
-                currency={wallet.currency}
-              />
-            </div>
+      {isWalletLoading ? (
+        <>
+          <div className="grid grid-cols-1 xxs:grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <Skeleton className="h-30 rounded-xl" />
+            <Skeleton className="h-30 rounded-xl" />
+            <Skeleton className="h-30 rounded-xl" />
+            <Skeleton className="h-30 rounded-xl" />
           </div>
+          <div className="mt-8">
+            <WalletTransactionList
+              isLoading={true}
+              currency={wallet.currency}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Wallet Stat Cards */}
+          <dl
+            className="grid grid-cols-1 xxs:grid-cols-2 md:grid-cols-4 gap-4 mt-6"
+            aria-label="Wallet Statistics"
+          >
+            {/* Balance Card */}
+            <div className="flex flex-col p-5 bg-(--bg-card) border border-(--line) rounded-xl shadow-xs h-30">
+              <dt className="text-[11px] uppercase tracking-wide text-(--ink-muted) font-mono mb-2">
+                TOTAL BALANCE
+              </dt>
+              <dd className="text-[22px] font-semibold tracking-tight text-(--ink)">
+                <span className="sr-only">Balance is </span>
+                {formatCurrency(totalBalance, wallet.currency)}
+              </dd>
+              <dd
+                className="mt-auto pt-2 text-xs font-normal text-(--ink-muted) flex items-center gap-1.5"
+                aria-hidden="true"
+              >
+                {burnRate > 0 ? (
+                  <>
+                    <TrendingDown size={12} className="opacity-70" />
+                    <span>{burnRate.toFixed(0)}% total used</span>
+                  </>
+                ) : (
+                  <span>Fully funded</span>
+                )}
+              </dd>
+            </div>
 
-          {burnRate > 0 && (
-            <span
-              className={cn(
-                "text-xs sm:text-sm font-medium flex items-center gap-1 sm:ml-auto mb-1",
-                burnRate > 90
-                  ? "text-red-500"
-                  : burnRate > 70
-                    ? "text-amber-500"
-                    : "text-emerald-500",
-              )}
-            >
-              <TrendingDown aria-hidden="true" size={16} />
-              {burnRate.toFixed(0)}%{" "}
-              <span className="text-(--ink-soft) font-normal">total used</span>
-            </span>
-          )}
-        </div>
+            {/* Income Card */}
+            <div className="flex flex-col p-5 bg-(--bg-card) border border-(--line) rounded-xl shadow-xs h-30">
+              <dt className="text-[11px] uppercase tracking-wide text-(--ink-muted) font-mono mb-2">
+                INCOME
+              </dt>
+              <dd className="text-[22px] font-semibold tracking-tight text-emerald-500">
+                <span className="sr-only">Total Income is </span>
+                {formatCurrency(totalIncome, wallet.currency)}
+              </dd>
+              <dd
+                className="mt-auto pt-2 text-xs font-normal text-(--ink-muted)"
+                aria-hidden="true"
+              >
+                Total Income
+              </dd>
+            </div>
 
-        {/* Burn rate progress line */}
-        <div
-          aria-hidden="true"
-          className="h-0.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden relative"
-        >
-          <Motion.div
-            className={cn(
-              "absolute top-0 left-0 h-full bg-linear-to-r transition-colors duration-700",
-              burnColor,
-            )}
-            initial={{ width: 0 }}
-            animate={{ width: `${burnRate}%` }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          />
-        </div>
+            {/* Expense Card */}
+            <div className="flex flex-col p-5 bg-(--bg-card) border border-(--line) rounded-xl shadow-xs h-30">
+              <dt className="text-[11px] uppercase tracking-wide text-(--ink-muted) font-mono mb-2">
+                EXPENSE
+              </dt>
+              <dd className="text-[22px] font-semibold tracking-tight text-red-500">
+                <span className="sr-only">Total Expense is </span>
+                {formatCurrency(totalExpense, wallet.currency)}
+              </dd>
+              <dd
+                className="mt-auto pt-2 text-xs font-normal text-(--ink-muted)"
+                aria-hidden="true"
+              >
+                Total Expense
+              </dd>
+            </div>
 
-        {/* Income & Expense Split Layout */}
-        <div className="flex gap-8 mt-2">
-          <LayoutGroup>
-            <Motion.div layout>
-              <Motion.div layout="position">
-                <p className="text-xs font-medium text-(--ink-soft) mb-1">
-                  Income
-                </p>
-                <p className="text-lg sm:text-xl font-semibold text-green-500 tabular-nums">
-                  {formatCurrency(totalIncome, wallet.currency)}
-                </p>
-              </Motion.div>
-            </Motion.div>
+            {/* Activity Card */}
+            <div className="flex flex-col p-5 bg-(--bg-card) border border-(--line) rounded-xl shadow-xs h-30">
+              <dt className="text-[11px] uppercase tracking-wide text-(--ink-muted) font-mono mb-2">
+                TRANSACTIONS
+              </dt>
+              <dd className="text-[22px] font-semibold tracking-tight text-(--ink)">
+                <span className="sr-only">Total transactions are </span>
+                {wallet?.stats?.transactionCount || 0}
+              </dd>
+              <dd
+                className="mt-auto pt-2 text-xs font-normal text-(--ink-muted) flex items-center gap-1.5"
+                aria-hidden="true"
+              >
+                {wallet?.stats?.lastTransactionDate ? (
+                  <>
+                    <Clock size={12} className="opacity-70" />
+                    <span>
+                      Last:{" "}
+                      {new Date(
+                        wallet.stats.lastTransactionDate,
+                      ).toLocaleDateString(undefined, {
+                        day: "numeric",
+                        month: "short",
+                      })}
+                    </span>
+                  </>
+                ) : (
+                  <span>No transactions yet</span>
+                )}
+              </dd>
+            </div>
+          </dl>
 
-            <div aria-hidden="true" className="w-px bg-(--line)" />
-
-            <Motion.div layout>
-              <Motion.div layout="position">
-                <p className="text-xs font-medium text-(--ink-soft) mb-1">
-                  Expense
-                </p>
-                <p className="text-lg sm:text-xl font-semibold text-red-500 tabular-nums">
-                  {formatCurrency(totalExpense, wallet.currency)}
-                </p>
-              </Motion.div>
-            </Motion.div>
-          </LayoutGroup>
-        </div>
-      </section>
-
-      <section className="mt-8" aria-labelledby="transactions-heading">
-        <h2
-          id="transactions-heading"
-          className="text-lg font-semibold text-(--ink) mb-4"
-        >
-          Recent Transactions
-        </h2>
-        <div className="p-8 text-center border border-dashed border-(--line) rounded-xl text-(--ink-soft)">
-          Transactions functionality coming soon.
-        </div>
-      </section>
+          <div className="mt-8">
+            <WalletTransactionList
+              transactions={transactions}
+              isLoading={isTransactionsLoading}
+              currency={wallet.currency}
+              onAddTransaction={() => setIsTransactionModalOpen(true)}
+              onRowClick={(tx) => {
+                setSelectedTransaction(tx);
+                setIsTransactionDetailsModalOpen(true);
+              }}
+            />
+          </div>
+        </>
+      )}
 
       <WalletFormModal
         isOpen={isEditModalOpen}
@@ -234,6 +328,31 @@ const WalletDetailsPage = () => {
         confirmText="Delete Wallet"
         isDestructive={true}
         isLoading={isDeleting}
+      />
+
+      <TransactionFormModal
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+        initialWalletId={wallet?.id}
+        onSuccess={() => {
+          fetchWallet();
+          refetchTransactions();
+          fetchWallets();
+        }}
+      />
+
+      <TransactionDetailsModal
+        isOpen={isTransactionDetailsModalOpen}
+        onClose={() => {
+          setIsTransactionDetailsModalOpen(false);
+          setSelectedTransaction(null);
+        }}
+        transaction={selectedTransaction}
+        onDelete={async (txId) => {
+          await deleteTransaction(txId);
+          fetchWallet();
+          fetchWallets();
+        }}
       />
     </article>
   );
