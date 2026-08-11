@@ -103,12 +103,24 @@ const TransactionDetailsModal = ({
     );
   }
 
-  // Handle Transfer amounts
-  const outAmount = transaction.amount;
-  const inAmount =
-    transaction.linkedTransfer?.amount ||
-    transaction.transferLeg?.amount ||
-    outAmount;
+  // Handle Transfer details correctly based on direction
+  const isTransferIn = transaction.type === "TRANSFER" && transaction.transferDirection === "IN";
+  
+  const fromWallet = isTransferIn
+    ? (transaction.linkedTransfer?.wallet || transaction.transferLeg?.wallet)
+    : transaction.wallet;
+    
+  const toWallet = isTransferIn
+    ? transaction.wallet
+    : (transaction.linkedTransfer?.wallet || transaction.transferLeg?.wallet);
+
+  const outAmount = isTransferIn
+    ? (transaction.linkedTransfer?.amount || transaction.transferLeg?.amount || transaction.amount)
+    : transaction.amount;
+
+  const inAmount = isTransferIn
+    ? transaction.amount
+    : (transaction.linkedTransfer?.amount || transaction.transferLeg?.amount || transaction.amount);
 
   return (
     <>
@@ -169,17 +181,16 @@ const TransactionDetailsModal = ({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center text-[12px] text-(--ink-muted) font-medium">
                   <span className="w-24 truncate">
-                    {transaction.wallet?.name}
+                    {fromWallet?.name}
                   </span>
                   <span className="w-6 shrink-0"></span>
                   <span className="truncate">
-                    {transaction.linkedTransfer?.wallet?.name ||
-                      transaction.transferLeg?.wallet?.name}
+                    {toWallet?.name}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-[26px] font-bold tracking-tight text-(--ink)">
-                    {formatCurrency(outAmount, transaction.wallet?.currency)}
+                    {formatCurrency(outAmount, fromWallet?.currency)}
                   </span>
                   <ArrowRight
                     size={18}
@@ -188,8 +199,7 @@ const TransactionDetailsModal = ({
                   <span className="text-[26px] font-bold tracking-tight text-(--ink)">
                     {formatCurrency(
                       inAmount,
-                      transaction.linkedTransfer?.wallet?.currency ||
-                        transaction.transferLeg?.wallet?.currency,
+                      toWallet?.currency,
                     )}
                   </span>
                 </div>
@@ -229,9 +239,9 @@ const TransactionDetailsModal = ({
                   <span className="font-medium text-(--ink) flex items-center gap-1.5">
                     <span
                       className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: transaction.wallet?.color }}
+                      style={{ backgroundColor: fromWallet?.color }}
                     />
-                    {transaction.wallet?.name}
+                    {fromWallet?.name}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-[14px]">
@@ -240,13 +250,10 @@ const TransactionDetailsModal = ({
                     <span
                       className="w-2 h-2 rounded-full"
                       style={{
-                        backgroundColor:
-                          transaction.linkedTransfer?.wallet?.color ||
-                          transaction.transferLeg?.wallet?.color,
+                        backgroundColor: toWallet?.color,
                       }}
                     />
-                    {transaction.linkedTransfer?.wallet?.name ||
-                      transaction.transferLeg?.wallet?.name}
+                    {toWallet?.name}
                   </span>
                 </div>
               </>
