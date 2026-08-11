@@ -51,7 +51,7 @@ export const createTransactionService = async (userId, data) => {
           },
         },
         category: {
-          select: { id: true, name: true, color: true, deletedAt: true },
+          select: { id: true, name: true, color: true, icon: true, deletedAt: true },
         },
       },
     });
@@ -66,6 +66,10 @@ export const createTransactionService = async (userId, data) => {
 
   if (!fromWallet || !toWallet)
     throw new AppError("One or both wallets not found", 404);
+
+  if (fromWallet.currency !== toWallet.currency && !destinationAmount) {
+    throw new AppError("destinationAmount is required for cross-currency transfers", 400);
+  }
 
   const inAmount = destinationAmount || amount;
 
@@ -217,7 +221,7 @@ export const updateTransactionService = async (
         },
       },
       category: {
-        select: { id: true, name: true, color: true, deletedAt: true },
+        select: { id: true, name: true, color: true, icon: true, deletedAt: true },
       },
     },
   });
@@ -287,7 +291,7 @@ export const getTransactionsService = async (userId, filters) => {
           },
         },
         category: {
-          select: { id: true, name: true, color: true, deletedAt: true },
+          select: { id: true, name: true, color: true, icon: true, deletedAt: true },
         },
         linkedTransfer: {
           include: {
