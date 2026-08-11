@@ -216,13 +216,6 @@ const TransactionDetailsModal = ({
           {/* Details List */}
           <div className="w-full flex flex-col gap-4 mb-6">
             <div className="flex justify-between items-center text-[14px]">
-              <span className="text-(--ink-muted)">Status</span>
-              <span className="font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-md text-[12px]">
-                Completed
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center text-[14px]">
               <span className="text-(--ink-muted)">Type</span>
               <span className="font-medium text-(--ink) capitalize">
                 {transaction.type.toLowerCase()}
