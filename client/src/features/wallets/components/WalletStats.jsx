@@ -12,7 +12,7 @@ const WalletStats = ({
       aria-label="Wallet Statistics"
       className="mt-6 p-4 bg-(--bg-card) border border-(--line) rounded-xl text-sm font-medium text-(--ink)"
     >
-      <table className="max-md:w-full w-lg">
+      <table className="max-md:w-full w-lg table-fixed">
         <tbody>
           <tr className="text-(--ink-soft) text-xs text-left">
             <th className="font-medium pr-6">Total Wallets</th>
