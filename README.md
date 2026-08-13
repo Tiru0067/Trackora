@@ -32,15 +32,28 @@ A personal finance web app built from scratch, with a React frontend and a Node/
 - Wallets API CRUD complete, featuring smart constraint handling (e.g., automatically demoting the previous primary wallet in a transaction)
 - Prisma Schema configured for Wallets, Categories, and historical Transaction currency tracking
 
+**Wallets & Currencies**
+
+- Full frontend UI for managing wallets (create, edit, delete)
+- Connected to a live backend API for supported currencies and real exchange rates
+- Shows a unified total balance across all your wallets by automatically converting them into your base currency
+
+**Transactions & Categories**
+
+- Full transaction tracking (expenses, incomes, and transfers between wallets)
+- Handled tricky stuff like cross-currency transfers (where sending USD and receiving EUR requires custom exchange amounts)
+- Premium UI modals to view transaction details, edit them, or delete them safely
+- Basic category selection is working for organizing expenses
+
 ## Status
 
 - [x] Authentication (registration, login, sessions, password recovery)
 - [x] Email verification
 - [x] Centralized error handling & route guarding
-- [x] Wallets (Backend API Complete)
-- [ ] Wallets (Frontend UI)
-- [ ] Core transaction tracking
-- [ ] Categories & budgeting
+- [x] Wallets (Backend API & Frontend UI Complete)
+- [x] Core transaction tracking (CRUD & Transfers)
+- [x] Categories (Basic support)
+- [ ] Budgeting
 - [ ] Dashboard / analytics
 
 ## Getting Started

@@ -42,10 +42,17 @@ The API and database layer for Trackora, built with Node.js, Express, and Prisma
 - Smart `isPrimary` promotion logic utilizing Prisma transactions (promoting a new wallet demotes the old primary automatically).
 - Schema ensures no duplicate wallet names per user.
 
-**Database Schema (Prisma)**
+**Transactions & Categories**
 
-- Setup schemas for Wallets, Categories, and Transactions.
-- Transactions include currency conversion tracking fields (`originalAmount`, `originalCurrency`, `exchangeRate`) to ensure resilient historical data.
+- Full CRUD (Create, Read, Update, Delete) endpoints for Transactions
+- Special logic for "Transfers" between wallets, linking two transactions together (one money out, one money in)
+- Cross-currency transfers recalculate amounts automatically based on the user's destination amount
+- Categories API to fetch and manage income/expense labels
+
+**Currencies & Exchange Rates**
+
+- Integrated a free API (Frankfurter) to get live exchange rates and supported currencies
+- Built a simple caching layer so we don't spam the external API on every request
 
 ## Status
 
@@ -53,8 +60,9 @@ The API and database layer for Trackora, built with Node.js, Express, and Prisma
 - [x] Email verification + rate limiting
 - [x] Centralized error handling & Zod Validation
 - [x] Wallets API endpoints
-- [ ] Transaction endpoints
-- [ ] Category endpoints
+- [x] Transaction endpoints & Transfer logic
+- [x] Category endpoints
+- [x] Currencies & Exchange rates API
 - [ ] Budget / analytics endpoints
 
 ## Getting Started

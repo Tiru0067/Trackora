@@ -35,14 +35,27 @@ The React frontend for Trackora, built with Vite.
 
 - `FormField`, `ComboBox`, and `Popover` — built to be extensible rather than one-off
 
+**Wallets & Currencies**
+
+- Full UI for creating, editing, and deleting wallets
+- Connected a real-time currency API to get supported currencies
+- Cool feature: The Wallet Stats section takes all your different wallets (like USD, EUR, INR) and magically converts them into your base currency to show one single total balance!
+
+**Transactions & Categories**
+
+- Beautiful UI for creating expenses, incomes, and transfers
+- Handled cross-currency transfers (e.g. sending money from a USD wallet to an EUR wallet)
+- A slick transaction details modal with an Edit and Delete flow
+- Basic category dropdowns for expenses
+
 ## Status
 
 - [x] Auth UI (login, register, forgot/reset password)
 - [x] Email verification UX
 - [x] Toast system + route guards
-- [ ] Wallets UI
-- [ ] Transactions UI
-- [ ] Categories UI
+- [x] Wallets UI & Exchange Rates
+- [x] Transactions UI
+- [x] Categories UI (Basic support)
 - [ ] Dashboard / analytics
 
 ## Getting Started
