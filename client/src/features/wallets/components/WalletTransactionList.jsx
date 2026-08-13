@@ -61,12 +61,12 @@ const getTransactionDisplayInfo = (tx) => {
   let customElement = null;
   if (tx.category?.icon) {
     const iconObj = tx.category.icon;
-    if (iconObj.set === "emojis") {
+    if (iconObj.type === "emoji") {
       customElement = (
-        <span className="leading-none text-lg">{iconObj.name}</span>
+        <span className="leading-none text-lg">{iconObj.value}</span>
       );
-    } else if (iconObj.set === "phosphor" && PhosphorIcons[iconObj.name]) {
-      const PhosphorIcon = PhosphorIcons[iconObj.name];
+    } else if (iconObj.type === "phosphor" && PhosphorIcons[iconObj.value]) {
+      const PhosphorIcon = PhosphorIcons[iconObj.value];
       customElement = <PhosphorIcon size={18} strokeWidth={1.75} />;
     }
   }
