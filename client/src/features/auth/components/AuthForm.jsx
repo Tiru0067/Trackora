@@ -1,13 +1,13 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
 import { UserRound, Mail, LockKeyhole, Eye, EyeOff } from "lucide-react";
 
 import { cn } from "@/utils/cn";
-import { currencyList } from "@/utils/currencies";
 import { validateField } from "@/features/auth/utils/validateFields";
 
 import { useToast } from "@/hooks/useToast";
+import { useCurrencies } from "@/features/currencies/hooks/useCurrencies";
 
 import ComboBox from "@/components/ui/ComboBox";
 import FormField from "@/components/ui/FormField";
@@ -24,6 +24,7 @@ const AuthForm = ({ type, form, onChange, onSubmit }) => {
   // ─── Hooks ────────────────────────────────────────────────────────────────
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const { currencies } = useCurrencies();
 
   // ─── State ────────────────────────────────────────────────────────────────
   const [showPassword, setShowPassword] = useState(false);
@@ -49,6 +50,14 @@ const AuthForm = ({ type, form, onChange, onSubmit }) => {
         : isLogin
           ? "Sign in"
           : "Sign up";
+
+  const currencyList = React.useMemo(() => {
+    return currencies.map((currency) => ({
+      label: currency.code,
+      value: currency.code,
+      name: currency.name,
+    }));
+  }, [currencies]);
 
   // ─── IDs ──────────────────────────────────────────────────────────────────
   const titleId = "auth-form-title";
