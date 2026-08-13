@@ -29,10 +29,43 @@ export const createCategoryService = async (userId, categoryData) => {
 };
 
 export const getCategoriesService = async (userId) => {
-  return await prisma.category.findMany({
+  const categories = await prisma.category.findMany({
     where: { userId, deletedAt: null },
     orderBy: { createdAt: "desc" },
   });
+
+  const transactions = await prisma.transaction.findMany({
+    where: { userId, categoryId: { not: null } },
+    select: {
+      categoryId: true,
+      amount: true,
+      type: true,
+      wallet: {
+        select: { currency: true },
+      },
+    },
+  });
+
+  const statsMap = {};
+  for (const t of transactions) {
+    if (!statsMap[t.categoryId]) {
+      statsMap[t.categoryId] = { transactionCount: 0, balancesByCurrency: {} };
+    }
+    const catStats = statsMap[t.categoryId];
+    catStats.transactionCount++;
+
+    const currency = t.wallet.currency;
+    let amt = Number(t.amount || 0);
+    if (t.type === "EXPENSE") amt = -amt;
+
+    catStats.balancesByCurrency[currency] =
+      (catStats.balancesByCurrency[currency] || 0) + amt;
+  }
+
+  return categories.map((c) => ({
+    ...c,
+    stats: statsMap[c.id] || { transactionCount: 0, balancesByCurrency: {} },
+  }));
 };
 
 export const getCategoryByIdService = async (userId, categoryId) => {
