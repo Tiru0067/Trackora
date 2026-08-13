@@ -157,10 +157,10 @@ const ResetPasswordPage = () => {
             type="submit"
             disabled={loading}
             className={cn(
-              "w-full p-2.5 text-sm font-medium bg-(--accent) active:bg-(--accent)/75 text-white rounded-lg cursor-pointer transition-colors duration-150 mt-2",
+              "btn w-full mt-2 bg-(--accent) text-white",
               loading
                 ? "cursor-progress bg-(--accent)/75"
-                : "hover:bg-(--accent)/75",
+                : "hover:bg-(--accent)/75 active:bg-(--accent)/75",
             )}
           >
             {loading ? "Resetting..." : "Reset password"}

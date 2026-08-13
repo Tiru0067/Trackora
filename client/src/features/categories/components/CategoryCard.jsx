@@ -93,7 +93,7 @@ const CategoryCard = ({ category, handleEdit, handleDelete }) => {
           e.stopPropagation();
           setIsMenuOpen((prev) => !prev);
         }}
-        className="absolute top-3 right-3 p-1.5 rounded-md text-(--ink-muted) transition-opacity hover:text-(--ink) hover:bg-(--line-soft)"
+        className="btn btn-icon absolute top-2 right-2 h-7 w-7 min-w-7"
       >
         <EllipsisVertical size={16} />
       </button>

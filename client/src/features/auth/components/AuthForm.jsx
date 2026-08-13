@@ -308,14 +308,14 @@ const AuthForm = ({ type, form, onChange, onSubmit }) => {
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="mr-3 p-0.5 rounded text-(--ink-muted) hover:text-(--ink-soft) focus-visible:outline-2 focus-visible:outline-(--accent) cursor-pointer"
+                className="btn btn-icon h-7 w-7 min-w-7 mr-2"
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 aria-pressed={showPassword}
               >
                 {showPassword ? (
-                  <Eye aria-hidden="true" size={18} />
+                  <Eye aria-hidden="true" size={16} />
                 ) : (
-                  <EyeOff aria-hidden="true" size={18} />
+                  <EyeOff aria-hidden="true" size={16} />
                 )}
               </button>
             </div>
@@ -351,10 +351,10 @@ const AuthForm = ({ type, form, onChange, onSubmit }) => {
           type="submit"
           disabled={loading}
           className={cn(
-            "w-full p-2.5 text-sm font-medium bg-(--accent) active:bg-(--accent)/75 text-white rounded-lg cursor-pointer transition-colors duration-150",
+            "btn w-full bg-(--accent) text-white",
             loading
               ? "cursor-progress bg-(--accent)/75"
-              : "hover:bg-(--accent)/75",
+              : "hover:bg-(--accent)/75 active:bg-(--accent)/75"
           )}
         >
           {submitLabel}
@@ -371,11 +371,11 @@ const AuthForm = ({ type, form, onChange, onSubmit }) => {
             <button
               type="button"
               aria-label="Continue with Google"
-              className="min-w-30 flex-1 flex items-center justify-center gap-2 p-2.5 border border-(--line) rounded-lg hover:bg-(--bg-warm) cursor-pointer transition-colors duration-150"
+              className="btn flex-1 bg-transparent hover:bg-(--bg-warm) border border-(--line)"
               onClick={() => addToast("Coming soon", "info")}
             >
               <img src={google} alt="" aria-hidden="true" className="w-4 h-4" />
-              <span className="text-sm text-(--ink-soft)">Google</span>
+              <span className="text-(--ink-soft)">Google</span>
             </button>
           </div>
         </section>

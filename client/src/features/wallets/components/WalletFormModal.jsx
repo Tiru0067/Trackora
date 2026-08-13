@@ -198,14 +198,14 @@ const WalletFormModal = ({ isOpen, onClose, wallet = null }) => {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-(--ink-soft) hover:text-(--ink) transition-colors"
+            className="btn hover:bg-(--line-soft) text-(--ink-soft)"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-white bg-(--accent) rounded-full hover:bg-(--accent)/90 transition-colors disabled:opacity-50"
+            className="btn btn-primary"
           >
             {isSubmitting
               ? "Saving..."

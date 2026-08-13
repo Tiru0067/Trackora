@@ -170,10 +170,10 @@ const ForgotPasswordPage = () => {
               type="submit"
               disabled={loading || remainingMs > 0}
               className={cn(
-                "w-full p-2.5 text-sm font-medium bg-(--accent) active:bg-(--accent)/75 text-white rounded-lg cursor-pointer transition-colors duration-150",
+                "btn w-full bg-(--accent) text-white",
                 loading || remainingMs > 0
                   ? "cursor-not-allowed bg-(--accent)/50 text-white/80"
-                  : "hover:bg-(--accent)/75",
+                  : "hover:bg-(--accent)/75 active:bg-(--accent)/75"
               )}
             >
               {loading ? "Sending..." : "Send reset link"}

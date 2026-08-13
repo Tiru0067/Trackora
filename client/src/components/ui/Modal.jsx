@@ -108,7 +108,7 @@ const Modal = ({ isOpen, onClose, title, children, hideHeader = false }) => {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="p-1.5 text-(--ink-soft) hover:text-(--ink) hover:bg-(--line-soft) rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white"
+                    className="btn btn-icon text-(--ink-soft) hover:text-(--ink) hover:bg-(--line-soft) h-8 w-8 min-w-8"
                     aria-label="Close modal"
                   >
                     <X size={18} />

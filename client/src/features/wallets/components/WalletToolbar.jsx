@@ -48,7 +48,7 @@ const WalletToolbar = ({
             onClick={() => setIsFilterMenuOpen((prev) => !prev)}
             aria-expanded={isFilterMenuOpen}
             aria-haspopup="menu"
-            className="flex items-center justify-center sm:justify-start gap-2 px-3 py-2 h-10 bg-(--bg-card) border border-(--line) hover:border-(--line-soft) rounded-lg text-sm text-(--ink) transition-colors sm:min-w-36"
+            className="btn sm:justify-start bg-(--bg-card) border border-(--line) hover:border-(--line-soft) text-(--ink) sm:min-w-36"
             title="Filter by currency"
           >
             <Filter size={14} className="text-(--ink-muted)" aria-hidden="true" />
@@ -114,7 +114,7 @@ const WalletToolbar = ({
             onClick={() => setIsSortMenuOpen((prev) => !prev)}
             aria-expanded={isSortMenuOpen}
             aria-haspopup="menu"
-            className="flex items-center justify-center sm:justify-start gap-2 px-3 py-2 h-10 bg-(--bg-card) border border-(--line) hover:border-(--line-soft) rounded-lg text-sm text-(--ink) transition-colors sm:min-w-40"
+            className="btn sm:justify-start bg-(--bg-card) border border-(--line) hover:border-(--line-soft) text-(--ink) sm:min-w-40"
             title="Sort wallets"
           >
             <ArrowUpDown size={14} className="text-(--ink-muted)" aria-hidden="true" />

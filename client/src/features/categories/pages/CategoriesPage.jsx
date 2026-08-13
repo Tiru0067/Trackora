@@ -160,7 +160,7 @@ const CategoriesPage = () => {
           <button
             type="button"
             onClick={handleCreate}
-            className="inline-flex items-center gap-1.5 h-9 bg-(--ink) text-(--bg) px-3.5 rounded-[9px] text-[13px] font-medium hover:bg-(--ink)/80 transition-all shadow-sm"
+            className="btn bg-(--ink) text-(--bg) hover:bg-(--ink)/80 shadow-sm"
           >
             <Plus size={16} />
             <span>New Category</span>

@@ -189,7 +189,7 @@ const VerifyEmailPage = () => {
           <div className="flex flex-col items-start gap-1">
             <button
               type="button"
-              className="text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-not-allowed"
+              className="btn bg-transparent p-0 h-auto min-w-0 text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-not-allowed"
               onClick={resend}
               disabled={resending || remainingMs > 0}
             >
@@ -205,11 +205,15 @@ const VerifyEmailPage = () => {
         </section>
 
         <footer>
-          <Link to="/login" replace>
-            <button type="button" className="text-(--accent)">
+          <p className="text-sm text-center text-(--ink) mt-4">
+            <Link
+              to="/login"
+              replace
+              className="text-(--accent) hover:text-(--accent-ink) hover:underline"
+            >
               Back to login
-            </button>
-          </Link>
+            </Link>
+          </p>
         </footer>
       </section>
     </Auth>

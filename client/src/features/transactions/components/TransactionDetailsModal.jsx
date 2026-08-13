@@ -133,7 +133,7 @@ const TransactionDetailsModal = ({
           {/* Custom Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-2 right-2 p-1.5 text-(--ink-muted) hover:text-(--ink) hover:bg-(--line-soft) rounded-lg transition-colors"
+            className="btn btn-icon absolute top-2 right-2 text-(--ink-muted) hover:text-(--ink) hover:bg-(--line-soft)"
             aria-label="Close"
           >
             <X size={18} />
@@ -308,13 +308,13 @@ const TransactionDetailsModal = ({
           <div className="w-full grid grid-cols-2 gap-3 mt-2">
             <button
               onClick={() => onEdit?.(transaction)}
-              className="py-2.5 rounded-xl flex items-center justify-center gap-2 text-[14px] font-semibold text-(--ink) border border-(--line) hover:bg-(--line-soft) transition-colors"
+              className="btn border border-(--line) hover:bg-(--line-soft) text-(--ink) w-full"
             >
               <Edit2 size={16} /> Edit
             </button>
             <button
               onClick={() => setIsDeleteModalOpen(true)}
-              className="py-2.5 rounded-xl flex items-center justify-center gap-2 text-[14px] font-semibold text-red-500 bg-red-500/10 hover:bg-red-500/15 border border-transparent shadow-sm transition-all"
+              className="btn bg-red-500/10 text-red-500 hover:bg-red-500/15 w-full"
             >
               <Trash2 size={16} /> Delete
             </button>

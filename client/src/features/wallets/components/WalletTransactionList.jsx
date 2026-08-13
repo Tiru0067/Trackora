@@ -110,7 +110,7 @@ const WalletTransactionList = ({
         </h2>
         <button
           type="button"
-          className="text-[13px] font-medium text-(--ink) hover:text-(--ink-soft) transition-colors"
+          className="btn hover:bg-(--line-soft) text-(--ink) h-8 px-2 text-xs"
         >
           View All
         </button>
@@ -131,9 +131,9 @@ const WalletTransactionList = ({
             </p>
             <button
               onClick={onAddTransaction}
-              className="inline-flex items-center gap-1.5 h-9 bg-(--ink) text-(--bg) px-3.5 rounded-[9px] text-[13px] font-medium hover:bg-(--ink)/80 transition-all shadow-sm"
+              className="btn bg-(--ink) text-(--bg) hover:bg-(--ink)/80 shadow-sm"
             >
-              <Plus size={14} />
+              <Plus size={16} />
               Add transaction
             </button>
           </div>
