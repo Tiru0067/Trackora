@@ -8,7 +8,6 @@ import {
 export const currenciesRouter = Router();
 export const exchangeRatesRouter = Router();
 
-currenciesRouter.use(authenticate);
 exchangeRatesRouter.use(authenticate);
 
 currenciesRouter.get("/", getCurrencies);
