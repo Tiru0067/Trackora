@@ -45,7 +45,7 @@ const Popover = ({
   role,
   id,
   labelledBy,
-  trapFocus = false,
+  trapFocus = true,
 }) => {
   // ─── State ────────────────────────────────────────────────────────────────
   const [internalOpen, setInternalOpen] = useState(false);
@@ -168,18 +168,22 @@ const Popover = ({
 
   // ─── Event listeners ──────────────────────────────────────────────────────
 
-  // useEffect(() => {
-  //   if (!open) return;
+  useEffect(() => {
+    if (!open) return;
 
-  //   const frameId = requestAnimationFrame(() => {
-  //     const focusableElements = getFocusableElements(popoverRef.current);
-  //     // focusableElements[0]?.focus() ?? popoverRef.current?.focus();
-  //   });
+    const frameId = requestAnimationFrame(() => {
+      const focusableElements = getFocusableElements(popoverRef.current);
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      } else {
+        popoverRef.current?.focus();
+      }
+    });
 
-  //   return () => {
-  //     cancelAnimationFrame(frameId);
-  //   };
-  // }, [open]);
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
+  }, [open]);
 
   // Reposition on scroll/resize
   useEffect(() => {
@@ -201,7 +205,7 @@ const Popover = ({
     };
   }, [open, updatePosition]);
 
-  // Close on Escape
+  // Close on Escape & handle keyboard navigation
   useEffect(() => {
     if (!open) return;
 
@@ -210,28 +214,48 @@ const Popover = ({
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation?.();
-
         closeAndRestoreFocus();
         return;
       }
 
-      if (!trapFocus || event.key !== "Tab") return;
-
       const focusableElements = getFocusableElements(popoverRef.current);
-
       if (focusableElements.length === 0) {
-        event.preventDefault();
-        popoverRef.current?.focus();
+        if (trapFocus && event.key === "Tab") {
+          event.preventDefault();
+          popoverRef.current?.focus();
+        }
         return;
       }
 
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
+      const currentIndex = focusableElements.indexOf(document.activeElement);
+
+      // Arrow navigation
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        
+        let nextIndex;
+        if (currentIndex === -1) {
+          nextIndex = event.key === "ArrowDown" ? 0 : focusableElements.length - 1;
+        } else {
+          if (event.key === "ArrowDown") {
+            nextIndex = (currentIndex + 1) % focusableElements.length;
+          } else {
+            nextIndex = (currentIndex - 1 + focusableElements.length) % focusableElements.length;
+          }
+        }
+        focusableElements[nextIndex]?.focus();
+        return;
+      }
+
+      // Tab focus trapping
+      if (!trapFocus || event.key !== "Tab") return;
 
       if (event.shiftKey && document.activeElement === firstElement) {
         event.preventDefault();
         lastElement.focus();
-      } else if (!event.shiftKey && document.activeElement === lastElement) {
+      } else if (!event.shiftKey && (document.activeElement === lastElement || currentIndex === -1)) {
         event.preventDefault();
         firstElement.focus();
       }

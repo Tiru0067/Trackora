@@ -26,6 +26,72 @@ const AccountMenu = ({ isOpen, onClose }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
+  // Auto-focus first item
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const frameId = requestAnimationFrame(() => {
+      const buttons = Array.from(menuRef.current?.querySelectorAll("button") || []);
+      if (buttons.length > 0) {
+        buttons[0].focus();
+      }
+    });
+    
+    return () => cancelAnimationFrame(frameId);
+  }, [isOpen]);
+
+  // Keyboard navigation & focus trapping
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        onClose();
+        // Restore focus to trigger
+        document.getElementById("account-menu-toggle")?.focus();
+        return;
+      }
+
+      const buttons = Array.from(menuRef.current?.querySelectorAll("button") || []);
+      if (buttons.length === 0) return;
+
+      const firstBtn = buttons[0];
+      const lastBtn = buttons[buttons.length - 1];
+      const currentIndex = buttons.indexOf(document.activeElement);
+
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        let nextIndex;
+        if (currentIndex === -1) {
+          nextIndex = event.key === "ArrowDown" ? 0 : buttons.length - 1;
+        } else {
+          if (event.key === "ArrowDown") {
+            nextIndex = (currentIndex + 1) % buttons.length;
+          } else {
+            nextIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+          }
+        }
+        buttons[nextIndex]?.focus();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        if (event.shiftKey && document.activeElement === firstBtn) {
+          event.preventDefault();
+          lastBtn.focus();
+        } else if (!event.shiftKey && (document.activeElement === lastBtn || currentIndex === -1)) {
+          event.preventDefault();
+          firstBtn.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [isOpen, onClose]);
+
   const themes = [
     { label: "System", value: "system" },
     { label: "Light", value: "light" },
