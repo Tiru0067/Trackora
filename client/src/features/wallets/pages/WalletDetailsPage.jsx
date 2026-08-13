@@ -32,6 +32,7 @@ const WalletDetailsPage = () => {
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isTransactionDetailsModalOpen, setIsTransactionDetailsModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [transactionToEdit, setTransactionToEdit] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const contextWallet = wallets.find((w) => w.id === id);
@@ -144,7 +145,10 @@ const WalletDetailsPage = () => {
         <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 ml-auto">
           <button
             type="button"
-            onClick={() => setIsTransactionModalOpen(true)}
+            onClick={() => {
+              setTransactionToEdit(null);
+              setIsTransactionModalOpen(true);
+            }}
             className="inline-flex items-center gap-1.5 h-9 bg-(--ink) text-(--bg) px-3.5 rounded-[9px] text-[13px] font-medium hover:bg-(--ink)/80 transition-all shadow-sm"
           >
             <Plus size={14} />
@@ -303,7 +307,10 @@ const WalletDetailsPage = () => {
               transactions={transactions}
               isLoading={isTransactionsLoading}
               currency={wallet.currency}
-              onAddTransaction={() => setIsTransactionModalOpen(true)}
+              onAddTransaction={() => {
+                setTransactionToEdit(null);
+                setIsTransactionModalOpen(true);
+              }}
               onRowClick={(tx) => {
                 setSelectedTransaction(tx);
                 setIsTransactionDetailsModalOpen(true);
@@ -334,6 +341,7 @@ const WalletDetailsPage = () => {
         isOpen={isTransactionModalOpen}
         onClose={() => setIsTransactionModalOpen(false)}
         initialWalletId={wallet?.id}
+        transactionToEdit={transactionToEdit}
         onSuccess={() => {
           fetchWallet();
           refetchTransactions();
@@ -348,6 +356,11 @@ const WalletDetailsPage = () => {
           setSelectedTransaction(null);
         }}
         transaction={selectedTransaction}
+        onEdit={(tx) => {
+          setTransactionToEdit(tx);
+          setIsTransactionDetailsModalOpen(false);
+          setIsTransactionModalOpen(true);
+        }}
         onDelete={async (txId) => {
           await deleteTransaction(txId);
           fetchWallet();

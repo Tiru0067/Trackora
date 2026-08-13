@@ -12,6 +12,7 @@ const TransactionFormModal = ({
   isOpen,
   onClose,
   initialWalletId = null,
+  transactionToEdit = null,
   onSuccess,
 }) => {
   const { wallets } = useWallets();
@@ -51,21 +52,66 @@ const TransactionFormModal = ({
     if (isOpen) {
       // eslint-disable-next-line
       setError("");
-      setFormData({
-        title: "",
-        amount: "",
-        destinationAmount: "",
-        date: new Date().toISOString().split("T")[0],
-        note: "",
-        walletId: initialWalletId || (wallets.length > 0 ? wallets[0].id : ""),
-        fromWalletId:
-          initialWalletId || (wallets.length > 0 ? wallets[0].id : ""),
-        toWalletId: "",
-        categoryId: "",
-      });
-      setType("EXPENSE");
+      
+      if (transactionToEdit) {
+        setType(transactionToEdit.type);
+        
+        let initialFormData = {
+          title: transactionToEdit.title,
+          date: new Date(transactionToEdit.date).toISOString().split("T")[0],
+          note: transactionToEdit.note || "",
+          walletId: transactionToEdit.wallet?.id || "",
+          categoryId: transactionToEdit.category?.id || "",
+          amount: transactionToEdit.amount,
+          fromWalletId: "",
+          toWalletId: "",
+          destinationAmount: "",
+        };
+
+        if (transactionToEdit.type === "TRANSFER") {
+          const isTransferIn = transactionToEdit.transferDirection === "IN";
+          
+          const fromWallet = isTransferIn
+            ? (transactionToEdit.linkedTransfer?.wallet || transactionToEdit.transferLeg?.wallet)
+            : transactionToEdit.wallet;
+            
+          const toWallet = isTransferIn
+            ? transactionToEdit.wallet
+            : (transactionToEdit.linkedTransfer?.wallet || transactionToEdit.transferLeg?.wallet);
+
+          const outAmount = isTransferIn
+            ? (transactionToEdit.linkedTransfer?.amount || transactionToEdit.transferLeg?.amount || transactionToEdit.amount)
+            : transactionToEdit.amount;
+
+          const inAmount = isTransferIn
+            ? transactionToEdit.amount
+            : (transactionToEdit.linkedTransfer?.amount || transactionToEdit.transferLeg?.amount || transactionToEdit.amount);
+
+          initialFormData.fromWalletId = fromWallet?.id || "";
+          initialFormData.toWalletId = toWallet?.id || "";
+          initialFormData.amount = outAmount;
+          initialFormData.destinationAmount = (fromWallet?.currency !== toWallet?.currency) ? inAmount : "";
+          initialFormData.walletId = "";
+        }
+        
+        setFormData(initialFormData);
+      } else {
+        setFormData({
+          title: "",
+          amount: "",
+          destinationAmount: "",
+          date: new Date().toISOString().split("T")[0],
+          note: "",
+          walletId: initialWalletId || (wallets.length > 0 ? wallets[0].id : ""),
+          fromWalletId:
+            initialWalletId || (wallets.length > 0 ? wallets[0].id : ""),
+          toWalletId: "",
+          categoryId: "",
+        });
+        setType("EXPENSE");
+      }
     }
-  }, [isOpen, initialWalletId, wallets]);
+  }, [isOpen, initialWalletId, wallets, transactionToEdit]);
 
   const fromWallet = useMemo(
     () =>
@@ -127,7 +173,12 @@ const TransactionFormModal = ({
 
       // import api directly here because useTransactions hook doesn't have a create function
       const { transactionsApi } = await import("../api/transactions");
-      await transactionsApi.create(payload);
+      
+      if (transactionToEdit) {
+        await transactionsApi.update(transactionToEdit.id, payload);
+      } else {
+        await transactionsApi.create(payload);
+      }
 
       onClose();
 
@@ -142,7 +193,7 @@ const TransactionFormModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="New Transaction">
+    <Modal isOpen={isOpen} onClose={onClose} title={transactionToEdit ? "Edit Transaction" : "New Transaction"}>
       <Motion.form
         layout
         onSubmit={handleSubmit}
@@ -420,7 +471,7 @@ const TransactionFormModal = ({
             disabled={isSubmitting}
             className="px-4 py-2 text-sm font-medium text-white bg-(--accent) rounded-full hover:bg-(--accent)/90 transition-colors disabled:opacity-50"
           >
-            {isSubmitting ? "Saving..." : "Add Transaction"}
+            {isSubmitting ? "Saving..." : (transactionToEdit ? "Save Changes" : "Add Transaction")}
           </button>
         </Motion.div>
       </Motion.form>
