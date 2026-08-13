@@ -175,7 +175,19 @@ const TransactionFormModal = ({
       const { transactionsApi } = await import("../api/transactions");
       
       if (transactionToEdit) {
-        await transactionsApi.update(transactionToEdit.id, payload);
+        const updatePayload = {
+          amount: payload.amount,
+          date: payload.date,
+          title: payload.title,
+          note: payload.note,
+        };
+        
+        // categoryId is only allowed for NON-transfers
+        if (type !== "TRANSFER") {
+          updatePayload.categoryId = payload.categoryId;
+        }
+        
+        await transactionsApi.update(transactionToEdit.id, updatePayload);
       } else {
         await transactionsApi.create(payload);
       }
