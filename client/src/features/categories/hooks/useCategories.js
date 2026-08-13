@@ -1,38 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import { categoriesApi } from "../api/categories";
-import { useToast } from "@/hooks/useToast";
+import { use } from "react";
+import CategoryContext from "../context/CategoryContext";
 
 export const useCategories = () => {
-  const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { addToast } = useToast();
-
-  const fetchCategories = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await categoriesApi.getAll();
-      setCategories(response);
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || "Failed to fetch categories";
-      setError(errorMessage);
-      addToast(errorMessage, "error");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [addToast]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchCategories();
-  }, [fetchCategories]);
-
-  return {
-    categories,
-    isLoading,
-    error,
-    refetch: fetchCategories,
-  };
+  const context = use(CategoryContext);
+  if (!context) {
+    throw new Error("useCategories must be used within a CategoryProvider");
+  }
+  return context;
 };
