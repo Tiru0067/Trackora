@@ -169,8 +169,16 @@ const WalletTransactionList = ({
                   <li
                     key={tx.id}
                     onClick={() => onRowClick && onRowClick(tx)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onRowClick && onRowClick(tx);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-4 px-2 sm:px-4 py-2 transition-colors hover:bg-(--line-soft)/40 cursor-pointer",
+                      "grid grid-cols-[1fr_auto] md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-4 px-2 sm:px-4 py-2 transition-colors hover:bg-(--line-soft)/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white focus-visible:ring-inset cursor-pointer",
                       index !== transactions.length - 1 &&
                         "border-b border-(--line)",
                     )}
