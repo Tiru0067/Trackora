@@ -140,9 +140,10 @@ const WalletTransactionList = ({
         ) : (
           <>
             {/* Desktop Table Header */}
-            <div className="px-4 py-3 hidden md:grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 bg-(--line)/75 text-[12px] font-medium text-(--ink-muted) capitalize tracking-wider">
+            <div className="px-4 py-3 hidden md:grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 bg-(--line)/65 text-[12px] font-medium text-(--ink-muted) capitalize tracking-wider">
               <div>Payment Name</div>
               <div>Time And Date</div>
+              <div>Type</div>
               <div>Categories</div>
               <div className="text-right">Amount</div>
             </div>
@@ -160,17 +161,16 @@ const WalletTransactionList = ({
                   isExpense,
                 } = getTransactionDisplayInfo(tx);
 
-                // Subtext is Category Name if exists, otherwise transaction type
-                const subtext =
-                  tx.category?.name ||
+                const typeText =
                   tx.type.charAt(0) + tx.type.slice(1).toLowerCase();
+                const categoryText = tx.category?.name || "-";
 
                 return (
                   <li
                     key={tx.id}
                     onClick={() => onRowClick && onRowClick(tx)}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-4 px-2 sm:px-4 py-2 transition-colors hover:bg-(--line-soft)/40 cursor-pointer",
+                      "grid grid-cols-[1fr_auto] md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-4 px-2 sm:px-4 py-2 transition-colors hover:bg-(--line-soft)/40 cursor-pointer",
                       index !== transactions.length - 1 &&
                         "border-b border-(--line)",
                     )}
@@ -198,9 +198,11 @@ const WalletTransactionList = ({
                         </span>
                         {/* Mobile only subtext/date */}
                         <div className="flex md:hidden items-center gap-2 text-xs mt-0.5">
-                          <span className="px-1.5 py-0.5 rounded text-(--ink-muted) bg-(--line-soft) font-medium truncate">
-                            {subtext}
-                          </span>
+                          {tx.category?.name && (
+                            <span className="px-1.5 py-0.5 rounded text-(--ink-muted) bg-(--line-soft) font-medium truncate">
+                              {tx.category.name}
+                            </span>
+                          )}
                           <span className="text-(--ink-muted) font-medium whitespace-nowrap">
                             {format(new Date(tx.date), "MMM d")}
                           </span>
@@ -213,9 +215,14 @@ const WalletTransactionList = ({
                       {format(new Date(tx.date), "MMM d, h:mm a")}
                     </div>
 
+                    {/* Desktop Type */}
+                    <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
+                      {typeText}
+                    </div>
+
                     {/* Desktop Category */}
                     <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
-                      {subtext}
+                      {categoryText}
                     </div>
 
                     {/* Amount */}
