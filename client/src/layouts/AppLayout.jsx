@@ -32,8 +32,8 @@ const AppLayout = () => {
       />
 
       <div className="w-full flex flex-col min-w-0 flex-1 lg:h-full">
-        <main className="px-4 sm:px-6 py-6 flex-1 lg:min-h-0 lg:overflow-y-auto hide-scrollbar">
-          <div className="max-w-7xl mx-auto w-full">
+        <main className="px-5 sm:px-12 py-6 flex-1 lg:min-h-0 lg:overflow-y-auto hide-scrollbar">
+          <div className="max-w-6xl mr-auto w-full">
             <Outlet />
           </div>
         </main>

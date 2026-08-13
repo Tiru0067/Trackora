@@ -141,7 +141,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   // Desktop: static full sidebar, always visible
   if (!isCompact) {
     return (
-      <aside className="w-64 h-full flex flex-col bg-(--bg-warm) border-r border-(--line-soft) shrink-0">
+      <aside className="w-60 h-full flex flex-col bg-(--bg-warm) border-r border-(--line-soft) shrink-0">
         <div className="flex flex-col h-full px-4 py-5.5">
           <div className="w-full px-2.5 pt-1.5 pb-5 flex items-center border-b border-(--line-soft) mb-2">
             <BrandMark />
