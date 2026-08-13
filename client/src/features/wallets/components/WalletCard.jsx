@@ -44,7 +44,7 @@ const WalletCard = ({ wallet, togglePinWallet, handleEdit }) => {
           <span
             aria-hidden="true"
             className="w-7 h-7 flex items-center justify-center rounded-lg"
-            style={{ background: `${wallet.color}33` }}
+            style={{ background: `${wallet.color}22` }}
           >
             <WalletIcon value={wallet.icon} color={wallet.color} />
           </span>
