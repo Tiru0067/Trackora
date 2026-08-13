@@ -5,10 +5,12 @@ import ComboBox from "@/components/ui/ComboBox";
 import SymbolPicker from "@/components/ui/SymbolPicker";
 import ColorPicker from "@/components/ui/ColorPicker";
 import { useWallets } from "../hooks/useWallets";
+import { useCurrencies } from "@/features/currencies/hooks/useCurrencies";
 import { cn } from "@/utils/cn";
 
 const WalletFormModal = ({ isOpen, onClose, wallet = null }) => {
   const { createWallet, updateWallet } = useWallets();
+  const { currencies } = useCurrencies();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,13 +23,12 @@ const WalletFormModal = ({ isOpen, onClose, wallet = null }) => {
   });
 
   const currencyList = useMemo(() => {
-    const displayNames = new Intl.DisplayNames(["en"], { type: "currency" });
-    return Intl.supportedValuesOf("currency").map((code) => ({
-      label: code,
-      value: code,
-      name: displayNames.of(code),
+    return currencies.map((currency) => ({
+      label: currency.code,
+      value: currency.code,
+      name: currency.name,
     }));
-  }, []);
+  }, [currencies]);
 
   useEffect(() => {
     if (isOpen) {

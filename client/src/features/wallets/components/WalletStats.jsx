@@ -4,6 +4,8 @@ const WalletStats = ({
   totalWalletsCount,
   balancesByCurrency,
   uniqueCurrenciesCount,
+  baseCurrencyTotal,
+  baseCurrency,
 }) => {
   return (
     <section
@@ -29,9 +31,13 @@ const WalletStats = ({
 
             <td className="pt-1 px-6 border-l border-(--line)">
               <div className="flex items-center gap-3">
-                {Object.entries(balancesByCurrency).map(([currency, total]) => (
-                  <span key={currency}>{formatCompact(total, currency)}</span>
-                ))}
+                {uniqueCurrenciesCount > 1 && baseCurrencyTotal !== undefined ? (
+                  <span>{formatCompact(baseCurrencyTotal, baseCurrency)}</span>
+                ) : (
+                  Object.entries(balancesByCurrency).map(([currency, total]) => (
+                    <span key={currency}>{formatCompact(total, currency)}</span>
+                  ))
+                )}
 
                 {totalWalletsCount === 0 && <span>$0</span>}
               </div>

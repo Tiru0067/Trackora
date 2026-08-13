@@ -10,8 +10,12 @@ import WalletCard from "../components/WalletCard";
 import EmptyState from "@/components/ui/EmptyState";
 import Skeleton from "@/components/ui/Skeleton";
 import { getWalletSummary } from "../utils/walletCalculation";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useExchangeRates } from "@/features/currencies/hooks/useExchangeRates";
 
 const WalletsPage = () => {
+  const { user } = useAuth();
+  const { convertCurrency } = useExchangeRates();
   const { wallets, togglePinWallet, isLoading, error } = useWallets();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState(null);
@@ -25,15 +29,29 @@ const WalletsPage = () => {
 
   const totalWalletsCount = wallets.length;
 
-  const balancesByCurrency = useMemo(() => {
+  const balancesData = useMemo(() => {
     const totals = {};
+    let totalInBaseCurrency = 0;
+
     wallets.forEach((w) => {
       const { totalBalance } = getWalletSummary(w, []);
       totals[w.currency] = (totals[w.currency] || 0) + totalBalance;
+      
+      const converted = convertCurrency(totalBalance, w.currency, user?.baseCurrency);
+      if (converted !== null) {
+        totalInBaseCurrency += converted;
+      } else if (w.currency === user?.baseCurrency) {
+        totalInBaseCurrency += totalBalance;
+      }
     });
-    return totals;
-  }, [wallets]);
+    
+    return {
+      totals,
+      totalInBaseCurrency,
+    };
+  }, [wallets, convertCurrency, user?.baseCurrency]);
 
+  const balancesByCurrency = balancesData.totals;
   const uniqueCurrenciesCount = Object.keys(balancesByCurrency).length;
 
   const filteredAndSortedWallets = useMemo(() => {
@@ -140,6 +158,8 @@ const WalletsPage = () => {
                 totalWalletsCount={totalWalletsCount}
                 balancesByCurrency={balancesByCurrency}
                 uniqueCurrenciesCount={uniqueCurrenciesCount}
+                baseCurrencyTotal={balancesData.totalInBaseCurrency}
+                baseCurrency={user?.baseCurrency}
               />
 
               <WalletToolbar
