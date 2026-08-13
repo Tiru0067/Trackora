@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, Tag, SearchX, ArrowUpDown, Filter, Check, Search } from "lucide-react";
+import { Plus, Tag, SearchX, ArrowUpDown, ArrowUp, ArrowDown, Filter, Check, Search } from "lucide-react";
 import { motion as Motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { useCategories } from "../hooks/useCategories";
 import { useExchangeRates } from "@/features/currencies/hooks/useExchangeRates";
@@ -20,7 +20,7 @@ const CategoriesPage = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [usageFilter, setUsageFilter] = useState("all"); // 'all' | 'active' | 'unused'
-  const [sortBy, setSortBy] = useState("name-asc"); 
+  const [sortBy, setSortBy] = useState("default"); 
 
   const sortRef = useRef(null);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -71,23 +71,39 @@ const CategoriesPage = () => {
     // 3. Sort
     result.sort((a, b) => {
       switch (sortBy) {
-        case "amount-desc":
-          return Math.abs(b.totalBaseAmount) - Math.abs(a.totalBaseAmount);
-        case "amount-asc":
-          return Math.abs(a.totalBaseAmount) - Math.abs(b.totalBaseAmount);
+        case "amount-desc": {
+          const aUsed = a.transactionCount > 0;
+          const bUsed = b.transactionCount > 0;
+          if (aUsed && !bUsed) return -1;
+          if (!aUsed && bUsed) return 1;
+          return b.totalBaseAmount - a.totalBaseAmount;
+        }
+        case "amount-asc": {
+          const aUsed = a.transactionCount > 0;
+          const bUsed = b.transactionCount > 0;
+          if (aUsed && !bUsed) return -1;
+          if (!aUsed && bUsed) return 1;
+          return a.totalBaseAmount - b.totalBaseAmount;
+        }
         case "usage-desc":
           return b.transactionCount - a.transactionCount;
-        case "usage-asc":
+        case "usage-asc": {
+          const aUsed = a.transactionCount > 0;
+          const bUsed = b.transactionCount > 0;
+          if (aUsed && !bUsed) return -1;
+          if (!aUsed && bUsed) return 1;
           return a.transactionCount - b.transactionCount;
+        }
         case "name-desc":
           return b.name.localeCompare(a.name);
+        case "name-asc":
+          return a.name.localeCompare(b.name);
         case "date-asc":
           return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         case "date-desc":
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        case "name-asc":
         default:
-          return a.name.localeCompare(b.name);
+          return b.transactionCount - a.transactionCount;
       }
     });
 
@@ -207,7 +223,7 @@ const CategoriesPage = () => {
                         {[
                           { id: "all", label: "All Usage" },
                           { id: "active", label: "Active Only" },
-                          { id: "unused", label: "Unused (0 tx)" },
+                          { id: "unused", label: "Unused" },
                         ].map((opt) => (
                           <li key={opt.id} role="none">
                             <button
@@ -244,14 +260,11 @@ const CategoriesPage = () => {
                   >
                     <ArrowUpDown size={14} className="text-(--ink-muted)" aria-hidden="true" />
                     <span className="hidden sm:inline">
-                      {sortBy === "name-asc" && "Name (A-Z)"}
-                      {sortBy === "name-desc" && "Name (Z-A)"}
-                      {sortBy === "amount-desc" && "Amount (High-Low)"}
-                      {sortBy === "amount-asc" && "Amount (Low-High)"}
-                      {sortBy === "usage-desc" && "Most Used"}
-                      {sortBy === "usage-asc" && "Least Used"}
-                      {sortBy === "date-desc" && "Recently Added"}
-                      {sortBy === "date-asc" && "Oldest"}
+                      {sortBy === "default" && "Default Sort"}
+                      {sortBy.startsWith("name") && "Name"}
+                      {sortBy.startsWith("amount") && "Amount"}
+                      {sortBy.startsWith("usage") && "Usage"}
+                      {sortBy.startsWith("date") && "Date Added"}
                     </span>
                   </button>
                   <Popover
@@ -263,30 +276,48 @@ const CategoriesPage = () => {
                     {({ close }) => (
                       <menu className="bg-(--bg-card) border border-(--line) rounded-xl shadow-lg p-1.5 w-48 flex flex-col gap-1 m-0">
                         {[
-                          { id: "name-asc", label: "Name (A-Z)" },
-                          { id: "name-desc", label: "Name (Z-A)" },
-                          { id: "amount-desc", label: "Amount (High-Low)" },
-                          { id: "usage-desc", label: "Most Used" },
-                          { id: "usage-asc", label: "Least Used" },
-                          { id: "date-desc", label: "Recently Added" },
-                        ].map((opt) => (
-                          <li key={opt.id} role="none">
-                            <button
-                              role="menuitem"
-                              onClick={() => {
-                                setSortBy(opt.id);
-                                close();
-                              }}
-                              className={cn(
-                                "w-full flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-colors",
-                                sortBy === opt.id ? "bg-(--line-soft) text-(--ink)" : "text-(--ink-soft) hover:text-(--ink) hover:bg-(--line-soft)/50"
-                              )}
-                            >
-                              <span>{opt.label}</span>
-                              {sortBy === opt.id && <Check size={14} aria-hidden="true" />}
-                            </button>
-                          </li>
-                        ))}
+                          { id: "name", label: "Name", defaultDir: "asc" },
+                          { id: "amount", label: "Amount", defaultDir: "desc" },
+                          { id: "usage", label: "Usage", defaultDir: "desc" },
+                          { id: "date", label: "Date Added", defaultDir: "desc" },
+                          { id: "default", label: "Default Sort", defaultDir: null },
+                        ].map((opt) => {
+                          const isSelected = sortBy === opt.id || sortBy.startsWith(opt.id + "-");
+                          const currentDir = isSelected && sortBy.includes("-") ? sortBy.split("-")[1] : null;
+
+                          return (
+                            <li key={opt.id} role="none">
+                              <button
+                                role="menuitem"
+                                onClick={() => {
+                                  if (opt.id === "default") {
+                                    setSortBy("default");
+                                  } else if (isSelected) {
+                                    setSortBy(`${opt.id}-${currentDir === "asc" ? "desc" : "asc"}`);
+                                  } else {
+                                    setSortBy(`${opt.id}-${opt.defaultDir}`);
+                                  }
+                                  close();
+                                }}
+                                className={cn(
+                                  "w-full flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-colors",
+                                  isSelected ? "bg-(--line-soft) text-(--ink)" : "text-(--ink-soft) hover:text-(--ink) hover:bg-(--line-soft)/50"
+                                )}
+                              >
+                                <span>{opt.label}</span>
+                                {isSelected && (
+                                  opt.id === "default" ? (
+                                    <Check size={14} className="text-(--accent)" aria-hidden="true" />
+                                  ) : currentDir === "asc" ? (
+                                    <ArrowUp size={14} className="text-(--accent)" aria-hidden="true" />
+                                  ) : (
+                                    <ArrowDown size={14} className="text-(--accent)" aria-hidden="true" />
+                                  )
+                                )}
+                              </button>
+                            </li>
+                          );
+                        })}
                       </menu>
                     )}
                   </Popover>

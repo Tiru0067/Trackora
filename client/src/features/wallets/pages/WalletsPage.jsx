@@ -74,20 +74,24 @@ const WalletsPage = () => {
         if (!a.pinnedAt && b.pinnedAt) return 1;
 
         // Sort within the same group
-        if (sortBy === "highToLow") {
+        if (sortBy === "balance-desc") {
           return (
             getWalletSummary(b, []).totalBalance -
             getWalletSummary(a, []).totalBalance
           );
-        } else if (sortBy === "lowToHigh") {
+        } else if (sortBy === "balance-asc") {
           return (
             getWalletSummary(a, []).totalBalance -
             getWalletSummary(b, []).totalBalance
           );
-        } else if (sortBy === "aToZ") {
+        } else if (sortBy === "name-asc") {
           return a.name.localeCompare(b.name);
-        } else if (sortBy === "zToA") {
+        } else if (sortBy === "name-desc") {
           return b.name.localeCompare(a.name);
+        } else if (sortBy === "date-desc") {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        } else if (sortBy === "date-asc") {
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         }
         return 0;
       });
