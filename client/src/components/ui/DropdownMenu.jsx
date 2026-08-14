@@ -1,7 +1,13 @@
 import React, { useRef, useState } from "react";
 import Popover from "./Popover";
 
-const DropdownMenu = ({ trigger, items, groups, placement = "bottom-end", minWidth = "min-w-40" }) => {
+const DropdownMenu = ({
+  trigger,
+  items,
+  groups,
+  placement = "bottom-end",
+  minWidth = "min-w-40",
+}) => {
   const triggerRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -9,7 +15,9 @@ const DropdownMenu = ({ trigger, items, groups, placement = "bottom-end", minWid
   const normalizedGroups = groups || (items ? [items] : []);
 
   // Filter out any empty groups
-  const validGroups = normalizedGroups.filter(group => group && group.length > 0);
+  const validGroups = normalizedGroups.filter(
+    (group) => group && group.length > 0,
+  );
 
   const clonedTrigger = React.cloneElement(trigger, {
     ref: triggerRef,
@@ -32,7 +40,7 @@ const DropdownMenu = ({ trigger, items, groups, placement = "bottom-end", minWid
         anchorRef={triggerRef}
         placement={placement}
       >
-        {({ close, closeAndRestoreFocus }) => (
+        {({ closeAndRestoreFocus }) => (
           <menu className={`dropdown-content m-0 ${minWidth}`}>
             {validGroups.map((group, groupIndex) => (
               <React.Fragment key={groupIndex}>
@@ -50,30 +58,39 @@ const DropdownMenu = ({ trigger, items, groups, placement = "bottom-end", minWid
                   return (
                     <li key={item.id} role="none">
                       <button
-                      type="button"
-                      role="menuitem"
-                      onClick={(e) => {
-                        item.onClick?.(e);
-                        if (item.autoClose !== false) {
-                          closeAndRestoreFocus();
-                        }
-                      }}
-                      className={`dropdown-item ${item.danger ? "!text-red-500 hover:!bg-red-500/10" : ""}`}
-                    >
-                      <span className="flex items-center gap-2">
-                        {item.icon && <span className={`flex-shrink-0 ${item.danger ? "" : "text-(--ink-muted)"}`}>{item.icon}</span>}
-                        {item.label}
-                      </span>
-                      {item.rightElement && (
-                        <span className="flex-shrink-0">{item.rightElement}</span>
-                      )}
-                    </button>
-                  </li>
-                );
-              })}
-              {/* Render divider between groups */}
+                        type="button"
+                        role="menuitem"
+                        onClick={(e) => {
+                          item.onClick?.(e);
+                          if (item.autoClose !== false) {
+                            closeAndRestoreFocus();
+                          }
+                        }}
+                        className={`dropdown-item ${item.danger ? "text-red-500! hover:bg-red-500/10!" : ""}`}
+                      >
+                        <span className="flex items-center gap-2">
+                          {item.icon && (
+                            <span
+                              className={`shrink-0 ${item.danger ? "" : "text-(--ink-muted)"}`}
+                            >
+                              {item.icon}
+                            </span>
+                          )}
+                          {item.label}
+                        </span>
+                        {item.rightElement && (
+                          <span className="shrink-0">{item.rightElement}</span>
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+                {/* Render divider between groups */}
                 {groupIndex < validGroups.length - 1 && (
-                  <div className="h-px bg-(--line) my-1 mx-2" role="presentation" />
+                  <div
+                    className="h-px bg-(--line) my-1 mx-2"
+                    role="presentation"
+                  />
                 )}
               </React.Fragment>
             ))}

@@ -194,7 +194,7 @@ const ColorPicker = ({
         enableArrowNavigation={false}
       >
         <div
-          className="bg-(--bg-card) border border-(--line) shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)] rounded-2xl p-1"
+          className="bg-(--bg-elevated) border border-(--line) shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)] rounded-2xl p-1"
           onKeyDown={(e) => {
             const keys = [
               "ArrowUp",

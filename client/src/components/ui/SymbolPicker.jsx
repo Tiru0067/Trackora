@@ -352,7 +352,7 @@ const SymbolPicker = ({
         enableArrowNavigation={false}
       >
         <div
-          className="w-80 rounded-2xl bg-(--bg-card) border border-(--line) p-1 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)]"
+          className="w-80 rounded-2xl bg-(--bg-elevated) border border-(--line) p-1 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)]"
           onKeyDown={(e) => {
             const keys = [
               "ArrowUp",
