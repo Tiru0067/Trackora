@@ -26,7 +26,7 @@ export const WalletProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, addToast]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

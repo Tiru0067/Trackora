@@ -6,9 +6,7 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
-import Popover from "@/components/ui/Popover";
-import { useRef, useState } from "react";
-import { cn } from "@/utils/cn";
+import DropdownMenu from "@/components/ui/DropdownMenu";
 
 const CategoryToolbar = ({
   searchQuery,
@@ -18,10 +16,6 @@ const CategoryToolbar = ({
   usageFilter,
   setUsageFilter,
 }) => {
-  const sortRef = useRef(null);
-  const filterRef = useRef(null);
-  const [isSortOpen, setIsSortOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
     <section
@@ -46,172 +40,106 @@ const CategoryToolbar = ({
 
       <div className="flex gap-2 shrink-0">
         {/* Filter Menu */}
-        <div className="relative">
-          <button
-            ref={filterRef}
-            type="button"
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            aria-expanded={isFilterOpen}
-            aria-haspopup="menu"
-            className="btn sm:justify-start bg-(--bg-card) border border-(--line) hover:border-(--line-soft) text-(--ink) sm:min-w-36"
-            title="Filter usage"
-          >
-            <Filter
-              size={14}
-              className="text-(--ink-muted)"
-              aria-hidden="true"
-            />
-            <span className="hidden sm:inline">
-              {usageFilter === "all"
-                ? "All Usage"
-                : usageFilter === "active"
-                  ? "Active Only"
-                  : "Unused"}
-            </span>
-          </button>
-          <Popover
-            open={isFilterOpen}
-            onOpenChange={setIsFilterOpen}
-            anchorRef={filterRef}
-            placement="bottom-end"
-          >
-            {({ close }) => (
-              <menu className="bg-(--bg-card) border border-(--line) rounded-xl shadow-lg p-1.5 w-44 flex flex-col gap-1 m-0">
-                <div
-                  className="px-2 py-1 text-xs font-medium text-(--ink-muted) uppercase tracking-wider"
-                  role="presentation"
-                >
-                  Usage
-                </div>
-                {[
-                  { id: "all", label: "All Usage" },
-                  { id: "active", label: "Active Only" },
-                  { id: "unused", label: "Unused" },
-                ].map((opt) => (
-                  <li key={opt.id} role="none">
-                    <button
-                      role="menuitem"
-                      onClick={() => {
-                        setUsageFilter(opt.id);
-                        close();
-                      }}
-                      className={cn(
-                        "w-full flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-colors",
-                        usageFilter === opt.id
-                          ? "bg-(--line-soft) text-(--ink)"
-                          : "text-(--ink-soft) hover:text-(--ink) hover:bg-(--line-soft)/50",
-                      )}
-                    >
-                      <span>{opt.label}</span>
-                      {usageFilter === opt.id && (
-                        <Check size={14} aria-hidden="true" />
-                      )}
-                    </button>
-                  </li>
-                ))}
-              </menu>
-            )}
-          </Popover>
-        </div>
+        {/* Filter Menu */}
+        <DropdownMenu
+          placement="bottom-end"
+          trigger={
+            <button
+              type="button"
+              aria-haspopup="menu"
+              className="btn sm:justify-start bg-(--bg-card) border border-(--line) hover:border-(--line-soft) text-(--ink) sm:min-w-36"
+              title="Filter usage"
+            >
+              <Filter
+                size={14}
+                className="text-(--ink-muted)"
+                aria-hidden="true"
+              />
+              <span className="hidden sm:inline">
+                {usageFilter === "all"
+                  ? "All Usage"
+                  : usageFilter === "active"
+                    ? "Active Only"
+                    : "Unused"}
+              </span>
+            </button>
+          }
+          items={[
+            { id: "label-usage", label: "Usage", type: "label" },
+            ...[
+              { id: "all", label: "All Usage" },
+              { id: "active", label: "Active Only" },
+              { id: "unused", label: "Unused" },
+            ].map((opt) => ({
+              id: opt.id,
+              label: opt.label,
+              onClick: () => setUsageFilter(opt.id),
+              rightElement: usageFilter === opt.id ? (
+                <Check size={14} aria-hidden="true" className="text-(--accent)" />
+              ) : null,
+            }))
+          ]}
+        />
 
         {/* Sort Menu */}
-        <div className="relative">
-          <button
-            ref={sortRef}
-            type="button"
-            onClick={() => setIsSortOpen(!isSortOpen)}
-            aria-expanded={isSortOpen}
-            aria-haspopup="menu"
-            className="btn sm:justify-start bg-(--bg-card) border border-(--line) hover:border-(--line-soft) text-(--ink) sm:min-w-40"
-            title="Sort categories"
-          >
-            <ArrowUpDown
-              size={14}
-              className="text-(--ink-muted)"
-              aria-hidden="true"
-            />
-            <span className="hidden sm:inline">
-              {sortBy === "default" && "Default Sort"}
-              {sortBy.startsWith("name") && "Name"}
-              {sortBy.startsWith("amount") && "Amount"}
-              {sortBy.startsWith("usage") && "Usage"}
-              {sortBy.startsWith("date") && "Date Added"}
-            </span>
-          </button>
-          <Popover
-            open={isSortOpen}
-            onOpenChange={setIsSortOpen}
-            anchorRef={sortRef}
-            placement="bottom-end"
-          >
-            {({ close }) => (
-              <menu className="bg-(--bg-card) border border-(--line) rounded-xl shadow-lg p-1.5 w-48 flex flex-col gap-1 m-0">
-                {[
-                  { id: "name", label: "Name", defaultDir: "asc" },
-                  { id: "amount", label: "Amount", defaultDir: "desc" },
-                  { id: "usage", label: "Usage", defaultDir: "desc" },
-                  { id: "date", label: "Date Added", defaultDir: "desc" },
-                  { id: "default", label: "Default Sort", defaultDir: null },
-                ].map((opt) => {
-                  const isSelected =
-                    sortBy === opt.id || sortBy.startsWith(opt.id + "-");
-                  const currentDir =
-                    isSelected && sortBy.includes("-")
-                      ? sortBy.split("-")[1]
-                      : null;
+        <DropdownMenu
+          placement="bottom-end"
+          trigger={
+            <button
+              type="button"
+              aria-haspopup="menu"
+              className="btn sm:justify-start bg-(--bg-card) border border-(--line) hover:border-(--line-soft) text-(--ink) sm:min-w-40"
+              title="Sort categories"
+            >
+              <ArrowUpDown
+                size={14}
+                className="text-(--ink-muted)"
+                aria-hidden="true"
+              />
+              <span className="hidden sm:inline">
+                {sortBy === "default" && "Default Sort"}
+                {sortBy.startsWith("name") && "Name"}
+                {sortBy.startsWith("amount") && "Amount"}
+                {sortBy.startsWith("usage") && "Usage"}
+                {sortBy.startsWith("date") && "Date Added"}
+              </span>
+            </button>
+          }
+          items={[
+            { id: "name", label: "Name", defaultDir: "asc" },
+            { id: "amount", label: "Amount", defaultDir: "desc" },
+            { id: "usage", label: "Usage", defaultDir: "desc" },
+            { id: "date", label: "Date Added", defaultDir: "desc" },
+            { id: "default", label: "Default Sort", defaultDir: null },
+          ].map((opt) => {
+            const isSelected = sortBy === opt.id || sortBy.startsWith(opt.id + "-");
+            const currentDir = isSelected && sortBy.includes("-") ? sortBy.split("-")[1] : null;
 
-                  return (
-                    <li key={opt.id} role="none">
-                      <button
-                        role="menuitem"
-                        onClick={() => {
-                          if (opt.id === "default") {
-                            setSortBy("default");
-                          } else if (isSelected) {
-                            setSortBy(
-                              `${opt.id}-${currentDir === "asc" ? "desc" : "asc"}`,
-                            );
-                          } else {
-                            setSortBy(`${opt.id}-${opt.defaultDir}`);
-                          }
-                          close();
-                        }}
-                        className={cn(
-                          "w-full flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-colors",
-                          isSelected
-                            ? "bg-(--line-soft) text-(--ink)"
-                            : "text-(--ink-soft) hover:text-(--ink) hover:bg-(--line-soft)/50",
-                        )}
-                      >
-                        <span>{opt.label}</span>
-                        {isSelected &&
-                          (opt.id === "default" ? (
-                            <Check
-                              size={14}
-                              className="text-(--accent)"
-                              aria-hidden="true"
-                            />
-                          ) : currentDir === "asc" ? (
-                            <ArrowUp
-                              size={14}
-                              className="text-(--accent)"
-                              aria-hidden="true"
-                            />
-                          ) : (
-                            <ArrowDown
-                              size={14}
-                              className="text-(--accent)"
-                              aria-hidden="true"
-                            />
-                          ))}
-                      </button>
-                    </li>
-                  );
-                })}
-              </menu>
-            )}
-          </Popover>
-        </div>
+            return {
+              id: opt.id,
+              label: opt.label,
+              autoClose: false,
+              onClick: () => {
+                if (opt.id === "default") {
+                  setSortBy("default");
+                } else if (isSelected) {
+                  setSortBy(`${opt.id}-${currentDir === "asc" ? "desc" : "asc"}`);
+                } else {
+                  setSortBy(`${opt.id}-${opt.defaultDir}`);
+                }
+              },
+              rightElement: isSelected ? (
+                opt.id === "default" ? (
+                  <Check size={14} className="text-(--accent)" aria-hidden="true" />
+                ) : currentDir === "asc" ? (
+                  <ArrowUp size={14} className="text-(--accent)" aria-hidden="true" />
+                ) : (
+                  <ArrowDown size={14} className="text-(--accent)" aria-hidden="true" />
+                )
+              ) : null,
+            };
+          })}
+        />
       </div>
     </section>
   );

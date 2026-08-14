@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { EllipsisVertical, Edit2, Trash2 } from "lucide-react";
 import * as Icons from "@phosphor-icons/react";
 import { motion as Motion } from "motion/react";
-import Popover from "@/components/ui/Popover";
+import DropdownMenu from "@/components/ui/DropdownMenu";
 import { formatCompact } from "@/utils/currency";
 import { useExchangeRates } from "@/features/currencies/hooks/useExchangeRates";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -20,8 +21,7 @@ const CategoryIcon = ({ value, color }) => {
 };
 
 const CategoryCard = ({ category, handleEdit, handleDelete }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const triggerRef = useRef(null);
+  const navigate = useNavigate();
 
   const { user } = useAuth();
   const { convertCurrency } = useExchangeRates();
@@ -52,15 +52,21 @@ const CategoryCard = ({ category, handleEdit, handleDelete }) => {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.2 }}
-      className="relative bg-(--bg-card) border border-(--line) hover:border-(--line-soft) rounded-xl shadow-sm hover:shadow-md transition-shadow group p-4 flex flex-col items-start gap-2"
+      className="relative bg-(--bg-card) border border-(--line) hover:border-(--line-soft) rounded-xl shadow-sm hover:shadow-md transition-shadow group"
     >
-      <div
-        aria-hidden="true"
-        className="w-7 h-7 shrink-0 flex items-center justify-center rounded-lg"
-        style={{ background: `${category.color}22` }}
+      <button
+        type="button"
+        onClick={() => navigate(`/categories/${category.id}`)}
+        className="w-full h-full p-4 flex flex-col items-start gap-2 text-left cursor-pointer rounded-xl"
+        aria-label={`View details for ${category.name}`}
       >
-        <CategoryIcon value={category.icon} color={category.color} />
-      </div>
+        <div
+          aria-hidden="true"
+          className="w-7 h-7 shrink-0 flex items-center justify-center rounded-lg"
+          style={{ background: `${category.color}22` }}
+        >
+          <CategoryIcon value={category.icon} color={category.color} />
+        </div>
 
       <div className="flex flex-col w-full gap-1">
         <span className="text-[13px] font-medium text-(--ink) tracking-tight truncate leading-tight">
@@ -84,59 +90,43 @@ const CategoryCard = ({ category, handleEdit, handleDelete }) => {
         {isExpense ? "- " : isIncome ? "+ " : ""}
         {formatCompact(Math.abs(totalBaseAmount), user?.baseCurrency || "USD")}
       </span>
-
-      {/* Action Menu Trigger */}
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsMenuOpen((prev) => !prev);
-        }}
-        className="btn btn-icon absolute top-2 right-2 h-7 w-7 min-w-7"
-      >
-        <EllipsisVertical size={16} />
       </button>
 
-      <Popover
-        open={isMenuOpen}
-        onOpenChange={setIsMenuOpen}
-        anchorRef={triggerRef}
+      {/* Action Menu Trigger */}
+      <DropdownMenu
         placement="bottom-end"
-      >
-        {({ close }) => (
-          <ul className="bg-(--bg-card) border border-(--line) rounded-xl shadow-lg p-1.5 min-w-32 flex flex-col gap-1">
-            <li>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEdit(category);
-                  close();
-                }}
-                className="w-full flex items-center gap-2 text-left px-3 py-1.5 text-sm text-(--ink) hover:bg-(--line-soft) rounded-lg transition-colors"
-              >
-                <Edit2 size={14} />
-                <span>Edit</span>
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(category);
-                  close();
-                }}
-                className="w-full flex items-center gap-2 text-left px-3 py-1.5 text-sm text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-              >
-                <Trash2 size={14} />
-                <span>Delete</span>
-              </button>
-            </li>
-          </ul>
-        )}
-      </Popover>
+        minWidth="min-w-32"
+        trigger={
+          <button
+            type="button"
+            onClick={(e) => e.stopPropagation()}
+            className="btn btn-icon absolute top-2 right-2 h-7 w-7 min-w-7"
+          >
+            <EllipsisVertical size={16} />
+          </button>
+        }
+        items={[
+          {
+            id: "edit",
+            label: "Edit",
+            icon: <Edit2 size={14} />,
+            onClick: (e) => {
+              e.stopPropagation();
+              handleEdit(category);
+            }
+          },
+          {
+            id: "delete",
+            label: "Delete",
+            icon: <Trash2 size={14} />,
+            danger: true,
+            onClick: (e) => {
+              e.stopPropagation();
+              handleDelete(category);
+            }
+          }
+        ]}
+      />
     </Motion.li>
   );
 };

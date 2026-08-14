@@ -1,32 +1,30 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  Trash2,
-  Edit2,
-  TrendingDown,
-  Clock,
-  MoreVertical,
-  Plus,
-} from "lucide-react";
-import { useWallets } from "../hooks/useWallets";
-import { walletsApi } from "../api/wallets";
-import WalletFormModal from "../components/WalletFormModal";
+import { ArrowLeft, Trash2, Edit2, MoreVertical, Plus } from "lucide-react";
+import { useCategories } from "../hooks/useCategories";
+import { categoriesApi } from "../api/categories";
+import CategoryFormModal from "../components/CategoryFormModal";
 import { useTransactions } from "../../transactions/hooks/useTransactions";
 import TransactionList from "../../transactions/components/TransactionList";
 import TransactionFormModal from "../../transactions/components/TransactionFormModal";
 import TransactionDetailsModal from "../../transactions/components/TransactionDetailsModal";
-import DropdownMenu from "@/components/ui/DropdownMenu";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import DropdownMenu from "@/components/ui/DropdownMenu";
 import Skeleton from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/currency";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useExchangeRates } from "@/features/currencies/hooks/useExchangeRates";
 import { useToast } from "@/hooks/useToast";
+import * as PhosphorIcons from "@phosphor-icons/react";
 
-const WalletDetailsPage = () => {
+const CategoryDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToast } = useToast();
-  const { wallets, deleteWallet, isLoading, fetchWallets } = useWallets();
+  const { user } = useAuth();
+  const { convertCurrency } = useExchangeRates();
+  const { categories, deleteCategory, isLoading: isCategoriesLoading, fetchCategories } = useCategories();
+  
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
@@ -35,27 +33,28 @@ const WalletDetailsPage = () => {
   const [transactionToEdit, setTransactionToEdit] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const contextWallet = wallets.find((w) => w.id === id);
-  const [wallet, setWallet] = useState(contextWallet);
-  const [isWalletLoading, setIsWalletLoading] = useState(true);
+  // We find initial category from context if it exists, otherwise wait for fetch
+  const contextCategory = categories.find((c) => c.id === id);
+  const [category, setCategory] = useState(contextCategory);
+  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
 
-  const fetchWallet = useCallback(async () => {
-    setIsWalletLoading(true);
+  const fetchCategory = useCallback(async () => {
+    setIsCategoryLoading(true);
     try {
-      const data = await walletsApi.getById(id);
-      setWallet(data);
+      const data = await categoriesApi.getById(id);
+      setCategory(data);
     } catch (err) {
-      console.error("Failed to fetch wallet details:", err);
-      addToast("Failed to fetch wallet details", "error");
+      console.error("Failed to fetch category details:", err);
+      addToast("Failed to fetch category details", "error");
     } finally {
-      setIsWalletLoading(false);
+      setIsCategoryLoading(false);
     }
   }, [id, addToast]);
 
   useEffect(() => {
-    //eslint-disable-next-line
-    fetchWallet();
-  }, [fetchWallet]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchCategory();
+  }, [fetchCategory]);
 
   const {
     transactions,
@@ -63,26 +62,50 @@ const WalletDetailsPage = () => {
     refetch: refetchTransactions,
     deleteTransaction,
   } = useTransactions({
-    walletId: id,
+    categoryId: id,
   });
 
-  const {
-    totalIncome = 0,
-    totalExpense = 0,
-    totalBalance = wallet?.initialBalance || 0,
-  } = wallet?.stats || {};
+  // Calculate aggregated stats by converting each currency to baseCurrency
+  const aggregatedStats = useMemo(() => {
+    let totalBalance = 0;
+    let totalIncome = 0;
+    let totalExpense = 0;
 
-  const burnRate =
-    wallet?.initialBalance > 0
-      ? Math.min((totalExpense / wallet.initialBalance) * 100, 100)
-      : 0;
+    if (category?.stats) {
+      const { balancesByCurrency, incomeByCurrency, expenseByCurrency } = category.stats;
+
+      const sumCurrencies = (currencyMap) => {
+        let sum = 0;
+        if (!currencyMap) return sum;
+        for (const [curr, amount] of Object.entries(currencyMap)) {
+          const converted = convertCurrency(amount, curr, user?.baseCurrency);
+          if (converted !== null) {
+            sum += converted;
+          } else if (curr === user?.baseCurrency) {
+            sum += amount;
+          }
+        }
+        return sum;
+      };
+
+      totalBalance = sumCurrencies(balancesByCurrency);
+      totalIncome = sumCurrencies(incomeByCurrency);
+      totalExpense = sumCurrencies(expenseByCurrency);
+    }
+
+    return {
+      totalBalance,
+      totalIncome,
+      totalExpense,
+    };
+  }, [category?.stats, convertCurrency, user?.baseCurrency]);
 
   useEffect(() => {
-    // Redirect if wallet not found and we finished loading
-    if (!isLoading && !isWalletLoading && !wallet) {
-      navigate("/wallets");
+    // Redirect if category not found and we finished loading
+    if (!isCategoriesLoading && !isCategoryLoading && !category) {
+      navigate("/categories");
     }
-  }, [isLoading, isWalletLoading, wallet, navigate]);
+  }, [isCategoriesLoading, isCategoryLoading, category, navigate]);
 
   const handleDelete = () => {
     setIsDeleteModalOpen(true);
@@ -91,18 +114,18 @@ const WalletDetailsPage = () => {
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteWallet(wallet.id);
-      addToast("Wallet deleted successfully");
-      navigate("/wallets");
+      await deleteCategory(category.id);
+      addToast("Category deleted successfully");
+      navigate("/categories");
     } catch (error) {
-      console.error("Failed to delete wallet:", error);
-      addToast("Failed to delete wallet", "error");
+      console.error("Failed to delete category:", error);
+      addToast("Failed to delete category", "error");
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
     }
   };
 
-  if (isLoading || !wallet) {
+  if (isCategoriesLoading || !category) {
     return (
       <div className="w-full mt-6">
         <div className="flex flex-col gap-4">
@@ -113,32 +136,43 @@ const WalletDetailsPage = () => {
     );
   }
 
+  // Handle Category Icon
+  let categoryIconElement = null;
+  if (category.icon) {
+    if (category.icon.type === "emoji") {
+      categoryIconElement = <span className="text-xl leading-none">{category.icon.value}</span>;
+    } else if (category.icon.type === "phosphor" && PhosphorIcons[category.icon.value]) {
+      const PhosphorIcon = PhosphorIcons[category.icon.value];
+      categoryIconElement = <PhosphorIcon size={20} weight="regular" color={category.color} />;
+    }
+  }
+
   return (
     <article>
       <header className="page-header justify-between items-start sm:items-end flex-col sm:flex-row gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Link
-              to="/wallets"
+              to="/categories"
               className="p-1 rounded-md text-(--ink-muted) hover:text-(--ink) hover:bg-(--line-soft) transition-colors"
             >
               <ArrowLeft size={16} />
             </Link>
             <span className="text-[11px] font-semibold tracking-wider text-(--ink-muted) uppercase">
-              Wallet Details
+              Category Details
             </span>
           </div>
-          <div className="flex flex-col items-start gap-0.5">
-            <h1 className="page-title mb-0">{wallet.name}</h1>
-            <span
-              className="px-2 py-0.5 rounded-full text-[10px] font-medium"
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
               style={{
-                backgroundColor: `${wallet.color}20`,
-                color: wallet.color,
+                backgroundColor: `${category.color}20`,
+                color: category.color,
               }}
             >
-              {wallet.currency}
-            </span>
+              {categoryIconElement}
+            </div>
+            <h1 className="page-title mb-0">{category.name}</h1>
           </div>
         </div>
 
@@ -157,22 +191,22 @@ const WalletDetailsPage = () => {
 
           <DropdownMenu
             placement="bottom-end"
-            minWidth="w-36"
+            minWidth="w-40"
             trigger={
-              <button className="flex items-center justify-center bg-(--line) rounded-[9px] hover:bg-(--line-soft) transition-colors h-[34px] w-[34px]">
+              <button className="btn btn-icon h-[34px] w-[34px] min-w-[34px] bg-(--bg-card) border border-(--line) shadow-sm hover:border-(--line-soft)">
                 <MoreVertical size={14} className="text-(--ink)" />
               </button>
             }
             items={[
               {
                 id: "edit",
-                label: "Edit Wallet",
+                label: "Edit Category",
                 icon: <Edit2 size={14} />,
                 onClick: () => setIsEditModalOpen(true)
               },
               {
                 id: "delete",
-                label: "Delete Wallet",
+                label: "Delete Category",
                 icon: <Trash2 size={14} />,
                 danger: true,
                 onClick: handleDelete
@@ -182,7 +216,7 @@ const WalletDetailsPage = () => {
         </div>
       </header>
 
-      {isWalletLoading ? (
+      {isCategoryLoading ? (
         <>
           <div className="grid grid-cols-1 xxs:grid-cols-2 md:grid-cols-4 gap-4 mt-6">
             <Skeleton className="h-30 rounded-xl" />
@@ -191,106 +225,81 @@ const WalletDetailsPage = () => {
             <Skeleton className="h-30 rounded-xl" />
           </div>
           <div className="mt-8">
-            <TransactionList
-              isLoading={true}
-              currency={wallet.currency}
-            />
+            <TransactionList isLoading={true} context="category" currency={user?.baseCurrency} />
           </div>
         </>
       ) : (
         <>
-          {/* Wallet Stat Cards */}
+          {/* Category Stat Cards */}
           <dl
             className="grid grid-cols-1 xxs:grid-cols-2 md:grid-cols-4 gap-4 mt-6"
-            aria-label="Wallet Statistics"
+            aria-label="Category Statistics"
           >
             {/* Balance Card */}
             <div className="flex flex-col p-5 bg-(--bg-card) border border-(--line) rounded-xl shadow-xs h-30">
               <dt className="text-[11px] uppercase tracking-wide text-(--ink-muted) font-mono mb-2">
-                TOTAL BALANCE
+                NET BALANCE
               </dt>
               <dd className="text-[22px] font-semibold tracking-tight text-(--ink)">
-                <span className="sr-only">Balance is </span>
-                {formatCurrency(totalBalance, wallet.currency)}
+                <span className="sr-only">Net Balance is </span>
+                {formatCurrency(aggregatedStats.totalBalance, user?.baseCurrency)}
               </dd>
               <dd
                 className="mt-auto pt-2 text-xs font-normal text-(--ink-muted) flex items-center gap-1.5"
                 aria-hidden="true"
               >
-                {burnRate > 0 ? (
-                  <>
-                    <TrendingDown size={12} className="opacity-70" />
-                    <span>{burnRate.toFixed(0)}% total used</span>
-                  </>
-                ) : (
-                  <span>Fully funded</span>
-                )}
+                In {user?.baseCurrency}
               </dd>
             </div>
 
             {/* Income Card */}
             <div className="flex flex-col p-5 bg-(--bg-card) border border-(--line) rounded-xl shadow-xs h-30">
               <dt className="text-[11px] uppercase tracking-wide text-(--ink-muted) font-mono mb-2">
-                INCOME
+                TOTAL INCOME
               </dt>
               <dd className="text-[22px] font-semibold tracking-tight text-emerald-500">
                 <span className="sr-only">Total Income is </span>
-                {formatCurrency(totalIncome, wallet.currency)}
+                {formatCurrency(aggregatedStats.totalIncome, user?.baseCurrency)}
               </dd>
               <dd
                 className="mt-auto pt-2 text-xs font-normal text-(--ink-muted)"
                 aria-hidden="true"
               >
-                Total Income
+                In {user?.baseCurrency}
               </dd>
             </div>
 
             {/* Expense Card */}
             <div className="flex flex-col p-5 bg-(--bg-card) border border-(--line) rounded-xl shadow-xs h-30">
               <dt className="text-[11px] uppercase tracking-wide text-(--ink-muted) font-mono mb-2">
-                EXPENSE
+                TOTAL EXPENSE
               </dt>
               <dd className="text-[22px] font-semibold tracking-tight text-red-500">
                 <span className="sr-only">Total Expense is </span>
-                {formatCurrency(totalExpense, wallet.currency)}
+                {formatCurrency(aggregatedStats.totalExpense, user?.baseCurrency)}
               </dd>
               <dd
                 className="mt-auto pt-2 text-xs font-normal text-(--ink-muted)"
                 aria-hidden="true"
               >
-                Total Expense
+                In {user?.baseCurrency}
               </dd>
             </div>
 
-            {/* Activity Card */}
+            {/* Transactions Card */}
             <div className="flex flex-col p-5 bg-(--bg-card) border border-(--line) rounded-xl shadow-xs h-30">
               <dt className="text-[11px] uppercase tracking-wide text-(--ink-muted) font-mono mb-2">
                 TRANSACTIONS
               </dt>
               <dd className="text-[22px] font-semibold tracking-tight text-(--ink)">
                 <span className="sr-only">Total transactions are </span>
-                {wallet?.stats?.transactionCount || 0}
+                {category?.stats?.transactionCount || 0}
               </dd>
               <dd
                 className="mt-auto pt-2 text-xs font-normal text-(--ink-muted) flex items-center gap-1.5"
                 aria-hidden="true"
               >
-                {wallet?.stats?.lastTransactionDate ? (
-                  <>
-                    <Clock size={12} className="opacity-70" />
-                    <span>
-                      Last:{" "}
-                      {new Date(
-                        wallet.stats.lastTransactionDate,
-                      ).toLocaleDateString(undefined, {
-                        day: "numeric",
-                        month: "short",
-                      })}
-                    </span>
-                  </>
-                ) : (
-                  <span>No transactions yet</span>
-                )}
+                Count
               </dd>
             </div>
           </dl>
@@ -299,7 +308,8 @@ const WalletDetailsPage = () => {
             <TransactionList
               transactions={transactions}
               isLoading={isTransactionsLoading}
-              currency={wallet.currency}
+              currency={user?.baseCurrency}
+              context="category"
               onAddTransaction={() => {
                 setTransactionToEdit(null);
                 setIsTransactionModalOpen(true);
@@ -313,19 +323,23 @@ const WalletDetailsPage = () => {
         </>
       )}
 
-      <WalletFormModal
+      <CategoryFormModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        wallet={wallet}
+        category={category}
+        onSuccess={() => {
+          fetchCategory();
+          fetchCategories();
+        }}
       />
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Wallet"
-        message={`Are you sure you want to remove "${wallet.name}"?`}
-        confirmText="Delete Wallet"
+        title="Delete Category"
+        message={`Are you sure you want to remove "${category?.name}"? This category will be removed from all associated transactions.`}
+        confirmText="Delete Category"
         isDestructive={true}
         isLoading={isDeleting}
       />
@@ -333,35 +347,35 @@ const WalletDetailsPage = () => {
       <TransactionFormModal
         isOpen={isTransactionModalOpen}
         onClose={() => setIsTransactionModalOpen(false)}
-        initialWalletId={wallet?.id}
+        initialCategoryId={category?.id}
         transactionToEdit={transactionToEdit}
         onSuccess={() => {
-          fetchWallet();
+          fetchCategory();
           refetchTransactions();
-          fetchWallets();
         }}
       />
 
-      <TransactionDetailsModal
-        isOpen={isTransactionDetailsModalOpen}
-        onClose={() => {
-          setIsTransactionDetailsModalOpen(false);
-          setSelectedTransaction(null);
-        }}
-        transaction={selectedTransaction}
-        onEdit={(tx) => {
-          setTransactionToEdit(tx);
-          setIsTransactionDetailsModalOpen(false);
-          setIsTransactionModalOpen(true);
-        }}
-        onDelete={async (txId) => {
-          await deleteTransaction(txId);
-          fetchWallet();
-          fetchWallets();
-        }}
-      />
+      {selectedTransaction && (
+        <TransactionDetailsModal
+          isOpen={isTransactionDetailsModalOpen}
+          onClose={() => {
+            setIsTransactionDetailsModalOpen(false);
+            setSelectedTransaction(null);
+          }}
+          transaction={selectedTransaction}
+          onEdit={(tx) => {
+            setTransactionToEdit(tx);
+            setIsTransactionDetailsModalOpen(false);
+            setIsTransactionModalOpen(true);
+          }}
+          onDelete={async (txId) => {
+            await deleteTransaction(txId);
+            fetchCategory();
+          }}
+        />
+      )}
     </article>
   );
 };
 
-export default WalletDetailsPage;
+export default CategoryDetailsPage;

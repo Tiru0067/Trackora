@@ -43,6 +43,8 @@ export function useListNavigation({
         }
 
         case "Escape": {
+          e.preventDefault();
+          e.stopPropagation();
           onClose?.();
           break;
         }

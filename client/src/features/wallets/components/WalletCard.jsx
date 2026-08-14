@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Pin, PinOff, EllipsisVertical, Edit2 } from "lucide-react";
 import * as Icons from "@phosphor-icons/react";
 import { motion as Motion } from "motion/react";
-import Popover from "@/components/ui/Popover";
+import DropdownMenu from "@/components/ui/DropdownMenu";
 import { formatCompact } from "@/utils/currency";
 import { getWalletSummary } from "../utils/walletCalculation";
 
@@ -20,8 +20,6 @@ const WalletIcon = ({ value, color }) => {
 
 const WalletCard = ({ wallet, togglePinWallet, handleEdit }) => {
   const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const triggerRef = useRef(null);
 
   const { totalBalance } = getWalletSummary(wallet, []);
 
@@ -37,7 +35,7 @@ const WalletCard = ({ wallet, togglePinWallet, handleEdit }) => {
       <button
         type="button"
         onClick={() => navigate(`/wallets/${wallet.id}`)}
-        className="w-full h-full p-3 flex flex-col gap-3 items-start text-left cursor-pointer rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)"
+        className="w-full h-full p-3 flex flex-col gap-3 items-start text-left cursor-pointer rounded-xl"
         aria-label={`View details for ${wallet.name}`}
       >
         <div className="w-full flex justify-between items-center pr-8">
@@ -71,57 +69,38 @@ const WalletCard = ({ wallet, togglePinWallet, handleEdit }) => {
       </button>
 
       {/* Action Menu Trigger */}
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsMenuOpen((prev) => !prev);
-        }}
-        className="btn btn-icon absolute top-2 right-2 h-7 w-7 min-w-7"
-      >
-        <EllipsisVertical size={16} />
-      </button>
-
-      <Popover
-        open={isMenuOpen}
-        onOpenChange={setIsMenuOpen}
-        anchorRef={triggerRef}
+      <DropdownMenu
         placement="bottom-end"
-      >
-        {({ close }) => (
-          <ul className="bg-(--bg-card) border border-(--line) rounded-xl shadow-lg p-1.5 min-w-40 flex flex-col gap-1">
-            <li>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  togglePinWallet(wallet.id);
-                  close();
-                }}
-                className="w-full flex items-center gap-2 text-left px-3 py-1.5 text-sm text-(--ink) hover:bg-(--line-soft) rounded-lg transition-colors"
-              >
-                {wallet.pinnedAt ? <PinOff size={14} /> : <Pin size={14} />}
-                <span>{wallet.pinnedAt ? "Unpin wallet" : "Pin wallet"}</span>
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEdit(wallet);
-                  close();
-                }}
-                className="w-full flex items-center gap-2 text-left px-3 py-1.5 text-sm text-(--ink) hover:bg-(--line-soft) rounded-lg transition-colors"
-              >
-                <Edit2 size={14} />
-                <span>Edit Wallet</span>
-              </button>
-            </li>
-          </ul>
-        )}
-      </Popover>
+        trigger={
+          <button
+            type="button"
+            onClick={(e) => e.stopPropagation()}
+            className="btn btn-icon absolute top-2 right-2 h-7 w-7 min-w-7"
+          >
+            <EllipsisVertical size={16} />
+          </button>
+        }
+        items={[
+          {
+            id: "pin",
+            label: wallet.pinnedAt ? "Unpin Wallet" : "Pin Wallet",
+            icon: wallet.pinnedAt ? <PinOff size={14} /> : <Pin size={14} />,
+            onClick: (e) => {
+              e.stopPropagation();
+              togglePinWallet(wallet.id);
+            },
+          },
+          {
+            id: "edit",
+            label: "Edit Wallet",
+            icon: <Edit2 size={14} />,
+            onClick: (e) => {
+              e.stopPropagation();
+              handleEdit(wallet.id);
+            },
+          },
+        ]}
+      />
     </Motion.li>
   );
 };

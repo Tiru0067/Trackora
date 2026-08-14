@@ -46,6 +46,7 @@ const Popover = ({
   id,
   labelledBy,
   trapFocus = true,
+  autoFocus = true,
 }) => {
   // ─── State ────────────────────────────────────────────────────────────────
   const [internalOpen, setInternalOpen] = useState(false);
@@ -169,7 +170,7 @@ const Popover = ({
   // ─── Event listeners ──────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !autoFocus) return;
 
     const frameId = requestAnimationFrame(() => {
       const focusableElements = getFocusableElements(popoverRef.current);
@@ -183,7 +184,7 @@ const Popover = ({
     return () => {
       cancelAnimationFrame(frameId);
     };
-  }, [open]);
+  }, [open, autoFocus]);
 
   // Reposition on scroll/resize
   useEffect(() => {
@@ -316,7 +317,7 @@ const Popover = ({
             tabIndex={-1}
             className="fixed z-999"
           >
-            {typeof children === "function" ? children({ close }) : children}
+            {typeof children === "function" ? children({ close, closeAndRestoreFocus }) : children}
           </div>,
           document.body,
         )}

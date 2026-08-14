@@ -49,22 +49,36 @@ export const getCategoriesService = async (userId) => {
   const statsMap = {};
   for (const t of transactions) {
     if (!statsMap[t.categoryId]) {
-      statsMap[t.categoryId] = { transactionCount: 0, balancesByCurrency: {} };
+      statsMap[t.categoryId] = {
+        transactionCount: 0,
+        balancesByCurrency: {},
+        incomeByCurrency: {},
+        expenseByCurrency: {},
+      };
     }
     const catStats = statsMap[t.categoryId];
     catStats.transactionCount++;
 
     const currency = t.wallet.currency;
     let amt = Number(t.amount || 0);
-    if (t.type === "EXPENSE") amt = -amt;
 
-    catStats.balancesByCurrency[currency] =
-      (catStats.balancesByCurrency[currency] || 0) + amt;
+    if (t.type === "INCOME" || (t.type === "TRANSFER" && t.transferDirection === "IN")) {
+      catStats.incomeByCurrency[currency] = (catStats.incomeByCurrency[currency] || 0) + amt;
+      catStats.balancesByCurrency[currency] = (catStats.balancesByCurrency[currency] || 0) + amt;
+    } else if (t.type === "EXPENSE" || (t.type === "TRANSFER" && t.transferDirection === "OUT")) {
+      catStats.expenseByCurrency[currency] = (catStats.expenseByCurrency[currency] || 0) + amt;
+      catStats.balancesByCurrency[currency] = (catStats.balancesByCurrency[currency] || 0) - amt;
+    }
   }
 
   return categories.map((c) => ({
     ...c,
-    stats: statsMap[c.id] || { transactionCount: 0, balancesByCurrency: {} },
+    stats: statsMap[c.id] || {
+      transactionCount: 0,
+      balancesByCurrency: {},
+      incomeByCurrency: {},
+      expenseByCurrency: {},
+    },
   }));
 };
 
@@ -77,7 +91,40 @@ export const getCategoryByIdService = async (userId, categoryId) => {
     throw new AppError("Category not found", 404);
   }
 
-  return category;
+  const transactions = await prisma.transaction.findMany({
+    where: { userId, categoryId },
+    select: {
+      amount: true,
+      type: true,
+      transferDirection: true,
+      wallet: {
+        select: { currency: true },
+      },
+    },
+  });
+
+  const stats = {
+    transactionCount: 0,
+    balancesByCurrency: {},
+    incomeByCurrency: {},
+    expenseByCurrency: {},
+  };
+
+  for (const t of transactions) {
+    stats.transactionCount++;
+    const currency = t.wallet.currency;
+    let amt = Number(t.amount || 0);
+
+    if (t.type === "INCOME" || (t.type === "TRANSFER" && t.transferDirection === "IN")) {
+      stats.incomeByCurrency[currency] = (stats.incomeByCurrency[currency] || 0) + amt;
+      stats.balancesByCurrency[currency] = (stats.balancesByCurrency[currency] || 0) + amt;
+    } else if (t.type === "EXPENSE" || (t.type === "TRANSFER" && t.transferDirection === "OUT")) {
+      stats.expenseByCurrency[currency] = (stats.expenseByCurrency[currency] || 0) + amt;
+      stats.balancesByCurrency[currency] = (stats.balancesByCurrency[currency] || 0) - amt;
+    }
+  }
+
+  return { ...category, stats };
 };
 
 export const updateCategoryService = async (userId, categoryId, updateData) => {

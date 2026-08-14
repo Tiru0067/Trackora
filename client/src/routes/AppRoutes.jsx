@@ -10,7 +10,7 @@ import {
 } from "@/features/auth";
 import { DashboardPage } from "@/features/dashboard";
 import { WalletsPage, WalletDetailsPage } from "@/features/wallets";
-import { CategoriesPage } from "@/features/categories";
+import { CategoriesPage, CategoryDetailsPage } from "@/features/categories";
 import { TransactionsPage } from "@/features/transactions";
 import { SettingsPage } from "@/features/settings";
 import NotFound from "@/pages/NotFound";
@@ -38,6 +38,7 @@ const AppRoutes = () => {
           <Route path="/wallets/:id" element={<WalletDetailsPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/categories/:id" element={<CategoryDetailsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>

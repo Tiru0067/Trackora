@@ -21,11 +21,8 @@ const WalletsPage = () => {
   const [selectedWallet, setSelectedWallet] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("default");
   const [filterCurrency, setFilterCurrency] = useState("All");
-
-  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
-  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const [sortBy, setSortBy] = useState("default");
 
   const totalWalletsCount = wallets.length;
 
@@ -169,15 +166,11 @@ const WalletsPage = () => {
               <WalletToolbar
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
                 filterCurrency={filterCurrency}
                 setFilterCurrency={setFilterCurrency}
                 balancesByCurrency={balancesByCurrency}
-                isSortMenuOpen={isSortMenuOpen}
-                setIsSortMenuOpen={setIsSortMenuOpen}
-                isFilterMenuOpen={isFilterMenuOpen}
-                setIsFilterMenuOpen={setIsFilterMenuOpen}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
               />
             </>
           )}
