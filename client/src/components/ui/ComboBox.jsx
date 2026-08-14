@@ -15,6 +15,7 @@ const ComboBox = ({
   className,
   placeholder = "Select",
   searchPlaceholder = "Search...",
+  disabled = false,
 }) => {
   // ─── State ────────────────────────────────────────────────────────────────
   const [open, setOpen] = useState(false);
@@ -159,6 +160,7 @@ const ComboBox = ({
           value={open ? query : selectedLabel}
           autoComplete="off"
           placeholder={searchPlaceholder}
+          disabled={disabled}
           onChange={(event) => {
             setQuery(event.target.value);
             setOpen(true);
@@ -167,7 +169,7 @@ const ComboBox = ({
           onClick={openCombobox}
           onKeyDown={handleTriggerKeyDown}
           className={cn(
-            "w-full px-3 py-2.5 bg-(--bg-card) border border-(--line) rounded-lg outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:border-(--accent)",
+            "w-full px-3 py-2.5 bg-(--bg-card) border border-(--line) rounded-lg outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:border-(--accent) disabled:opacity-50 disabled:cursor-not-allowed",
             className,
           )}
         />
@@ -180,6 +182,7 @@ const ComboBox = ({
           aria-controls={listboxId}
           aria-haspopup="listbox"
           aria-activedescendant={activeOptionId}
+          disabled={disabled}
           onClick={() => {
             if (open) {
               closeCombobox();
@@ -189,7 +192,7 @@ const ComboBox = ({
           }}
           onKeyDown={handleTriggerKeyDown}
           className={cn(
-            "flex justify-between items-center text-left px-3 py-2.5 bg-(--bg-card) border border-(--line) rounded-lg outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:border-(--accent)",
+            "flex justify-between items-center text-left px-3 py-2.5 bg-(--bg-card) border border-(--line) rounded-lg outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:border-(--accent) disabled:opacity-50 disabled:cursor-not-allowed",
             className,
           )}
         >

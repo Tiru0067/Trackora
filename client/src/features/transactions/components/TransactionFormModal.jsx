@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import Modal from "@/components/ui/Modal";
 import FormField from "@/components/ui/FormField";
 import ComboBox from "@/components/ui/ComboBox";
+import DatePicker from "@/components/ui/DatePicker";
 import { useWallets } from "../../wallets/hooks/useWallets";
 import { useCategories } from "../../categories/hooks/useCategories";
 import { cn } from "@/utils/cn";
@@ -296,11 +297,8 @@ const TransactionFormModal = ({
                   options={walletOptions}
                   id="walletId"
                   name="walletId"
-                  className={cn(
-                    "w-full",
-                    initialWalletId &&
-                      "pointer-events-none opacity-60 bg-black/5",
-                  )}
+                  className="w-full"
+                  disabled={!!initialWalletId}
                   value={formData.walletId}
                   onChange={(val) =>
                     setFormData((prev) => ({ ...prev, walletId: val }))
@@ -314,6 +312,7 @@ const TransactionFormModal = ({
                   id="categoryId"
                   name="categoryId"
                   className="w-full"
+                  disabled={!!initialCategoryId}
                   searchPlaceholder="Optional"
                   value={formData.categoryId}
                   onChange={(val) =>
@@ -428,14 +427,11 @@ const TransactionFormModal = ({
         {/* Date & Title */}
         <Motion.div layout className="grid grid-cols-[1fr_2fr] gap-3">
           <FormField label="Date" id="txDate">
-            <input
-              type="date"
+            <DatePicker
               id="txDate"
               name="date"
-              className="w-full bg-transparent border border-(--line) rounded-lg px-3 h-10 outline-none focus:border-(--accent) focus:ring-1 focus:ring-(--accent) transition-all text-[13.5px] text-(--ink)"
               value={formData.date}
               onChange={handleChange}
-              required
             />
           </FormField>
           <FormField label="Title" id="txTitle">
