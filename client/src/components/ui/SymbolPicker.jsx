@@ -13,8 +13,12 @@ const COLUMN_COUNT = 6;
 const CONTAINER_HEIGHT = 176;
 
 // ─── Static data ──────────────────────────────────────────────────────────────
-const iconsList = Object.entries(Icons).filter(([name]) => 
-  /^[A-Z]/.test(name) && !name.includes("Context") && !name.includes("Base") && name !== "SSR"
+const iconsList = Object.entries(Icons).filter(
+  ([name]) =>
+    /^[A-Z]/.test(name) &&
+    !name.includes("Context") &&
+    !name.includes("Base") &&
+    name !== "SSR",
 );
 const emojisList = Object.entries(emojis);
 const items = { icons: iconsList, emojis: emojisList };
@@ -111,12 +115,14 @@ const SymbolPicker = ({
   const [hovered, setHovered] = useState(null);
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
+  const [focusedIndex, setFocusedIndex] = useState(0);
 
   // ─── Refs ────────────────────────────────────────────────────────────────
   const triggerRef = useRef(null);
   const tabRefs = useRef({});
   const searchRef = useRef(null);
   const containerRef = useRef(null);
+  const gridFocusRef = useRef(false);
 
   // ─── Derived data ────────────────────────────────────────────────────────
 
@@ -165,6 +171,91 @@ const SymbolPicker = ({
   const handleSelect = (item) => {
     onChange(item);
     setOpen(false);
+    triggerRef.current?.focus();
+  };
+
+  const handleGridKeyDown = (e) => {
+    if (filteredItems.length === 0) return;
+
+    let newIndex;
+
+    switch (e.key) {
+      case "ArrowRight":
+        newIndex = Math.min(focusedIndex + 1, filteredItems.length - 1);
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "ArrowLeft":
+        newIndex = Math.max(focusedIndex - 1, 0);
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "ArrowDown":
+        newIndex = Math.min(
+          focusedIndex + COLUMN_COUNT,
+          filteredItems.length - 1,
+        );
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "ArrowUp":
+        newIndex = Math.max(focusedIndex - COLUMN_COUNT, 0);
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "PageDown": {
+        const currentRow = Math.floor(focusedIndex / COLUMN_COUNT);
+        const newRow = Math.min(currentRow + visibleRowCount, rowCount - 1);
+        newIndex = newRow * COLUMN_COUNT;
+        if (containerRef.current) {
+          containerRef.current.scrollTop = newRow * ITEM_SIZE;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      }
+      case "PageUp": {
+        const currentRow = Math.floor(focusedIndex / COLUMN_COUNT);
+        const newRow = Math.max(currentRow - visibleRowCount, 0);
+        newIndex = newRow * COLUMN_COUNT;
+        if (containerRef.current) {
+          containerRef.current.scrollTop = newRow * ITEM_SIZE;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      }
+      case "Home":
+        newIndex = 0;
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "End":
+        newIndex = filteredItems.length - 1;
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      default:
+        return;
+    }
+
+    if (newIndex !== focusedIndex) {
+      setFocusedIndex(newIndex);
+      gridFocusRef.current = true;
+
+      const targetRow = Math.floor(newIndex / COLUMN_COUNT);
+      const targetTop = targetRow * ITEM_SIZE;
+      const targetBottom = targetTop + ITEM_SIZE;
+
+      const currentScrollTop = containerRef.current.scrollTop;
+      const currentScrollBottom = currentScrollTop + CONTAINER_HEIGHT;
+
+      if (targetTop < currentScrollTop) {
+        containerRef.current.scrollTop = targetTop;
+      } else if (targetBottom > currentScrollBottom) {
+        containerRef.current.scrollTop = targetBottom - CONTAINER_HEIGHT;
+      }
+    }
   };
 
   // ─── Effects ─────────────────────────────────────────────────────────────
@@ -185,10 +276,40 @@ const SymbolPicker = ({
     return () => clearTimeout(t);
   }, [search]);
 
-  // Reset scroll when picker opens
+  // Reset scroll and state when picker opens/closes
   useEffect(() => {
-    if (open) containerRef.current?.scrollTo({ top: 0 });
+    if (open) {
+      containerRef.current?.scrollTo({ top: 0 });
+    } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSearch("");
+      setQuery("");
+    }
   }, [open]);
+
+  // Sync focusedIndex when picker opens or data changes
+  useEffect(() => {
+    if (open && value && !query) {
+      const index = items[activeTab].findIndex(([name]) => name === value.name);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFocusedIndex(Math.max(0, index));
+    } else {
+      setFocusedIndex(0);
+    }
+  }, [open, activeTab, query, value]);
+
+  // Apply focus to the new grid item when using arrow keys
+  useEffect(() => {
+    if (gridFocusRef.current && containerRef.current) {
+      const activeBtn = containerRef.current.querySelector(
+        `button[data-grid-index="${focusedIndex}"]`,
+      );
+      if (activeBtn) {
+        activeBtn.focus();
+        gridFocusRef.current = false;
+      }
+    }
+  }, [focusedIndex, scrollTop]);
 
   // ─── Render ──────────────────────────────────────────────────────────────
   return (
@@ -228,8 +349,45 @@ const SymbolPicker = ({
         placement={placement}
         role="dialog"
         trapFocus
+        enableArrowNavigation={false}
       >
-        <div className="w-80 rounded-2xl bg-(--bg-card) border border-(--line) p-1 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)]">
+        <div
+          className="w-80 rounded-2xl bg-(--bg-card) border border-(--line) p-1 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)]"
+          onKeyDown={(e) => {
+            const keys = [
+              "ArrowUp",
+              "ArrowDown",
+              "ArrowLeft",
+              "ArrowRight",
+              "PageUp",
+              "PageDown",
+              "Home",
+              "End",
+            ];
+            if (keys.includes(e.key)) {
+              if (containerRef.current?.contains(document.activeElement))
+                return;
+
+              if (document.activeElement === searchRef.current) {
+                if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key))
+                  return;
+              }
+
+              e.preventDefault();
+              e.stopPropagation();
+              const activeBtn = containerRef.current?.querySelector(
+                `button[data-grid-index="${focusedIndex}"]`,
+              );
+              if (activeBtn) {
+                activeBtn.focus();
+              } else {
+                const targetRow = Math.floor(focusedIndex / COLUMN_COUNT);
+                containerRef.current?.scrollTo({ top: targetRow * ITEM_SIZE });
+                gridFocusRef.current = true;
+              }
+            }
+          }}
+        >
           {/* Tabs */}
           <div className="px-2.5 w-fit">
             <div className="relative">
@@ -302,7 +460,9 @@ const SymbolPicker = ({
           <div
             ref={containerRef}
             onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-            className="overflow-y-auto px-1.5 pb-1.5 hide-scrollbar"
+            onKeyDown={handleGridKeyDown}
+            tabIndex={-1}
+            className="overflow-y-auto px-1.5 pb-1.5 hide-scrollbar outline-none"
             style={{ height: CONTAINER_HEIGHT }}
           >
             {filteredItems.length === 0 ? (
@@ -322,7 +482,8 @@ const SymbolPicker = ({
                     gridTemplateColumns: `repeat(${COLUMN_COUNT}, 1fr)`,
                   }}
                 >
-                  {visibleItems.map(([item, data]) => {
+                  {visibleItems.map(([item, data], mapIndex) => {
+                    const globalIndex = startRow * COLUMN_COUNT + mapIndex;
                     const isSelected = value?.name === item;
 
                     const Icon = activeTab === "icons" ? Icons[item] : null;
@@ -340,6 +501,8 @@ const SymbolPicker = ({
                       <button
                         type="button"
                         key={item}
+                        tabIndex={-1}
+                        data-grid-index={globalIndex}
                         aria-label={`Select ${label}`}
                         aria-pressed={isSelected}
                         title={label}
@@ -353,7 +516,7 @@ const SymbolPicker = ({
                           `flex items-center justify-center 
                           rounded-lg border-none cursor-pointer
                           transition-colors duration-100
-                          focus-ring`,
+                          focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ink)`,
                           isSelected
                             ? "bg-(--line) text-(--ink)"
                             : `bg-transparent text-(--ink-muted) hover:bg-(--line)/50 hover:text-(--ink-soft)`,
@@ -362,6 +525,8 @@ const SymbolPicker = ({
                         {Icon ? (
                           <Icon
                             aria-hidden="true"
+                            focusable="false"
+                            tabIndex={-1}
                             size={17}
                             strokeWidth={1.75}
                           />

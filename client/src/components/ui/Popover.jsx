@@ -30,7 +30,9 @@ const getFocusableElements = (element) => {
       el.getAttribute("aria-hidden") === "true" ||
       el.offsetParent === null;
 
-    return !isHidden;
+    const isTabFocusable = el.getAttribute("tabindex") !== "-1";
+
+    return !isHidden && isTabFocusable;
   });
 };
 
@@ -47,9 +49,11 @@ const Popover = ({
   labelledBy,
   trapFocus = true,
   autoFocus = true,
+  enableArrowNavigation = true,
 }) => {
   // ─── State ────────────────────────────────────────────────────────────────
   const [internalOpen, setInternalOpen] = useState(false);
+  const [shouldRestoreFocus, setShouldRestoreFocus] = useState(false);
 
   // ─── Refs ─────────────────────────────────────────────────────────────────
   const triggerRef = useRef(null);
@@ -77,12 +81,20 @@ const Popover = ({
   }, [setOpen]);
 
   const closeAndRestoreFocus = useCallback(() => {
+    setShouldRestoreFocus(true);
     setOpen(false);
+  }, [setOpen]);
 
-    requestAnimationFrame(() => {
-      anchor.current?.focus?.();
-    });
-  }, [setOpen, anchor]);
+  useEffect(() => {
+    if (shouldRestoreFocus && !open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShouldRestoreFocus(false);
+      requestAnimationFrame(() => {
+        const activeAnchor = anchorRef?.current ?? triggerRef.current;
+        activeAnchor?.focus?.();
+      });
+    }
+  }, [shouldRestoreFocus, open, anchorRef]);
 
   const toggle = useCallback(() => {
     setOpen(!open);
@@ -233,17 +245,23 @@ const Popover = ({
       const currentIndex = focusableElements.indexOf(document.activeElement);
 
       // Arrow navigation
-      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (
+        enableArrowNavigation &&
+        (event.key === "ArrowDown" || event.key === "ArrowUp")
+      ) {
         event.preventDefault();
-        
+
         let nextIndex;
         if (currentIndex === -1) {
-          nextIndex = event.key === "ArrowDown" ? 0 : focusableElements.length - 1;
+          nextIndex =
+            event.key === "ArrowDown" ? 0 : focusableElements.length - 1;
         } else {
           if (event.key === "ArrowDown") {
             nextIndex = (currentIndex + 1) % focusableElements.length;
           } else {
-            nextIndex = (currentIndex - 1 + focusableElements.length) % focusableElements.length;
+            nextIndex =
+              (currentIndex - 1 + focusableElements.length) %
+              focusableElements.length;
           }
         }
         focusableElements[nextIndex]?.focus();
@@ -256,7 +274,10 @@ const Popover = ({
       if (event.shiftKey && document.activeElement === firstElement) {
         event.preventDefault();
         lastElement.focus();
-      } else if (!event.shiftKey && (document.activeElement === lastElement || currentIndex === -1)) {
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === lastElement || currentIndex === -1)
+      ) {
         event.preventDefault();
         firstElement.focus();
       }
@@ -267,7 +288,7 @@ const Popover = ({
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [open, trapFocus, closeAndRestoreFocus]);
+  }, [open, trapFocus, closeAndRestoreFocus, enableArrowNavigation]);
 
   // Close on outside click
   useEffect(() => {
@@ -316,8 +337,11 @@ const Popover = ({
             aria-labelledby={labelledBy}
             tabIndex={-1}
             className="fixed z-999"
+            onKeyDown={(e) => e.stopPropagation()}
           >
-            {typeof children === "function" ? children({ close, closeAndRestoreFocus }) : children}
+            {typeof children === "function"
+              ? children({ close, closeAndRestoreFocus })
+              : children}
           </div>,
           document.body,
         )}

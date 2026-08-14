@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { COLORS } from "@/constants/colors";
@@ -8,6 +8,7 @@ import Popover from "./Popover";
 // ─── Constants ────────────────────────────────────────────────────────────────
 const WIDTH = 120;
 const GAP = 12;
+const flatColors = COLORS.flat();
 
 // ─── Component ────────────────────────────────────────────────────────────────
 const ColorPicker = ({
@@ -21,28 +22,92 @@ const ColorPicker = ({
   // ─── State ──────────────────────────────────────────────────────────────
   const [open, setOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [focusedIndex, setFocusedIndex] = useState(0);
 
   // ─── Refs ────────────────────────────────────────────────────────────────
   const triggerRef = useRef(null);
   const trackRef = useRef(null);
+  const gridFocusRef = useRef(false);
 
   const totalPages = COLORS.length;
 
   // ─── Handlers ────────────────────────────────────────────────────────────
-  const goTo = (page) => {
-    const nextPage = Math.min(Math.max(page, 0), totalPages - 1);
+  const goTo = useCallback(
+    (page) => {
+      const nextPage = Math.min(Math.max(page, 0), totalPages - 1);
 
-    trackRef.current?.scrollTo({
-      left: page * (WIDTH + GAP),
-      behavior: "smooth",
-    });
+      trackRef.current?.scrollTo({
+        left: page * (WIDTH + GAP),
+      });
 
-    setCurrentPage(nextPage);
-  };
+      setCurrentPage(nextPage);
+    },
+    [totalPages],
+  );
 
   const handleSelect = (hex) => {
     onChange(hex);
     setOpen(false);
+    triggerRef.current?.focus();
+  };
+
+  const handleGridKeyDown = (e) => {
+    let newIndex;
+
+    switch (e.key) {
+      case "ArrowRight":
+        newIndex = Math.min(focusedIndex + 1, flatColors.length - 1);
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "ArrowLeft":
+        newIndex = Math.max(focusedIndex - 1, 0);
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "ArrowDown":
+        newIndex = Math.min(focusedIndex + 3, flatColors.length - 1);
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "ArrowUp":
+        newIndex = Math.max(focusedIndex - 3, 0);
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "PageDown":
+        newIndex = Math.min(focusedIndex + 9, flatColors.length - 1);
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "PageUp":
+        newIndex = Math.max(focusedIndex - 9, 0);
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "Home":
+        newIndex = 0;
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case "End":
+        newIndex = flatColors.length - 1;
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      default:
+        return;
+    }
+
+    if (newIndex !== focusedIndex) {
+      setFocusedIndex(newIndex);
+      gridFocusRef.current = true;
+
+      const newPage = Math.floor(newIndex / 9);
+      if (newPage !== currentPage) {
+        goTo(newPage);
+      }
+    }
   };
 
   // ─── Effects ─────────────────────────────────────────────────────────────
@@ -60,6 +125,34 @@ const ColorPicker = ({
     el.addEventListener("scroll", onScroll);
     return () => el.removeEventListener("scroll", onScroll);
   }, [open]); // re-attach when picker opens
+
+  // Sync focusedIndex when picker opens
+  useEffect(() => {
+    if (open) {
+      const index = flatColors.findIndex((hex) => hex === value);
+      const targetIndex = Math.max(0, index);
+      //eslint-disable-next-line
+      setFocusedIndex(targetIndex);
+
+      const page = Math.floor(targetIndex / 9);
+      goTo(page);
+    } else {
+      setFocusedIndex(0);
+    }
+  }, [open, value, goTo]);
+
+  // Apply focus to the new grid item when using arrow keys
+  useEffect(() => {
+    if (gridFocusRef.current && trackRef.current) {
+      const activeBtn = trackRef.current.querySelector(
+        `button[data-grid-index="${focusedIndex}"]`,
+      );
+      if (activeBtn) {
+        activeBtn.focus();
+        gridFocusRef.current = false;
+      }
+    }
+  }, [focusedIndex]);
 
   // ─── Render ──────────────────────────────────────────────────────────────
   return (
@@ -98,8 +191,33 @@ const ColorPicker = ({
         placement={placement}
         role="dialog"
         trapFocus
+        enableArrowNavigation={false}
       >
-        <div className="bg-(--bg-card) border border-(--line) shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)] rounded-2xl p-1">
+        <div
+          className="bg-(--bg-card) border border-(--line) shadow-[0_12px_24px_-8px_rgba(0,0,0,0.15)] rounded-2xl p-1"
+          onKeyDown={(e) => {
+            const keys = [
+              "ArrowUp",
+              "ArrowDown",
+              "ArrowLeft",
+              "ArrowRight",
+              "PageUp",
+              "PageDown",
+              "Home",
+              "End",
+            ];
+            if (keys.includes(e.key)) {
+              if (trackRef.current?.contains(document.activeElement)) return;
+
+              e.preventDefault();
+              e.stopPropagation();
+              const activeBtn = trackRef.current?.querySelector(
+                `button[data-grid-index="${focusedIndex}"]`,
+              );
+              activeBtn?.focus();
+            }
+          }}
+        >
           <div className="flex items-stretch">
             <button
               type="button"
@@ -113,7 +231,9 @@ const ColorPicker = ({
 
             <div
               ref={trackRef}
-              className="py-2.5 flex overflow-x-auto hide-scrollbar snap-x snap-mandatory"
+              onKeyDown={handleGridKeyDown}
+              tabIndex={-1}
+              className="py-2.5 flex overflow-x-auto hide-scrollbar snap-x snap-mandatory outline-none"
               style={{ width: WIDTH, gap: GAP }}
             >
               {COLORS.map((colors, pageIndex) => {
@@ -126,18 +246,22 @@ const ColorPicker = ({
                     className="shrink-0 snap-start grid grid-cols-3 place-items-center gap-2"
                     style={{ width: WIDTH, gap: GAP }}
                   >
-                    {colors.map((hex) => (
-                      <button
-                        key={hex}
-                        type="button"
-                        tabIndex={isCurrentPage ? 0 : -1}
-                        aria-label={`Select color ${hex}`}
-                        aria-pressed={value === hex}
-                        onClick={() => handleSelect(hex)}
-                        style={{ background: hex }}
-                        className="w-7 h-7 rounded-full cursor-pointer transition-transform hover:scale-110 focus-ring"
-                      />
-                    ))}
+                    {colors.map((hex, indexInPage) => {
+                      const globalIndex = pageIndex * 9 + indexInPage;
+                      return (
+                        <button
+                          key={hex}
+                          type="button"
+                          tabIndex={-1}
+                          data-grid-index={globalIndex}
+                          aria-label={`Select color ${hex}`}
+                          aria-pressed={value === hex}
+                          onClick={() => handleSelect(hex)}
+                          style={{ backgroundColor: hex }}
+                          className="w-7 h-7 rounded-full cursor-pointer transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ink)"
+                        />
+                      );
+                    })}
                   </div>
                 );
               })}
@@ -160,12 +284,8 @@ const ColorPicker = ({
           {/* Pagination dots */}
           <div className="flex justify-center gap-1 pb-1">
             {Array.from({ length: totalPages }).map((_, i) => (
-              <button
+              <div
                 key={i}
-                type="button"
-                aria-label={`Go to color page ${i + 1}`}
-                aria-current={i === currentPage ? "page" : undefined}
-                onClick={() => goTo(i)}
                 className={`w-1.5 h-1.5 rounded-full transition-all ${
                   i === currentPage
                     ? "bg-black dark:bg-white scale-150"
