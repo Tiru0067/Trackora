@@ -353,8 +353,7 @@ const SymbolPicker = ({
                           `flex items-center justify-center 
                           rounded-lg border-none cursor-pointer
                           transition-colors duration-100
-                          focus-visible:outline-none focus-visible:ring-2 
-                          focus-visible:ring-black dark:focus-visible:ring-white`,
+                          focus-ring`,
                           isSelected
                             ? "bg-(--line) text-(--ink)"
                             : `bg-transparent text-(--ink-muted) hover:bg-(--line)/50 hover:text-(--ink-soft)`,

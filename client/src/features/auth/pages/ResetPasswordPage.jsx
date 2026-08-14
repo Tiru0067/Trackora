@@ -126,7 +126,7 @@ const ResetPasswordPage = () => {
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className="mr-3 p-0.5 rounded text-(--ink-muted) hover:text-(--ink-soft) focus-visible:outline-2 focus-visible:outline-(--accent) cursor-pointer"
+                  className="mr-3 p-0.5 rounded text-(--ink-muted) hover:text-(--ink-soft) cursor-pointer"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   aria-pressed={showPassword}
                 >

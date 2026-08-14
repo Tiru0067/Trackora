@@ -135,7 +135,7 @@ const ColorPicker = ({
                         aria-pressed={value === hex}
                         onClick={() => handleSelect(hex)}
                         style={{ background: hex }}
-                        className="w-7 h-7 rounded-full cursor-pointer transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-100 dark:focus-visible:ring-offset-neutral-800"
+                        className="w-7 h-7 rounded-full cursor-pointer transition-transform hover:scale-110 focus-ring"
                       />
                     ))}
                   </div>

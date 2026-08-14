@@ -101,12 +101,13 @@ const ComboBox = ({
         if (
           event.key === "ArrowDown" ||
           event.key === "Enter" ||
-          event.key === " "
+          (!searchable && event.key === " ")
         ) {
           event.preventDefault();
           openCombobox();
           setActiveIndex(0);
         } else if (event.key === "ArrowUp") {
+          event.preventDefault();
           openCombobox();
           setActiveIndex(filteredOptions.length - 1);
         }
@@ -114,7 +115,12 @@ const ComboBox = ({
       }
 
       if (event.key === "Tab") {
-        closeCombobox();
+        if (!open) return;
+        event.preventDefault();
+        onKeyDown({
+          key: event.shiftKey ? "ArrowUp" : "ArrowDown",
+          preventDefault: () => {},
+        });
         return;
       }
 
@@ -123,7 +129,7 @@ const ComboBox = ({
     [
       open,
       openCombobox,
-      closeCombobox,
+      searchable,
       onKeyDown,
       setActiveIndex,
       filteredOptions.length,
@@ -158,10 +164,12 @@ const ComboBox = ({
             setOpen(true);
             setActiveIndex(-1);
           }}
-          onFocus={() => setOpen(true)}
           onClick={openCombobox}
           onKeyDown={handleTriggerKeyDown}
-          className={cn("w-full px-3 py-2.5 focus:outline-none", className)}
+          className={cn(
+            "w-full px-3 py-2.5 bg-(--bg-card) border border-(--line) rounded-lg outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:border-(--accent)",
+            className,
+          )}
         />
       ) : (
         <button
@@ -181,7 +189,7 @@ const ComboBox = ({
           }}
           onKeyDown={handleTriggerKeyDown}
           className={cn(
-            "flex justify-between items-center text-left px-3 py-2.5",
+            "flex justify-between items-center text-left px-3 py-2.5 bg-(--bg-card) border border-(--line) rounded-lg outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:border-(--accent)",
             className,
           )}
         >
@@ -209,11 +217,13 @@ const ComboBox = ({
         }}
         anchorRef={triggerRef}
         placement={POSITION}
+        trapFocus={false}
+        autoFocus={false}
       >
         <ul
           id={listboxId}
           role="listbox"
-          className="overflow-y-auto w-full max-h-65 bg-(--bg-warm) border border-(--line) rounded-lg shadow-lg z-10"
+          className="dropdown-content overflow-y-auto w-full max-h-65 m-0"
         >
           {filteredOptions.map((option, index) => (
             <li
@@ -227,11 +237,11 @@ const ComboBox = ({
                 handleSelect(option.value);
               }}
               className={cn(
-                "px-4 py-2 cursor-pointer text-(--ink)",
-                index === activeIndex && "bg-(--bg)",
-                index !== activeIndex &&
-                  value === option.value &&
-                  "btn-primary text-white",
+                "dropdown-item",
+                index === activeIndex && "bg-(--line-soft) text-(--ink) font-medium",
+                value === option.value &&
+                  index !== activeIndex &&
+                  "text-(--ink) font-medium",
               )}
             >
               {option.label}

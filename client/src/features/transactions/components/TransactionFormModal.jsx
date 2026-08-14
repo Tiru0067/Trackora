@@ -12,6 +12,7 @@ const TransactionFormModal = ({
   isOpen,
   onClose,
   initialWalletId = null,
+  initialCategoryId = null,
   transactionToEdit = null,
   onSuccess,
 }) => {
@@ -106,12 +107,12 @@ const TransactionFormModal = ({
           fromWalletId:
             initialWalletId || (wallets.length > 0 ? wallets[0].id : ""),
           toWalletId: "",
-          categoryId: "",
+          categoryId: initialCategoryId || "",
         });
         setType("EXPENSE");
       }
     }
-  }, [isOpen, initialWalletId, wallets, transactionToEdit]);
+  }, [isOpen, initialWalletId, initialCategoryId, wallets, transactionToEdit]);
 
   const fromWallet = useMemo(
     () =>
