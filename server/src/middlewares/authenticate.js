@@ -28,6 +28,9 @@ export const authenticate = asyncHandler(async (req, res, next) => {
 
     next();
   } catch (error) {
-    throw new AppError("Invalid or expired authentication", 401, "INVALID_TOKEN");
+    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
+      throw new AppError("Invalid or expired authentication", 401, "INVALID_TOKEN");
+    }
+    throw error;
   }
 });
