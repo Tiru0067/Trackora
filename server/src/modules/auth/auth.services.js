@@ -23,7 +23,30 @@ export const registerService = async (input) => {
 
   try {
     const user = await prisma.user.create({
-      data: { name, email, baseCurrency, password: hashedPassword },
+      data: {
+        name,
+        email,
+        baseCurrency,
+        password: hashedPassword,
+        categories: {
+          create: [
+            { name: "Food & Dining", color: "#EF4444", icon: { type: "emoji", value: "🍔" } },
+            { name: "Groceries", color: "#10B981", icon: { type: "emoji", value: "🛒" } },
+            { name: "Transport", color: "#3B82F6", icon: { type: "emoji", value: "🚌" } },
+            { name: "Shopping", color: "#8B5CF6", icon: { type: "emoji", value: "🛍️" } },
+            { name: "Bills & Utilities", color: "#F59E0B", icon: { type: "emoji", value: "💡" } },
+          ],
+        },
+        wallets: {
+          create: {
+            name: "Personal",
+            currency: baseCurrency,
+            color: "#3B82F6",
+            icon: { type: "emoji", value: "💼" },
+            isPrimary: true,
+          },
+        },
+      },
       select: { name: true, email: true },
     });
 
