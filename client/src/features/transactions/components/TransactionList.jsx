@@ -96,7 +96,7 @@ const TransactionList = ({
 }) => {
   if (isLoading && transactions == null) {
     return (
-      <Skeleton className="flex-1 h-full min-h-[300px] w-full rounded-2xl bg-(--bg-card) border border-(--line)" />
+      <Skeleton className="flex-1 h-full min-h-75 w-full rounded-2xl bg-(--bg-card) border border-(--line)" />
     );
   }
 
