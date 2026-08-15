@@ -3,6 +3,7 @@ import { authenticate } from "#/middlewares/authenticate.js";
 
 import {
   getTransactions,
+  getTransactionStats,
   createTransaction,
   updateTransaction,
   deleteTransaction,
@@ -21,6 +22,8 @@ router
   .route("/")
   .get(getTransactions)
   .post(validateCreateTransaction, createTransaction);
+
+router.route("/stats").get(getTransactionStats);
 
 router
   .route("/:id")

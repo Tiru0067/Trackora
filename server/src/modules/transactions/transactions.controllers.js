@@ -5,6 +5,7 @@ import {
   updateTransactionService,
   deleteTransactionService,
   getTransactionsService,
+  getTransactionStatsService,
 } from "./transactions.services.js";
 
 // ─── Get Transactions ────────────────────────────────────────────────────────
@@ -15,6 +16,9 @@ export const getTransactions = asyncHandler(async (req, res) => {
     type: req.query.type,
     startDate: req.query.startDate,
     endDate: req.query.endDate,
+    search: req.query.search,
+    sortBy: req.query.sortBy,
+    orderDir: req.query.orderDir,
     limit: req.query.limit,
     page: req.query.page,
   };
@@ -29,6 +33,26 @@ export const getTransactions = asyncHandler(async (req, res) => {
     message: "Transactions retrieved successfully",
     data: transactions,
     pagination,
+  });
+});
+
+// ─── Get Transaction Stats ───────────────────────────────────────────────────
+export const getTransactionStats = asyncHandler(async (req, res) => {
+  const filters = {
+    walletId: req.query.walletId,
+    categoryId: req.query.categoryId,
+    type: req.query.type,
+    startDate: req.query.startDate,
+    endDate: req.query.endDate,
+    search: req.query.search,
+  };
+
+  const stats = await getTransactionStatsService(req.user.id, filters);
+
+  return sendResponse(res, {
+    statusCode: 200,
+    message: "Transaction stats retrieved successfully",
+    data: stats,
   });
 });
 

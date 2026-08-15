@@ -255,6 +255,9 @@ export const getTransactionsService = async (userId, filters) => {
     startDate,
     endDate,
     type,
+    search,
+    sortBy,
+    orderDir,
     limit = 50,
     page = 1,
   } = filters;
@@ -268,16 +271,25 @@ export const getTransactionsService = async (userId, filters) => {
   if (walletId) where.walletId = walletId;
   if (categoryId) where.categoryId = categoryId;
   if (type) where.type = type;
+  if (search) {
+    where.title = { contains: search, mode: "insensitive" };
+  }
   if (startDate || endDate) {
     where.date = {};
     if (startDate) where.date.gte = new Date(startDate);
     if (endDate) where.date.lte = new Date(endDate);
   }
 
+  const validSortFields = ["date", "amount"];
+  const validOrderDirs = ["asc", "desc"];
+  
+  const orderByField = validSortFields.includes(sortBy) ? sortBy : "date";
+  const orderByDir = validOrderDirs.includes(orderDir?.toLowerCase()) ? orderDir.toLowerCase() : "desc";
+
   const [transactions, total] = await Promise.all([
     prisma.transaction.findMany({
       where,
-      orderBy: { date: "desc" },
+      orderBy: { [orderByField]: orderByDir },
       take: parsedLimit,
       skip: skip,
       include: {
@@ -332,5 +344,51 @@ export const getTransactionsService = async (userId, filters) => {
       total,
       totalPages: Math.ceil(total / parsedLimit),
     },
+  };
+};
+
+// ─── Get Transaction Stats ───────────────────────────────────────────────────
+export const getTransactionStatsService = async (userId, filters) => {
+  const { walletId, categoryId, startDate, endDate, type, search } = filters;
+
+  const where = { userId };
+  if (walletId) where.walletId = walletId;
+  if (categoryId) where.categoryId = categoryId;
+  if (type) where.type = type;
+  if (search) {
+    where.title = { contains: search, mode: "insensitive" };
+  }
+  if (startDate || endDate) {
+    where.date = {};
+    if (startDate) where.date.gte = new Date(startDate);
+    if (endDate) where.date.lte = new Date(endDate);
+  }
+
+  const [totalCount, typeGroups] = await Promise.all([
+    prisma.transaction.count({ where }),
+    prisma.transaction.groupBy({
+      by: ["type", "transferDirection"],
+      where,
+      _sum: { amount: true },
+    })
+  ]);
+
+  let income = 0;
+  let expense = 0;
+
+  for (const group of typeGroups) {
+    const sum = Number(group._sum.amount || 0);
+    if (group.type === "INCOME" || (group.type === "TRANSFER" && group.transferDirection === "IN")) {
+      income += sum;
+    } else if (group.type === "EXPENSE" || (group.type === "TRANSFER" && group.transferDirection === "OUT")) {
+      expense += sum;
+    }
+  }
+
+  return {
+    totalTransactions: totalCount,
+    income,
+    expense,
+    net: income - expense,
   };
 };
