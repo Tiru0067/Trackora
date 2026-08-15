@@ -13,6 +13,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
 
   const register = useCallback(
     async ({ name, email, currency: baseCurrency, password }) => {
@@ -49,14 +50,28 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await getUser();
       setUser(data.data);
+      setLoading(false);
+      setIsOffline(false);
       return data;
     } catch (error) {
-      console.error(error.message);
-      setUser(null);
-    } finally {
-      setLoading(false);
+      console.error("Auth load error:", error.message);
+      // Only clear the user if the token is actually invalid (401 or 403)
+      // If it's a network error or 500 server error, show offline screen
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        setUser(null);
+        setLoading(false);
+      } else {
+        setIsOffline(true);
+        setLoading(false);
+      }
     }
   }, []);
+
+  const retryConnection = useCallback(() => {
+    setIsOffline(false);
+    setLoading(true);
+    loadUser();
+  }, [loadUser]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -67,12 +82,14 @@ export const AuthProvider = ({ children }) => {
     return {
       user,
       loading,
+      isOffline,
       register,
       login,
       logout,
       loadUser,
+      retryConnection,
     };
-  }, [user, loading, register, login, logout, loadUser]);
+  }, [user, loading, isOffline, register, login, logout, loadUser, retryConnection]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
