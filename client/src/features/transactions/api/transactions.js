@@ -8,7 +8,6 @@ export const transactionsApi = {
   getAll: async (filters = {}) => {
     const response = await api.get("/transactions", { params: filters });
     // Note: The backend returns { data: [...], pagination: {...} }
-    // We return the entire payload so hooks can access pagination details
     return response.data;
   },
 
