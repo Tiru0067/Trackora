@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Popover from "./Popover";
 import { useListNavigation } from "@/hooks/useListNavigation";
@@ -16,6 +16,7 @@ const ComboBox = ({
   placeholder = "Select",
   searchPlaceholder = "Search...",
   disabled = false,
+  clearable = false,
 }) => {
   // ─── State ────────────────────────────────────────────────────────────────
   const [open, setOpen] = useState(false);
@@ -144,7 +145,7 @@ const ComboBox = ({
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="relative w-full input-group">
+    <div className="relative w-full">
       {/* Trigger */}
       {searchable ? (
         <input
@@ -196,13 +197,33 @@ const ComboBox = ({
             className,
           )}
         >
-          <span>{selectedLabel || placeholder}</span>
+          <span className="truncate">{selectedLabel || placeholder}</span>
 
-          {open ? (
-            <ChevronUp aria-hidden="true" size={18} />
-          ) : (
-            <ChevronDown aria-hidden="true" size={18} />
-          )}
+          <div className="flex items-center shrink-0 ml-2">
+            {clearable && value ? (
+              <div
+                role="button"
+                tabIndex={0}
+                className="p-0.5 hover:bg-(--line-soft) rounded-md transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange?.("");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.stopPropagation();
+                    onChange?.("");
+                  }
+                }}
+              >
+                <X aria-hidden="true" size={14} className="text-(--ink-muted) hover:text-(--ink)" />
+              </div>
+            ) : open ? (
+              <ChevronUp aria-hidden="true" size={18} className="text-(--ink-muted)" />
+            ) : (
+              <ChevronDown aria-hidden="true" size={18} className="text-(--ink-muted)" />
+            )}
+          </div>
         </button>
       )}
 
