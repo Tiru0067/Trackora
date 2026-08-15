@@ -23,17 +23,23 @@ const CategoryDetailsPage = () => {
   const { addToast } = useToast();
   const { user } = useAuth();
   const { convertCurrency } = useExchangeRates();
-  const { categories, deleteCategory, isLoading: isCategoriesLoading, fetchCategories } = useCategories();
-  
+  const {
+    categories,
+    deleteCategory,
+    isLoading: isCategoriesLoading,
+    fetchCategories,
+  } = useCategories();
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
-  const [isTransactionDetailsModalOpen, setIsTransactionDetailsModalOpen] = useState(false);
+  const [isTransactionDetailsModalOpen, setIsTransactionDetailsModalOpen] =
+    useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [transactionToEdit, setTransactionToEdit] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // We find initial category from context if it exists, otherwise wait for fetch
+  // Find initial category from context if it exists, otherwise wait for fetch
   const contextCategory = categories.find((c) => c.id === id);
   const [category, setCategory] = useState(contextCategory);
   const [isCategoryLoading, setIsCategoryLoading] = useState(true);
@@ -63,6 +69,7 @@ const CategoryDetailsPage = () => {
     deleteTransaction,
   } = useTransactions({
     categoryId: id,
+    limit: 7,
   });
 
   // Calculate aggregated stats by converting each currency to baseCurrency
@@ -72,7 +79,8 @@ const CategoryDetailsPage = () => {
     let totalExpense = 0;
 
     if (category?.stats) {
-      const { balancesByCurrency, incomeByCurrency, expenseByCurrency } = category.stats;
+      const { balancesByCurrency, incomeByCurrency, expenseByCurrency } =
+        category.stats;
 
       const sumCurrencies = (currencyMap) => {
         let sum = 0;
@@ -101,7 +109,7 @@ const CategoryDetailsPage = () => {
   }, [category?.stats, convertCurrency, user?.baseCurrency]);
 
   useEffect(() => {
-    // Redirect if category not found and we finished loading
+    // Redirect if category not found
     if (!isCategoriesLoading && !isCategoryLoading && !category) {
       navigate("/categories");
     }
@@ -140,15 +148,22 @@ const CategoryDetailsPage = () => {
   let categoryIconElement = null;
   if (category.icon) {
     if (category.icon.type === "emoji") {
-      categoryIconElement = <span className="text-xl leading-none">{category.icon.value}</span>;
-    } else if (category.icon.type === "phosphor" && PhosphorIcons[category.icon.value]) {
+      categoryIconElement = (
+        <span className="text-xl leading-none">{category.icon.value}</span>
+      );
+    } else if (
+      category.icon.type === "phosphor" &&
+      PhosphorIcons[category.icon.value]
+    ) {
       const PhosphorIcon = PhosphorIcons[category.icon.value];
-      categoryIconElement = <PhosphorIcon size={20} weight="regular" color={category.color} />;
+      categoryIconElement = (
+        <PhosphorIcon size={20} weight="regular" color={category.color} />
+      );
     }
   }
 
   return (
-    <article>
+    <article className="flex flex-col h-full">
       <header className="page-header justify-between items-start sm:items-end flex-col sm:flex-row gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
@@ -193,7 +208,7 @@ const CategoryDetailsPage = () => {
             placement="bottom-end"
             minWidth="w-40"
             trigger={
-              <button className="btn btn-icon h-[34px] w-[34px] min-w-[34px] bg-(--bg-card) border border-(--line) shadow-sm hover:border-(--line-soft)">
+              <button className="btn btn-icon h-8.5 w-8.5 min-w-8.5 bg-(--bg-card) border border-(--line) shadow-sm hover:border-(--line-soft)">
                 <MoreVertical size={14} className="text-(--ink)" />
               </button>
             }
@@ -202,15 +217,15 @@ const CategoryDetailsPage = () => {
                 id: "edit",
                 label: "Edit Category",
                 icon: <Edit2 size={14} />,
-                onClick: () => setIsEditModalOpen(true)
+                onClick: () => setIsEditModalOpen(true),
               },
               {
                 id: "delete",
                 label: "Delete Category",
                 icon: <Trash2 size={14} />,
                 danger: true,
-                onClick: handleDelete
-              }
+                onClick: handleDelete,
+              },
             ]}
           />
         </div>
@@ -224,8 +239,12 @@ const CategoryDetailsPage = () => {
             <Skeleton className="h-30 rounded-xl" />
             <Skeleton className="h-30 rounded-xl" />
           </div>
-          <div className="mt-8">
-            <TransactionList isLoading={true} context="category" currency={user?.baseCurrency} />
+          <div className="mt-8 flex-1 flex flex-col min-h-0 pb-4">
+            <TransactionList
+              isLoading={true}
+              context="category"
+              currency={user?.baseCurrency}
+            />
           </div>
         </>
       ) : (
@@ -242,7 +261,10 @@ const CategoryDetailsPage = () => {
               </dt>
               <dd className="text-[22px] font-semibold tracking-tight text-(--ink)">
                 <span className="sr-only">Net Balance is </span>
-                {formatCurrency(aggregatedStats.totalBalance, user?.baseCurrency)}
+                {formatCurrency(
+                  aggregatedStats.totalBalance,
+                  user?.baseCurrency,
+                )}
               </dd>
               <dd
                 className="mt-auto pt-2 text-xs font-normal text-(--ink-muted) flex items-center gap-1.5"
@@ -259,7 +281,10 @@ const CategoryDetailsPage = () => {
               </dt>
               <dd className="text-[22px] font-semibold tracking-tight text-emerald-500">
                 <span className="sr-only">Total Income is </span>
-                {formatCurrency(aggregatedStats.totalIncome, user?.baseCurrency)}
+                {formatCurrency(
+                  aggregatedStats.totalIncome,
+                  user?.baseCurrency,
+                )}
               </dd>
               <dd
                 className="mt-auto pt-2 text-xs font-normal text-(--ink-muted)"
@@ -276,7 +301,10 @@ const CategoryDetailsPage = () => {
               </dt>
               <dd className="text-[22px] font-semibold tracking-tight text-red-500">
                 <span className="sr-only">Total Expense is </span>
-                {formatCurrency(aggregatedStats.totalExpense, user?.baseCurrency)}
+                {formatCurrency(
+                  aggregatedStats.totalExpense,
+                  user?.baseCurrency,
+                )}
               </dd>
               <dd
                 className="mt-auto pt-2 text-xs font-normal text-(--ink-muted)"
@@ -304,12 +332,13 @@ const CategoryDetailsPage = () => {
             </div>
           </dl>
 
-          <div className="mt-8">
+          <div className="mt-8 flex-1 flex flex-col min-h-0 pb-4">
             <TransactionList
               transactions={transactions}
               isLoading={isTransactionsLoading}
               currency={user?.baseCurrency}
               context="category"
+              onViewAll={() => navigate(`/transactions?categoryId=${id}`)}
               onAddTransaction={() => {
                 setTransactionToEdit(null);
                 setIsTransactionModalOpen(true);

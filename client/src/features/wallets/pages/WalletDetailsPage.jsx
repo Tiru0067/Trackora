@@ -64,6 +64,7 @@ const WalletDetailsPage = () => {
     deleteTransaction,
   } = useTransactions({
     walletId: id,
+    limit: 7,
   });
 
   const {
@@ -114,7 +115,7 @@ const WalletDetailsPage = () => {
   }
 
   return (
-    <article>
+    <article className="flex flex-col h-full">
       <header className="page-header justify-between items-start sm:items-end flex-col sm:flex-row gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
@@ -190,7 +191,7 @@ const WalletDetailsPage = () => {
             <Skeleton className="h-30 rounded-xl" />
             <Skeleton className="h-30 rounded-xl" />
           </div>
-          <div className="mt-8">
+          <div className="mt-8 flex-1 flex flex-col min-h-0 pb-4">
             <TransactionList
               isLoading={true}
               currency={wallet.currency}
@@ -295,11 +296,12 @@ const WalletDetailsPage = () => {
             </div>
           </dl>
 
-          <div className="mt-8">
+          <div className="mt-8 flex-1 flex flex-col min-h-0 pb-4">
             <TransactionList
               transactions={transactions}
               isLoading={isTransactionsLoading}
               currency={wallet.currency}
+              onViewAll={() => navigate(`/transactions?walletId=${id}`)}
               onAddTransaction={() => {
                 setTransactionToEdit(null);
                 setIsTransactionModalOpen(true);
