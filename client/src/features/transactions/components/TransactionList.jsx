@@ -87,37 +87,53 @@ const TransactionList = ({
   transactions,
   isLoading,
   currency, // Fallback currency
-  context = "wallet", // "wallet" or "category"
+  context = "wallet", // "wallet" or "category" or "global"
   onAddTransaction,
   onRowClick,
+  onViewAll,
+  filtersNode,
+  paginationNode,
 }) => {
-  if (isLoading) {
+  if (isLoading && transactions == null) {
     return (
-      <Skeleton className="h-75 w-full rounded-2xl bg-(--bg-card) border border-(--line)" />
+      <Skeleton className="flex-1 h-full min-h-[300px] w-full rounded-2xl bg-(--bg-card) border border-(--line)" />
     );
   }
 
   return (
     <section
-      className="w-full p-4 md:p-5 border border-(--line) rounded-2xl bg-(--bg-card) shadow-xs overflow-hidden"
+      className="w-full h-full flex-1 p-4 md:p-5 border border-(--line) rounded-2xl bg-(--bg-card) shadow-xs overflow-hidden flex flex-col"
       aria-labelledby="wallet-transactions-heading"
     >
-      <div className="flex items-center justify-between pb-4 px-2">
-        <h2
-          id="wallet-transactions-heading"
-          className="text-lg font-semibold text-(--ink)"
-        >
-          Transactions
-        </h2>
-        <button
-          type="button"
-          className="btn hover:bg-(--line-soft) text-(--ink) h-8 px-2 text-xs"
-        >
-          View All
-        </button>
+      <div className="flex flex-col items-start justify-between pb-4 px-2 gap-2.5">
+        <div className="flex flex-row items-center justify-between w-full">
+          <h2
+            id="wallet-transactions-heading"
+            className="text-lg font-semibold text-(--ink) shrink-0"
+          >
+            {context !== "global" ? "Recent Transactions" : "Transactions"}
+          </h2>
+
+          {context !== "global" && !filtersNode && (
+            <button
+              type="button"
+              onClick={onViewAll}
+              className="btn hover:bg-(--line-soft) text-(--ink) h-8 px-2 text-xs shrink-0"
+            >
+              View All
+            </button>
+          )}
+        </div>
+
+        {filtersNode && <div className="w-full">{filtersNode}</div>}
       </div>
 
-      <div>
+      <div
+        className={cn(
+          "flex-1 overflow-y-auto transition-opacity duration-200",
+          isLoading && "opacity-50 pointer-events-none",
+        )}
+      >
         {!transactions || transactions.length === 0 ? (
           <div className="p-10 flex flex-col items-center justify-center text-center">
             <div className="w-10 h-10 rounded-xl bg-(--line-soft) flex items-center justify-center mb-4">
@@ -141,11 +157,25 @@ const TransactionList = ({
         ) : (
           <>
             {/* Desktop Table Header */}
-            <div className="px-4 py-3 hidden md:grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 bg-(--line)/65 text-[12px] font-medium text-(--ink-muted) capitalize tracking-wider">
+            <div
+              className={cn(
+                "sticky top-0 z-10 px-4 py-3 hidden md:grid gap-4 backdrop-blur-md bg-neutral-100 dark:bg-neutral-800 border-b border-(--line) text-[12px] font-medium text-(--ink-muted) capitalize tracking-wider",
+                context === "global"
+                  ? "grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
+                  : "grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]",
+              )}
+            >
               <div>Payment Name</div>
               <div>Time And Date</div>
-              <div>Type</div>
-              <div>{context === "wallet" ? "Category" : "Wallet"}</div>
+              <div className="hidden lg:block">Type</div>
+              {context === "global" ? (
+                <>
+                  <div>Category</div>
+                  <div>Wallet</div>
+                </>
+              ) : (
+                <div>{context === "wallet" ? "Category" : "Wallet"}</div>
+              )}
               <div className="text-right">Amount</div>
             </div>
 
@@ -164,12 +194,12 @@ const TransactionList = ({
 
                 const typeText =
                   tx.type.charAt(0) + tx.type.slice(1).toLowerCase();
-                
+
                 const contextText =
                   context === "wallet"
                     ? tx.category?.name || "-"
                     : tx.wallet?.name || "-";
-                
+
                 const txCurrency = tx.wallet?.currency || currency;
 
                 return (
@@ -185,7 +215,10 @@ const TransactionList = ({
                     role="button"
                     tabIndex={0}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-4 px-2 sm:px-4 py-2 transition-colors hover:bg-(--line-soft)/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:ring-inset cursor-pointer",
+                      "grid grid-cols-[1fr_auto] items-center gap-4 px-2 sm:px-4 py-2 transition-colors hover:bg-(--line-soft)/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:ring-inset cursor-pointer",
+                      context === "global"
+                        ? "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
+                        : "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]",
                       index !== transactions.length - 1 &&
                         "border-b border-(--line)",
                     )}
@@ -231,14 +264,25 @@ const TransactionList = ({
                     </div>
 
                     {/* Desktop Type */}
-                    <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
+                    <div className="hidden lg:block text-[13px] text-(--ink-muted) truncate">
                       {typeText}
                     </div>
 
                     {/* Desktop Category / Wallet */}
-                    <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
-                      {contextText}
-                    </div>
+                    {context === "global" ? (
+                      <>
+                        <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
+                          {tx.category?.name || "-"}
+                        </div>
+                        <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
+                          {tx.wallet?.name || "-"}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
+                        {contextText}
+                      </div>
+                    )}
 
                     {/* Amount */}
                     <div
@@ -257,6 +301,12 @@ const TransactionList = ({
           </>
         )}
       </div>
+
+      {paginationNode && (
+        <div className="border-t border-(--line) shrink-0 mt-auto">
+          {paginationNode}
+        </div>
+      )}
     </section>
   );
 };
