@@ -8,7 +8,10 @@ import dashboardRoutes from "#/modules/dashboard/dashboard.routes.js";
 import walletsroutes from "#/modules/wallets/wallets.routes.js";
 import categoriesRoutes from "#/modules/categories/categories.routes.js";
 import transactionsRoutes from "#/modules/transactions/transactions.routes.js";
-import { currenciesRouter, exchangeRatesRouter } from "#/modules/currencies/currencies.routes.js";
+import {
+  currenciesRouter,
+  exchangeRatesRouter,
+} from "#/modules/currencies/currencies.routes.js";
 
 import errorHandler from "#/middlewares/errorHandler.js";
 import notFound from "#/middlewares/notFound.js";
@@ -18,7 +21,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   }),
 );

@@ -10,9 +10,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), svgr(), tailwindcss()],
-  server: {
-    allowedHosts: ["santalaceous-buford-subgranularly.ngrok-free.dev"],
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
