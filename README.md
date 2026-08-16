@@ -2,6 +2,14 @@
 
 Trackora is a full-stack personal finance web application. It helps users track their income, expenses, and manage multiple wallets in different currencies. The project is built with React on the frontend and Node.js/Express on the backend.
 
+## Live Demo
+Check out the live application here: [trackora.run.place](https://www.trackora.run.place)
+
+**Test Account:**
+- **Email:** `test@example.com`
+- **Password:** `password123`
+*(Note: Feel free to use this account to explore the dashboard, or register your own!)*
+
 ## Project Structure
 
 This project uses a monorepo structure:
