@@ -10,3 +10,6 @@ export const forgotPassword = (email) =>
   api.post("/auth/forgot-password", { email });
 export const resetPassword = (token, password) =>
   api.post("/auth/reset-password", { token, password });
+export const updateProfile = (data) => api.patch("/auth/me", data);
+export const changePassword = (data) => api.patch("/auth/me/password", data);
+export const deleteAccount = () => api.delete("/auth/me");

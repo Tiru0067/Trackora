@@ -5,7 +5,14 @@ import {
   useMemo,
   useState,
 } from "react";
-import { loginUser, registerUser, logoutUser } from "@/features/auth/api/auth";
+import { 
+  loginUser, 
+  registerUser, 
+  logoutUser, 
+  updateProfile as apiUpdateProfile,
+  changePassword as apiChangePassword,
+  deleteAccount as apiDeleteAccount
+} from "@/features/auth/api/auth";
 import { getUser } from "@/api/user";
 
 const AuthContext = createContext(null);
@@ -42,6 +49,25 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     const { data } = await logoutUser();
+    setUser(null);
+    return data;
+  }, []);
+
+  const updateProfile = useCallback(async (updateData) => {
+    const { data } = await apiUpdateProfile(updateData);
+    if (data && data.data) {
+      setUser((prev) => ({ ...prev, ...data.data }));
+    }
+    return data;
+  }, []);
+
+  const changePassword = useCallback(async (passwordData) => {
+    const { data } = await apiChangePassword(passwordData);
+    return data;
+  }, []);
+
+  const deleteAccount = useCallback(async () => {
+    const { data } = await apiDeleteAccount();
     setUser(null);
     return data;
   }, []);
@@ -86,10 +112,25 @@ export const AuthProvider = ({ children }) => {
       register,
       login,
       logout,
+      updateProfile,
+      changePassword,
+      deleteAccount,
       loadUser,
       retryConnection,
     };
-  }, [user, loading, isOffline, register, login, logout, loadUser, retryConnection]);
+  }, [
+    user, 
+    loading, 
+    isOffline, 
+    register, 
+    login, 
+    logout, 
+    updateProfile,
+    changePassword,
+    deleteAccount,
+    loadUser, 
+    retryConnection
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
