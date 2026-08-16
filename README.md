@@ -31,7 +31,7 @@ This project uses a monorepo structure:
 
 **Transactions Tracking**
 - Add income, expenses, and transfers between wallets.
-- Supports cross-currency transfers (e.g., transferring from a USD wallet to a EUR wallet) with automatic exchange rate calculations.
+- Supports cross-currency transfers (e.g., transferring from a USD wallet to a EUR wallet) with manual entry for exact converted amounts.
 - Manage and assign categories to transactions.
 
 **Dashboard Analytics**
