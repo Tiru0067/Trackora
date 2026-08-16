@@ -65,7 +65,7 @@ export const formatCurrency = (amount = 0, currency = BASE_CURRENCY) => {
  * @returns {string} Compact formatted string
  */
 
-export const formatCompact = (amount, currency = BASE_CURRENCY) => {
+export const formatCompact = (amount = 0, currency = BASE_CURRENCY) => {
   const locale = getLocale(currency);
   const abs = Math.abs(amount);
   const formatted = new Intl.NumberFormat(locale, {
