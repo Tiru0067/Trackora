@@ -8,6 +8,7 @@ import { useCategories } from "../../categories/hooks/useCategories";
 import { cn } from "@/utils/cn";
 import { motion as Motion } from "motion/react";
 import { getCurrencySymbol } from "@/utils/currency";
+import { useToast } from "@/hooks/useToast";
 
 const TransactionFormModal = ({
   isOpen,
@@ -19,6 +20,7 @@ const TransactionFormModal = ({
 }) => {
   const { wallets } = useWallets();
   const { categories } = useCategories();
+  const { addToast } = useToast();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -177,30 +179,20 @@ const TransactionFormModal = ({
       const { transactionsApi } = await import("../api/transactions");
       
       if (transactionToEdit) {
-        const updatePayload = {
-          amount: payload.amount,
-          date: payload.date,
-          title: payload.title,
-          note: payload.note,
-        };
-        
-        // categoryId is only allowed for NON-transfers
-        if (type !== "TRANSFER") {
-          updatePayload.categoryId = payload.categoryId;
-        }
-        
-        await transactionsApi.update(transactionToEdit.id, updatePayload);
+        await transactionsApi.update(transactionToEdit.id, payload);
+        addToast("Transaction updated successfully", "success");
       } else {
         await transactionsApi.create(payload);
+        addToast("Transaction created successfully", "success");
       }
 
       onClose();
 
       if (onSuccess) onSuccess();
     } catch (err) {
-      setError(
-        err.response?.data?.message || err.message || "An error occurred",
-      );
+      const errorMsg = err.response?.data?.message || err.message || "An error occurred";
+      addToast(errorMsg, "error");
+      setError(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
