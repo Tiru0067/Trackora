@@ -29,10 +29,10 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/wallets", walletsroutes);
-app.use("/api/transactions", transactionsRoutes);
 app.use("/api/categories", categoriesRoutes);
+app.use("/api/transactions", transactionsRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/currencies", currenciesRouter);
 app.use("/api/exchange-rates", exchangeRatesRouter);
 
