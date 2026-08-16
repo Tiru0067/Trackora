@@ -37,3 +37,6 @@ lerna-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Seed scripts
+server/prisma/seedTestAccount.js
