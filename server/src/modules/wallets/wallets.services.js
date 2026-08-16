@@ -43,9 +43,38 @@ export const createWalletService = async (userId, walletData) => {
 };
 
 export const getWalletsService = async (userId) => {
-  return await prisma.wallet.findMany({
+  const wallets = await prisma.wallet.findMany({
     where: { userId, deletedAt: null },
     orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+  });
+
+  if (wallets.length === 0) return [];
+
+  const groups = await prisma.transaction.groupBy({
+    by: ["walletId", "type", "transferDirection"],
+    where: { walletId: { in: wallets.map(w => w.id) } },
+    _sum: { amount: true },
+  });
+
+  return wallets.map(wallet => {
+    let totalIncome = 0;
+    let totalExpense = 0;
+    let netTransfers = 0;
+
+    const walletGroups = groups.filter(g => g.walletId === wallet.id);
+
+    for (const group of walletGroups) {
+      const sum = Number(group._sum.amount || 0);
+      if (group.type === "INCOME") totalIncome += sum;
+      else if (group.type === "EXPENSE") totalExpense += sum;
+      else if (group.type === "TRANSFER") {
+        if (group.transferDirection === "IN") netTransfers += sum;
+        else if (group.transferDirection === "OUT") netTransfers -= sum;
+      }
+    }
+
+    const totalBalance = Number(wallet.initialBalance || 0) + totalIncome - totalExpense + netTransfers;
+    return { ...wallet, totalBalance };
   });
 };
 
