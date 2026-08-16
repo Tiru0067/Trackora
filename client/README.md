@@ -1,6 +1,6 @@
 # Trackora Frontend (Client)
 
-The React frontend for Trackora, built with Vite.
+The frontend for Trackora, a personal finance tracker. Built using React and Vite.
 
 ## Tech Stack
 
@@ -8,55 +8,47 @@ The React frontend for Trackora, built with Vite.
 - **Build Tool:** Vite
 - **Styling:** Tailwind CSS
 - **Routing:** React Router DOM
-- **Icons:** Lucide React
+- **Icons:** Lucide React and Phosphor Icons
 
-## What's Implemented
+## Features
 
 **Authentication UI**
+- Login and registration forms with validation.
+- Secure forgot password and reset password flows.
+- Built-in dark mode and light mode toggle.
 
-- Login and registration forms
-- Forgot password and reset password flows
-- Global dark/light mode theme toggle for the app
+**Email Verification**
+- Interactive email verification page with live countdown timers for resend cooldowns to prevent spam.
 
-**Email Verification UX**
-
-- Countdown timers for resend cooldowns and lockouts, so the 1-minute/24-hour limits from the backend show up as a live timer instead of a raw error message
-
-**Toast Notifications**
-
-- A small reusable toast system for success/error feedback across the app
-
-**Route Guards**
-
-- `ProtectedRoute` — keeps unauthenticated users out of the dashboard
-- `PublicOnlyRoute` — keeps logged-in users off the login/register pages
-
-**Reusable Components**
-
-- `FormField`, `ComboBox`, and `Popover` — built to be extensible rather than one-off
+**User Experience (UX)**
+- Global toast notification system to provide success and error feedback.
+- Protected routes to prevent unauthorized access to the dashboard and redirect logged-in users away from the login page.
+- Smooth loading skeletons that match the exact layout of the page data.
 
 **Wallets & Currencies**
-
-- Full UI for creating, editing, and deleting wallets
-- Connected a real-time currency API to get supported currencies
-- Cool feature: The Wallet Stats section takes all your different wallets (like USD, EUR, INR) and magically converts them into your base currency to show one single total balance!
+- Complete UI for creating, editing, and deleting wallets.
+- Uses a real-time currency API to fetch and display supported currencies.
+- Calculates and displays a unified total net worth by automatically converting all wallet balances into a single base currency.
 
 **Transactions & Categories**
+- Modal-based forms to add expenses, incomes, and transfers between wallets.
+- Supports cross-currency transfers with dynamic exchange rate inputs.
+- Users can assign categories to their transactions for better tracking.
 
-- Beautiful UI for creating expenses, incomes, and transfers
-- Handled cross-currency transfers (e.g. sending money from a USD wallet to an EUR wallet)
-- A slick transaction details modal with an Edit and Delete flow
-- Basic category dropdowns for expenses
+**Dashboard Analytics**
+- Interactive charts built with Recharts showing income and expense trends over time.
+- Displays a breakdown of top spending categories.
 
 ## Status
 
-- [x] Auth UI (login, register, forgot/reset password)
-- [x] Email verification UX
-- [x] Toast system + route guards
-- [x] Wallets UI & Exchange Rates
-- [x] Transactions UI
-- [x] Categories UI (Basic support)
-- [ ] Dashboard / analytics
+- [x] Authentication (Login, Register, Password Reset)
+- [x] Email Verification UI
+- [x] Toast Notifications and Route Protection
+- [x] Multi-Currency Wallets
+- [x] Transactions and Transfers
+- [x] Categories Management
+- [x] Dashboard Charts
+- [ ] Settings Page
 
 ## Getting Started
 
@@ -67,16 +59,16 @@ The React frontend for Trackora, built with Vite.
    ```
 
 2. **Set up environment variables**
-   Create a `.env` (or `.env.local`) in `/client`:
+   Create a `.env` file in the `/client` directory:
 
    ```env
    VITE_API_URL="http://localhost:3000/api"
    ```
 
-3. **Run the dev server**
+3. **Run the development server**
 
    ```bash
    npm run dev
    ```
 
-   The app will be available at `http://localhost:5173`.
+   The application will be available at `http://localhost:5173`.

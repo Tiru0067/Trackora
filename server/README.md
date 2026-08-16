@@ -1,69 +1,62 @@
 # Trackora Backend (Server)
 
-The API and database layer for Trackora, built with Node.js, Express, and Prisma.
+The backend API and database layer for Trackora. Built with Node.js, Express, and Prisma.
 
 ## Tech Stack
 
 - **Runtime:** Node.js
 - **Framework:** Express
 - **ORM:** Prisma
-- **Auth:** JWT + bcrypt for password hashing
-- **Sessions:** HTTP-only cookies (no tokens in localStorage)
+- **Auth:** JWT and bcrypt for password hashing
+- **Sessions:** HTTP-only cookies
 
-## What's Implemented
+## Features
 
-**Authentication & Accounts**
-
-- Registration and login endpoints, with passwords hashed via bcrypt
-- Password recovery flows (generating secure, short-lived tokens and sending reset emails)
-- Password change endpoints for logged-in users
+**Authentication & Security**
+- User registration and login endpoints.
+- Passwords are encrypted before saving using bcrypt.
+- Secure forgot password flows that generate short-lived tokens and send reset emails.
 
 **Email Service**
-
-- Centralized email service using Nodemailer to handle verification links and password resets reliably
+- Uses Nodemailer to reliably send verification links and password resets.
 
 **Email Verification**
+- Rate-limited verification endpoints.
+- Uses a 1-minute cooldown between resends and a 24-hour lockout after repeated failures, all tracked securely in the database.
 
-- Token generation, validation, and resend endpoints
-- Cooldowns and lockouts are tracked in the database — 1-minute cooldown between resends, 24-hour lockout after repeated failures — so this survives server restarts instead of living in memory
-
-**Error Handling**
-
-- A custom `AppError` class plus centralized middleware, so error responses (including metadata like cooldown timestamps) come back as consistent, clean JSON instead of ad-hoc error shapes per route
-
-**Validation**
-
-- Fully migrated validation logic to use **Zod** schemas natively within Express middlewares.
-- Centralized reusable Zod schemas (e.g., currency codes, hex colors, and extremely strict emoji validation).
+**Error Handling & Validation**
+- A centralized error handling middleware to ensure API responses are consistent.
+- Uses Zod schemas to strictly validate all incoming data (like currency codes, text inputs, and passwords) before it hits the database.
 
 **Wallets API**
-
-- Full CRUD operations for managing user wallets.
-- Smart `isPrimary` promotion logic utilizing Prisma transactions (promoting a new wallet demotes the old primary automatically).
-- Schema ensures no duplicate wallet names per user.
+- Full CRUD operations to manage user wallets.
+- Uses Prisma transactions to handle complex logic, like automatically removing the "primary" status from an old wallet when a new one is promoted.
 
 **Transactions & Categories**
-
-- Full CRUD (Create, Read, Update, Delete) endpoints for Transactions
-- Special logic for "Transfers" between wallets, linking two transactions together (one money out, one money in)
-- Cross-currency transfers recalculate amounts automatically based on the user's destination amount
-- Categories API to fetch and manage income/expense labels
+- RESTful endpoints for tracking income and expenses.
+- Custom logic to handle transfers between wallets.
+- Cross-currency transfers automatically calculate exchange amounts based on live rates.
+- API for fetching and managing transaction categories.
 
 **Currencies & Exchange Rates**
+- Integrates with the free Frankfurter API to fetch live exchange rates.
+- Includes a simple caching layer to prevent spamming the external API on every request.
 
-- Integrated a free API (Frankfurter) to get live exchange rates and supported currencies
-- Built a simple caching layer so we don't spam the external API on every request
+**Dashboard Analytics**
+- Endpoints to calculate total income, total expenses, and balance over time.
+- Aggregates top spending categories for the frontend charts.
 
 ## Status
 
-- [x] Auth endpoints (register, login, password recovery/change)
-- [x] Email verification + rate limiting
-- [x] Centralized error handling & Zod Validation
-- [x] Wallets API endpoints
-- [x] Transaction endpoints & Transfer logic
-- [x] Category endpoints
-- [x] Currencies & Exchange rates API
-- [ ] Budget / analytics endpoints
+- [x] Auth endpoints (Register, Login, Password Reset)
+- [x] Email Verification and Rate Limiting
+- [x] Centralized Error Handling and Zod Validation
+- [x] Wallets API
+- [x] Transaction and Transfer Endpoints
+- [x] Category Endpoints
+- [x] Currencies and Exchange Rates API
+- [x] Dashboard Analytics Endpoints
+- [ ] Budgeting Endpoints
 
 ## Getting Started
 
@@ -73,8 +66,8 @@ The API and database layer for Trackora, built with Node.js, Express, and Prisma
    npm install
    ```
 
-2. **Set up environment variables**
-   Create a `.env` file in `/server`:
+2. **Environment Variables**
+   Create a `.env` file in the `/server` directory:
 
    ```env
    DATABASE_URL="postgresql://user:password@localhost:5432/trackora?schema=public"

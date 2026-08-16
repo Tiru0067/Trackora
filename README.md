@@ -1,64 +1,48 @@
 # Trackora
 
-A personal finance web app built from scratch, with a React frontend and a Node/Express backend, structured as a monorepo. I started with authentication rather than features first — auth touches nearly every other part of the app, so I wanted it solid before building on top of it.
+Trackora is a full-stack personal finance web application. It helps users track their income, expenses, and manage multiple wallets in different currencies. The project is built with React on the frontend and Node.js/Express on the backend.
 
 ## Project Structure
 
-- `/client` — React frontend, built with Vite
-- `/server` — Node.js/Express backend, using Prisma
+This project uses a monorepo structure:
+- `/client` — React frontend built with Vite and Tailwind CSS.
+- `/server` — Node.js and Express backend using Prisma ORM.
 
-## What's Working So Far
+## Core Features
 
-**Authentication & User Flows**
+**Authentication & Security**
+- User registration and login with bcrypt password hashing.
+- Secure session management using HTTP-only cookies.
+- Forgot password and reset password flows.
+- Email verification with rate limiting (1-minute cooldowns) to prevent spam.
 
-- Registration with hashed passwords (bcrypt)
-- Login using HTTP-only cookies for JWT sessions — no tokens sitting in localStorage
-- Full forgot password and reset password flow using secure email tokens
-- A built-in dark/light mode theme toggle for the auth screens
+**Wallets & Multi-Currency**
+- Create, edit, and delete wallets (e.g., Cash, Bank Accounts).
+- Connects to a real-time API to fetch live exchange rates.
+- Automatically converts balances from different currencies into the user's primary currency to show a total net worth.
 
-**Email Verification**
+**Transactions Tracking**
+- Add income, expenses, and transfers between wallets.
+- Supports cross-currency transfers (e.g., transferring from a USD wallet to a EUR wallet) with automatic exchange rate calculations.
+- Manage and assign categories to transactions.
 
-- Token-based verification flow with its own UI
-- Resend requests are rate-limited (1-minute cooldown), and repeated failures trigger a 24-hour lockout
-
-**Error Handling & Routing**
-
-- Centralized error handling on the API
-- Routes are split between public-only and protected, enforced consistently on both ends
-
-**Backend Architecture & Data**
-
-- Strict input validation using centralized Zod schemas on the Express layer
-- Wallets API CRUD complete, featuring smart constraint handling (e.g., automatically demoting the previous primary wallet in a transaction)
-- Prisma Schema configured for Wallets, Categories, and historical Transaction currency tracking
-
-**Wallets & Currencies**
-
-- Full frontend UI for managing wallets (create, edit, delete)
-- Connected to a live backend API for supported currencies and real exchange rates
-- Shows a unified total balance across all your wallets by automatically converting them into your base currency
-
-**Transactions & Categories**
-
-- Full transaction tracking (expenses, incomes, and transfers between wallets)
-- Handled tricky stuff like cross-currency transfers (where sending USD and receiving EUR requires custom exchange amounts)
-- Premium UI modals to view transaction details, edit them, or delete them safely
-- Basic category selection is working for organizing expenses
+**Dashboard Analytics**
+- Visual charts and graphs showing income and expense trends.
+- Displays top spending categories.
 
 ## Status
 
-- [x] Authentication (registration, login, sessions, password recovery)
-- [x] Email verification
-- [x] Centralized error handling & route guarding
-- [x] Wallets (Backend API & Frontend UI Complete)
-- [x] Core transaction tracking (CRUD & Transfers)
-- [x] Categories (Basic support)
-- [ ] Budgeting
-- [ ] Dashboard / analytics
+- [x] Authentication and Email Verification
+- [x] Multi-Currency Wallets
+- [x] Transactions and Transfers
+- [x] Categories Management
+- [x] Dashboard and Charts
+- [ ] Settings Page
+- [ ] Budgeting System
 
-## Getting Started
+## Setup Instructions
 
-Setup instructions live in each part's own README:
+Please check the README files in each folder for setup instructions:
 
-- [Client](./client/README.md)
-- [Server](./server/README.md)
+- [Client Setup](./client/README.md)
+- [Server Setup](./server/README.md)
