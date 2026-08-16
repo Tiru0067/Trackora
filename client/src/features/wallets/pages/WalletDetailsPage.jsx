@@ -30,7 +30,8 @@ const WalletDetailsPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
-  const [isTransactionDetailsModalOpen, setIsTransactionDetailsModalOpen] = useState(false);
+  const [isTransactionDetailsModalOpen, setIsTransactionDetailsModalOpen] =
+    useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [transactionToEdit, setTransactionToEdit] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -70,12 +71,13 @@ const WalletDetailsPage = () => {
   const {
     totalIncome = 0,
     totalExpense = 0,
-    totalBalance = wallet?.initialBalance || 0,
+    totalBalance = wallet?.totalBalance || 0,
   } = wallet?.stats || {};
 
+  const totalAvailable = totalBalance + totalExpense;
   const burnRate =
-    wallet?.initialBalance > 0
-      ? Math.min((totalExpense / wallet.initialBalance) * 100, 100)
+    totalAvailable > 0
+      ? Math.min((totalExpense / totalAvailable) * 100, 100)
       : 0;
 
   useEffect(() => {
@@ -103,7 +105,7 @@ const WalletDetailsPage = () => {
     }
   };
 
-  if (isLoading || !wallet) {
+  if (!wallet) {
     return (
       <div className="w-full mt-6">
         <div className="flex flex-col gap-4">
@@ -160,7 +162,7 @@ const WalletDetailsPage = () => {
             placement="bottom-end"
             minWidth="w-36"
             trigger={
-              <button className="flex items-center justify-center bg-(--line) rounded-[9px] hover:bg-(--line-soft) transition-colors h-[34px] w-[34px]">
+              <button className="flex items-center justify-center bg-(--line) rounded-[9px] hover:bg-(--line-soft) transition-colors h-8.5 w-8.5">
                 <MoreVertical size={14} className="text-(--ink)" />
               </button>
             }
@@ -169,15 +171,15 @@ const WalletDetailsPage = () => {
                 id: "edit",
                 label: "Edit Wallet",
                 icon: <Edit2 size={14} />,
-                onClick: () => setIsEditModalOpen(true)
+                onClick: () => setIsEditModalOpen(true),
               },
               {
                 id: "delete",
                 label: "Delete Wallet",
                 icon: <Trash2 size={14} />,
                 danger: true,
-                onClick: handleDelete
-              }
+                onClick: handleDelete,
+              },
             ]}
           />
         </div>
@@ -192,10 +194,7 @@ const WalletDetailsPage = () => {
             <Skeleton className="h-30 rounded-xl" />
           </div>
           <div className="mt-8 flex-1 flex flex-col min-h-0 pb-4">
-            <TransactionList
-              isLoading={true}
-              currency={wallet.currency}
-            />
+            <TransactionList isLoading={true} currency={wallet.currency} />
           </div>
         </>
       ) : (

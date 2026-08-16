@@ -37,7 +37,7 @@ const TransactionsPage = () => {
 
   // Omit pagination parameters so stats don't reload when switching pages
   const { page, limit, ...statsFilters } = filters;
-  const { stats, isLoading: isStatsLoading } = useTransactionStats(statsFilters);
+  const { stats, isLoading: isStatsLoading, refetch: refetchStats } = useTransactionStats(statsFilters);
   const { wallets, fetchWallets } = useWallets();
   const { categories, fetchCategories } = useCategories();
 
@@ -68,6 +68,7 @@ const TransactionsPage = () => {
       setIsDeleteModalOpen(false);
       setTransactionToDelete(null);
       refetch();
+      refetchStats();
     }
   };
 
@@ -217,6 +218,7 @@ const TransactionsPage = () => {
         transactionToEdit={transactionToEdit}
         onSuccess={() => {
           refetch();
+          refetchStats();
         }}
       />
 

@@ -20,24 +20,24 @@ const CategoriesPage = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [usageFilter, setUsageFilter] = useState("all"); // 'all' | 'active' | 'unused'
-  const [sortBy, setSortBy] = useState("default"); 
+  const [sortBy, setSortBy] = useState("default");
 
   const stats = useMemo(() => {
     if (!categories) return { total: 0, active: 0, unused: 0 };
-    
+
     let active = 0;
     let unused = 0;
-    
-    categories.forEach(c => {
+
+    categories.forEach((c) => {
       const txCount = c.stats?.transactionCount || 0;
       if (txCount > 0) active++;
       else unused++;
     });
-    
+
     return {
       total: categories.length,
       active,
-      unused
+      unused,
     };
   }, [categories]);
 
@@ -49,7 +49,11 @@ const CategoriesPage = () => {
         for (const [currency, amount] of Object.entries(
           c.stats.balancesByCurrency,
         )) {
-          const converted = convertCurrency(amount, currency, user?.baseCurrency);
+          const converted = convertCurrency(
+            amount,
+            currency,
+            user?.baseCurrency,
+          );
           if (converted !== null) {
             totalBaseAmount += converted;
           } else if (currency === user?.baseCurrency) {
@@ -112,9 +116,13 @@ const CategoriesPage = () => {
         case "name-asc":
           return a.name.localeCompare(b.name);
         case "date-asc":
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
         case "date-desc":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         default:
           return b.transactionCount - a.transactionCount;
       }
@@ -169,17 +177,27 @@ const CategoriesPage = () => {
       </header>
 
       {isLoading ? (
-        <div className="w-full">
-          <div className="flex justify-between mb-4">
-            <Skeleton className="h-9 w-64" />
+        <div className="w-full flex flex-col">
+          {/* CategoryStats Skeleton */}
+          <Skeleton className="h-18.5 w-full rounded-xl" />
+
+          {/* CategoryToolbar Skeleton */}
+          <div className="flex gap-2 sm:gap-3 mt-4 mb-6">
+            <Skeleton className="h-10 flex-1 rounded-lg" />
+            <div className="flex gap-2 shrink-0">
+              <Skeleton className="h-10 w-10 sm:w-36 rounded-lg" />
+              <Skeleton className="h-10 w-10 sm:w-36 rounded-lg" />
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pt-4">
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full hidden md:block" />
-            <Skeleton className="h-16 w-full hidden lg:block" />
-            <Skeleton className="h-16 w-full hidden lg:block" />
+
+          {/* Category Cards Grid Skeleton */}
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
+            <Skeleton className="h-27 w-full rounded-xl" />
+            <Skeleton className="h-27 w-full rounded-xl" />
+            <Skeleton className="h-27 w-full rounded-xl" />
+            <Skeleton className="h-27 w-full rounded-xl hidden sm:block" />
+            <Skeleton className="h-27 w-full rounded-xl hidden lg:block" />
+            <Skeleton className="h-27 w-full rounded-xl hidden lg:block" />
           </div>
         </div>
       ) : error ? (
@@ -188,10 +206,10 @@ const CategoriesPage = () => {
         <>
           {categories.length > 0 && (
             <>
-              <CategoryStats 
-                totalCategories={stats.total} 
-                activeCategories={stats.active} 
-                unusedCategories={stats.unused} 
+              <CategoryStats
+                totalCategories={stats.total}
+                activeCategories={stats.active}
+                unusedCategories={stats.unused}
               />
               <CategoryToolbar
                 searchQuery={searchQuery}

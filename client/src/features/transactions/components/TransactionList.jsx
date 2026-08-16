@@ -59,15 +59,48 @@ const getTransactionDisplayInfo = (tx) => {
 
   // Handle Category Icon from Phosphor or Emojis
   let customElement = null;
-  if (tx.category?.icon) {
-    const iconObj = tx.category.icon;
-    if (iconObj.type === "emoji") {
-      customElement = (
-        <span className="leading-none text-lg">{iconObj.value}</span>
-      );
-    } else if (iconObj.type === "phosphor" && PhosphorIcons[iconObj.value]) {
-      const PhosphorIcon = PhosphorIcons[iconObj.value];
-      customElement = <PhosphorIcon size={18} strokeWidth={1.75} />;
+  if (tx.category) {
+    let parsedIcon = null;
+    try {
+      if (
+        typeof tx.category.icon === "string" &&
+        tx.category.icon.startsWith("{")
+      ) {
+        parsedIcon = JSON.parse(tx.category.icon);
+      } else if (typeof tx.category.icon === "object") {
+        parsedIcon = tx.category.icon;
+      }
+    } catch {
+      // Ignore parsing errors, fallback to string/icon
+    }
+
+    if (parsedIcon) {
+      if (parsedIcon.type === "emoji") {
+        customElement = (
+          <span className="leading-none text-sm">{parsedIcon.value}</span>
+        );
+      } else if (
+        (parsedIcon.type === "icon" || parsedIcon.type === "phosphor") &&
+        PhosphorIcons[parsedIcon.value]
+      ) {
+        const PhosphorIcon = PhosphorIcons[parsedIcon.value];
+        customElement = <PhosphorIcon size={18} strokeWidth={1.75} />;
+      }
+    } else {
+      // Handle plain string formats
+      if (tx.category.icon && PhosphorIcons[tx.category.icon]) {
+        const PhosphorIcon = PhosphorIcons[tx.category.icon];
+        customElement = <PhosphorIcon size={18} strokeWidth={1.75} />;
+      } else if (tx.category.emoji) {
+        customElement = (
+          <span className="leading-none text-[16px]">{tx.category.emoji}</span>
+        );
+      } else if (tx.category.icon && !PhosphorIcons[tx.category.icon]) {
+        // Fallback if the string is just an emoji
+        customElement = (
+          <span className="leading-none text-[16px]">{tx.category.icon}</span>
+        );
+      }
     }
   }
 
@@ -93,6 +126,7 @@ const TransactionList = ({
   onViewAll,
   filtersNode,
   paginationNode,
+  compact = false,
 }) => {
   if (isLoading && transactions == null) {
     return (
@@ -109,7 +143,7 @@ const TransactionList = ({
         <div className="flex flex-row items-center justify-between w-full">
           <h2
             id="wallet-transactions-heading"
-            className="text-lg font-semibold text-(--ink) shrink-0"
+            className="text-base font-semibold text-(--ink) tracking-tight"
           >
             {context !== "global" ? "Recent Transactions" : "Transactions"}
           </h2>
@@ -130,7 +164,7 @@ const TransactionList = ({
 
       <div
         className={cn(
-          "flex-1 overflow-y-auto transition-opacity duration-200",
+          "flex-1 overflow-y-auto overflow-x-hidden transition-opacity duration-200",
           isLoading && "opacity-50 pointer-events-none",
         )}
       >
@@ -157,27 +191,29 @@ const TransactionList = ({
         ) : (
           <>
             {/* Desktop Table Header */}
-            <div
-              className={cn(
-                "sticky top-0 z-10 px-4 py-3 hidden md:grid gap-4 backdrop-blur-md bg-neutral-100 dark:bg-neutral-800 border-b border-(--line) text-[12px] font-medium text-(--ink-muted) capitalize tracking-wider",
-                context === "global"
-                  ? "grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
-                  : "grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]",
-              )}
-            >
-              <div>Payment Name</div>
-              <div>Time And Date</div>
-              <div className="hidden lg:block">Type</div>
-              {context === "global" ? (
-                <>
-                  <div>Category</div>
-                  <div>Wallet</div>
-                </>
-              ) : (
-                <div>{context === "wallet" ? "Category" : "Wallet"}</div>
-              )}
-              <div className="text-right">Amount</div>
-            </div>
+            {!compact && (
+              <div
+                className={cn(
+                  "sticky top-0 z-10 px-4 py-3 hidden md:grid gap-4 backdrop-blur-md bg-neutral-100 dark:bg-neutral-800 border-b border-(--line) text-[12px] font-medium text-(--ink-muted) capitalize tracking-wider",
+                  context === "global" || context === "dashboard"
+                    ? "grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
+                    : "grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]",
+                )}
+              >
+                <div>Payment Name</div>
+                <div>Time And Date</div>
+                <div className="hidden xl:block">Type</div>
+                {context === "global" || context === "dashboard" ? (
+                  <>
+                    <div>Category</div>
+                    <div>Wallet</div>
+                  </>
+                ) : (
+                  <div>{context === "wallet" ? "Category" : "Wallet"}</div>
+                )}
+                <div className="text-right">Amount</div>
+              </div>
+            )}
 
             <ul className="flex flex-col" aria-label="Transaction list">
               {transactions.map((tx, index) => {
@@ -215,10 +251,14 @@ const TransactionList = ({
                     role="button"
                     tabIndex={0}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] items-center gap-4 px-2 sm:px-4 py-2 transition-colors hover:bg-(--line-soft)/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:ring-inset cursor-pointer",
-                      context === "global"
-                        ? "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
-                        : "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]",
+                      "grid grid-cols-[1fr_auto] items-center gap-4 transition-colors hover:bg-(--line-soft)/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:ring-inset cursor-pointer",
+                      compact
+                        ? "py-3 px-2 sm:px-4 xl:px-2 xl:-mx-2 xl:rounded-lg"
+                        : "px-2 sm:px-4 py-3 sm:rounded-lg",
+                      !compact &&
+                        (context === "global" || context === "dashboard"
+                          ? "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
+                          : "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"),
                       index !== transactions.length - 1 &&
                         "border-b border-(--line)",
                     )}
@@ -244,8 +284,12 @@ const TransactionList = ({
                         <span className="text-[13px] font-medium text-(--ink) truncate">
                           {tx.title}
                         </span>
-                        {/* Mobile only subtext/date */}
-                        <div className="flex md:hidden items-center gap-2 text-xs mt-0.5">
+                        <div
+                          className={cn(
+                            "flex items-center gap-2 text-xs mt-0.5",
+                            !compact && "md:hidden",
+                          )}
+                        >
                           {contextText !== "-" && (
                             <span className="px-1.5 py-0.5 rounded text-(--ink-muted) bg-(--line-soft) font-medium truncate">
                               {contextText}
@@ -259,30 +303,40 @@ const TransactionList = ({
                     </div>
 
                     {/* Desktop Date */}
-                    <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
-                      {format(new Date(tx.date), "MMM d, h:mm a")}
-                    </div>
-
-                    {/* Desktop Type */}
-                    <div className="hidden lg:block text-[13px] text-(--ink-muted) truncate">
-                      {typeText}
-                    </div>
-
-                    {/* Desktop Category / Wallet */}
-                    {context === "global" ? (
-                      <>
-                        <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
-                          {tx.category?.name || "-"}
-                        </div>
-                        <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
-                          {tx.wallet?.name || "-"}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
-                        {contextText}
+                    {!compact && (
+                      <div className="hidden md:flex flex-col truncate">
+                        <span className="text-[13px] text-(--ink) font-medium truncate">
+                          {format(new Date(tx.date), "MMM dd, yyyy")}
+                        </span>
+                        <span className="text-xs text-(--ink-muted) truncate">
+                          {format(new Date(tx.date), "hh:mm a")}
+                        </span>
                       </div>
                     )}
+
+                    {/* Desktop Type */}
+                    {!compact && (
+                      <div className="hidden xl:block text-[13px] text-(--ink-muted) truncate">
+                        {typeText}
+                      </div>
+                    )}
+
+                    {/* Desktop Category / Wallet */}
+                    {!compact &&
+                      (context === "global" || context === "dashboard" ? (
+                        <>
+                          <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
+                            {tx.category?.name || "-"}
+                          </div>
+                          <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
+                            {tx.wallet?.name || "-"}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="hidden md:block text-[13px] text-(--ink-muted) truncate">
+                          {contextText}
+                        </div>
+                      ))}
 
                     {/* Amount */}
                     <div

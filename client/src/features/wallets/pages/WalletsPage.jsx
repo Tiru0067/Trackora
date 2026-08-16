@@ -33,15 +33,19 @@ const WalletsPage = () => {
     wallets.forEach((w) => {
       const { totalBalance } = getWalletSummary(w, []);
       totals[w.currency] = (totals[w.currency] || 0) + totalBalance;
-      
-      const converted = convertCurrency(totalBalance, w.currency, user?.baseCurrency);
+
+      const converted = convertCurrency(
+        totalBalance,
+        w.currency,
+        user?.baseCurrency,
+      );
       if (converted !== null) {
         totalInBaseCurrency += converted;
       } else if (w.currency === user?.baseCurrency) {
         totalInBaseCurrency += totalBalance;
       }
     });
-    
+
     return {
       totals,
       totalInBaseCurrency,
@@ -86,9 +90,13 @@ const WalletsPage = () => {
         } else if (sortBy === "name-desc") {
           return b.name.localeCompare(a.name);
         } else if (sortBy === "date-desc") {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         } else if (sortBy === "date-asc") {
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
         }
         return 0;
       });
@@ -130,23 +138,27 @@ const WalletsPage = () => {
       </header>
 
       {isLoading ? (
-        <div className="w-full">
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <Skeleton className="h-22.5 flex-1" />
-            <Skeleton className="h-22.5 flex-1" />
-            <Skeleton className="h-22.5 flex-1 hidden sm:block" />
+        <div className="w-full flex flex-col">
+          {/* WalletStats Skeleton */}
+          <Skeleton className="h-18.5 w-full rounded-xl" />
+
+          {/* WalletToolbar Skeleton */}
+          <div className="flex gap-2 sm:gap-3 mt-4 mb-2">
+            <Skeleton className="h-10 flex-1 rounded-lg" />
+            <div className="flex gap-2 shrink-0">
+              <Skeleton className="h-10 w-10 sm:w-36 rounded-lg" />
+              <Skeleton className="h-10 w-10 sm:w-36 rounded-lg" />
+            </div>
           </div>
-          <div className="flex justify-between mb-4">
-            <Skeleton className="h-9 w-64" />
-            <Skeleton className="h-9 w-24" />
-          </div>
+
+          {/* Wallet Cards Grid Skeleton */}
           <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3 pt-4">
-            <Skeleton className="h-35 w-full" />
-            <Skeleton className="h-35 w-full" />
-            <Skeleton className="h-35 w-full" />
-            <Skeleton className="h-35 w-full hidden sm:block" />
-            <Skeleton className="h-35 w-full hidden lg:block" />
-            <Skeleton className="h-35 w-full hidden lg:block" />
+            <Skeleton className="h-27 w-full rounded-xl" />
+            <Skeleton className="h-27 w-full rounded-xl" />
+            <Skeleton className="h-27 w-full rounded-xl" />
+            <Skeleton className="h-27 w-full rounded-xl hidden sm:block" />
+            <Skeleton className="h-27 w-full rounded-xl hidden lg:block" />
+            <Skeleton className="h-27 w-full rounded-xl hidden lg:block" />
           </div>
         </div>
       ) : error ? (
