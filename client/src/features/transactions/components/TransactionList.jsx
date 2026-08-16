@@ -216,7 +216,7 @@ const TransactionList = ({
             )}
 
             <ul
-              className="flex flex-col max-lg:max-h-168 max-lg:overflow-y-auto"
+              className="flex flex-col max-lg:max-h-168.75 max-lg:overflow-y-auto"
               aria-label="Transaction list"
             >
               {transactions.map((tx, index) => {
@@ -262,7 +262,8 @@ const TransactionList = ({
                         (context === "global" || context === "dashboard"
                           ? "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
                           : "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"),
-                      index !== transactions.length - 1 &&
+                      !compact &&
+                        index !== transactions.length - 1 &&
                         "md:border-b border-(--line)",
                     )}
                   >

@@ -16,7 +16,10 @@ const CustomTooltip = ({ active, payload, label, currency }) => {
       <div className="bg-(--bg) border border-(--line) p-3 rounded-lg shadow-lg">
         <p className="text-sm text-(--ink-soft) mb-2 font-medium">{label}</p>
         {payload.map((entry, index) => {
-          const displayValue = entry.dataKey === "expense" && entry.value > 0 ? -entry.value : entry.value;
+          const displayValue =
+            entry.dataKey === "expense" && entry.value > 0
+              ? -entry.value
+              : entry.value;
           return (
             <p
               key={index}
@@ -51,11 +54,17 @@ export const DashboardCharts = ({ data }) => {
         </h3>
         <div className="flex items-center gap-4 text-[13px] text-(--ink-soft)">
           <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" aria-hidden="true" />
+            <div
+              className="w-2.5 h-2.5 rounded-full bg-[#EF4444]"
+              aria-hidden="true"
+            />
             <span>Total Expense</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-(--ink)" aria-hidden="true" />
+            <div
+              className="w-2.5 h-2.5 rounded-full bg-(--ink)"
+              aria-hidden="true"
+            />
             <span>Total Saving</span>
           </div>
         </div>
@@ -64,7 +73,7 @@ export const DashboardCharts = ({ data }) => {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartDataWithSaving}
-            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
           >
             <CartesianGrid
               strokeDasharray="3 3"
@@ -73,14 +82,14 @@ export const DashboardCharts = ({ data }) => {
             />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 12, fill: "var(--ink-soft)" }}
+              tick={{ fontSize: 10, fill: "var(--ink-soft)" }}
               axisLine={{ stroke: "var(--line)" }}
               tickLine={{ stroke: "var(--line)" }}
               tickMargin={15}
               minTickGap={30}
             />
             <YAxis
-              tick={{ fontSize: 12, fill: "var(--ink-soft)" }}
+              tick={{ fontSize: 10, fill: "var(--ink-soft)" }}
               axisLine={{ stroke: "var(--line)" }}
               tickLine={{ stroke: "var(--line)" }}
               tickFormatter={(val) => formatCompact(val, currency)}
