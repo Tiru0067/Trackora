@@ -46,17 +46,11 @@ The backend API and database layer for Trackora. Built with Node.js, Express, an
 - Endpoints to calculate total income, total expenses, and balance over time.
 - Aggregates top spending categories for the frontend charts.
 
-## Status
+**User Profile & Settings**
+- Endpoints to retrieve the current user and update their details (like display name and base currency).
+- Validated endpoints to change passwords.
+- A fully cascading delete endpoint that removes the user and immediately wipes all their wallets, categories, and transactions from the database.
 
-- [x] Auth endpoints (Register, Login, Password Reset)
-- [x] Email Verification and Rate Limiting
-- [x] Centralized Error Handling and Zod Validation
-- [x] Wallets API
-- [x] Transaction and Transfer Endpoints
-- [x] Category Endpoints
-- [x] Currencies and Exchange Rates API
-- [x] Dashboard Analytics Endpoints
-- [ ] Budgeting Endpoints
 
 ## Getting Started
 

@@ -39,16 +39,11 @@ The frontend for Trackora, a personal finance tracker. Built using React and Vit
 - Interactive charts built with Recharts showing income and expense trends over time.
 - Displays a breakdown of top spending categories.
 
-## Status
+**User Settings**
+- A dedicated page for users to manage their profile, including their display name and base currency preference.
+- Ability to change passwords and toggle the app's light/dark mode.
+- A fully functional "Danger Zone" allowing users to permanently delete their account and data.
 
-- [x] Authentication (Login, Register, Password Reset)
-- [x] Email Verification UI
-- [x] Toast Notifications and Route Protection
-- [x] Multi-Currency Wallets
-- [x] Transactions and Transfers
-- [x] Categories Management
-- [x] Dashboard Charts
-- [ ] Settings Page
 
 ## Getting Started
 

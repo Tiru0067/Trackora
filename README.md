@@ -30,15 +30,10 @@ This project uses a monorepo structure:
 - Visual charts and graphs showing income and expense trends.
 - Displays top spending categories.
 
-## Status
-
-- [x] Authentication and Email Verification
-- [x] Multi-Currency Wallets
-- [x] Transactions and Transfers
-- [x] Categories Management
-- [x] Dashboard and Charts
-- [ ] Settings Page
-- [ ] Budgeting System
+**User Settings**
+- Manage account preferences like display name and base currency.
+- Update passwords and toggle light/dark modes.
+- Complete account deletion flow.
 
 ## Setup Instructions
 
