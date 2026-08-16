@@ -81,7 +81,7 @@ const WalletDetailsPage = () => {
       : 0;
 
   useEffect(() => {
-    // Redirect if wallet not found and we finished loading
+    // Redirect if wallet not found after loading
     if (!isLoading && !isWalletLoading && !wallet) {
       navigate("/wallets");
     }

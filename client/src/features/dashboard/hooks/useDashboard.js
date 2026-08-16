@@ -25,6 +25,7 @@ export const useDashboard = () => {
   }, [range, addToast]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDashboardData();
   }, [fetchDashboardData]);
 

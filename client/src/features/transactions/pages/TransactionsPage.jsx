@@ -36,6 +36,7 @@ const TransactionsPage = () => {
     useTransactions(filters);
 
   // Omit pagination parameters so stats don't reload when switching pages
+  // eslint-disable-next-line no-unused-vars
   const { page, limit, ...statsFilters } = filters;
   const { stats, isLoading: isStatsLoading, refetch: refetchStats } = useTransactionStats(statsFilters);
   const { wallets, fetchWallets } = useWallets();
