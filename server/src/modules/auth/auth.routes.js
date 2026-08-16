@@ -7,6 +7,7 @@ import {
   logout,
   getCurrentUser,
   updateCurrentUser,
+  deleteUser,
   forgotPassword,
   resetPassword,
   changePassword,
@@ -49,7 +50,8 @@ router
   .route("/me")
   .all(authenticate)
   .get(getCurrentUser)
-  .patch(validateUpdateCurrentUser, updateCurrentUser);
+  .patch(validateUpdateCurrentUser, updateCurrentUser)
+  .delete(deleteUser);
 
 router
   .route("/me/password")

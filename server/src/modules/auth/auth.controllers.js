@@ -6,6 +6,7 @@ import {
   loginService,
   getCurrentUserService,
   updateUserService,
+  deleteUserService,
 } from "./auth.services.js";
 
 import {
@@ -150,5 +151,23 @@ export const changePassword = asyncHandler(async (req, res) => {
   return sendResponse(res, {
     statusCode: 200,
     message: result.message,
+  });
+});
+
+// ─── Delete Current User ───────────────────────────────────────────────────────
+export const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+  
+  await deleteUserService(id);
+  
+  // Clear the auth cookie on deletion
+  res.cookie("accessToken", "", {
+    ...authCookieOptions,
+    maxAge: 0,
+  });
+
+  return sendResponse(res, {
+    statusCode: 200,
+    message: "Account deleted successfully",
   });
 });

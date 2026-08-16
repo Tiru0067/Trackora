@@ -161,3 +161,23 @@ export const updateUserService = async (input) => {
   });
   return updatedUser;
 };
+
+// ─── Delete user ────────────────────────────────────────────────────────────────
+export const deleteUserService = async (id) => {
+  if (id === undefined) {
+    throw new Error("deleteUserService: user ID is required");
+  }
+
+  // Because of onDelete: Cascade on relations, Prisma will automatically
+  // delete wallets, transactions, and categories when the user is deleted.
+  try {
+    await prisma.user.delete({
+      where: { id },
+    });
+  } catch (error) {
+    if (error?.code === "P2025") {
+      throw new AppError("User not found", 404, "USER_NOT_FOUND");
+    }
+    throw error;
+  }
+};
