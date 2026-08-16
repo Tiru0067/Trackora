@@ -73,8 +73,16 @@ export const updateTransactionSchema = z
     title: z.string().min(1).max(255).optional(),
     note: z.string().nullable().optional(),
     categoryId: z.string().uuid().nullable().optional(),
+    type: z.preprocess(
+      (val) => (typeof val === "string" ? val.toUpperCase() : val),
+      z.enum(["INCOME", "EXPENSE", "TRANSFER"])
+    ).optional(),
+    walletId: z.string().uuid().optional(),
+    fromWalletId: z.string().uuid().optional(),
+    toWalletId: z.string().uuid().optional(),
+    destinationAmount: z.number().positive().optional(),
   })
-  .strict();
+  .strip();
 
 export const validateCreateTransaction = (req, res, next) => {
   const result = createTransactionSchema.safeParse(req.body);

@@ -146,8 +146,17 @@ export const updateTransactionService = async (
     throw new AppError("Transaction not found", 404);
   }
 
+  const { fromWalletId, toWalletId, destinationAmount, ...validUpdateData } = updateData;
+
+  if (transaction.type === "TRANSFER" && validUpdateData.type && validUpdateData.type !== "TRANSFER") {
+    throw new AppError("Converting a transfer to a regular transaction is not supported.", 400);
+  }
+  if (validUpdateData.type === "TRANSFER" && transaction.type !== "TRANSFER") {
+    throw new AppError("Converting a regular transaction to a transfer is not supported.", 400);
+  }
+
   if (transaction.type === "TRANSFER") {
-    if (updateData.amount || updateData.categoryId !== undefined) {
+    if (validUpdateData.amount || validUpdateData.categoryId !== undefined) {
       throw new AppError("Cannot edit amount or category of a transfer", 400);
     }
 
@@ -155,9 +164,9 @@ export const updateTransactionService = async (
       await tx.transaction.update({
         where: { id: transaction.id },
         data: {
-          title: updateData.title,
-          note: updateData.note,
-          date: updateData.date ? new Date(updateData.date) : undefined,
+          title: validUpdateData.title,
+          note: validUpdateData.note,
+          date: validUpdateData.date ? new Date(validUpdateData.date) : undefined,
         },
       });
 
@@ -167,9 +176,9 @@ export const updateTransactionService = async (
         await tx.transaction.update({
           where: { id: partnerLegId },
           data: {
-            title: updateData.title,
-            note: updateData.note,
-            date: updateData.date ? new Date(updateData.date) : undefined,
+            title: validUpdateData.title,
+            note: validUpdateData.note,
+            date: validUpdateData.date ? new Date(validUpdateData.date) : undefined,
           },
         });
       }
@@ -178,25 +187,11 @@ export const updateTransactionService = async (
         where: { id: transaction.id },
         include: {
           wallet: {
-            select: {
-              id: true,
-              name: true,
-              currency: true,
-              color: true,
-              deletedAt: true,
-            },
+            select: { id: true, name: true, currency: true, color: true, deletedAt: true },
           },
           linkedTransfer: {
             include: {
-              wallet: {
-                select: {
-                  id: true,
-                  name: true,
-                  currency: true,
-                  color: true,
-                  deletedAt: true,
-                },
-              },
+              wallet: { select: { id: true, name: true, currency: true, color: true, deletedAt: true } },
             },
           },
         },
@@ -207,8 +202,8 @@ export const updateTransactionService = async (
   return await prisma.transaction.update({
     where: { id: transactionId },
     data: {
-      ...updateData,
-      date: updateData.date ? new Date(updateData.date) : undefined,
+      ...validUpdateData,
+      date: validUpdateData.date ? new Date(validUpdateData.date) : undefined,
     },
     include: {
       wallet: {
