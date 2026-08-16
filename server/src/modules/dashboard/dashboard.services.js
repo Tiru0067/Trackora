@@ -19,7 +19,7 @@ const formatDate = (date) =>
 
 export const getDashboardDataService = async (userId, range = "30d") => {
   const now = new Date();
-  
+
   let days = 30;
   if (range === "7d") days = 7;
   else if (range === "90d") days = 90;
