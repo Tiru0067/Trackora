@@ -134,6 +134,29 @@
     margin: 0;
   }
 
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-muted);
+  }
+
   input[type="number"] {
     appearance: textfield;
   }
@@ -245,7 +268,7 @@
   }
 
   .page-header {
-    @apply flex flex-col pb-4 mb-6 border-b border-(--line);
+    @apply flex flex-col pb-4 mb-6 border-b border-(--line) max-sm:px-2;
   }
 
   .dropdown-content {

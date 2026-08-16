@@ -136,10 +136,10 @@ const TransactionList = ({
 
   return (
     <section
-      className="w-full h-full flex-1 p-4 md:p-5 border border-(--line) rounded-2xl bg-(--bg-card) shadow-xs overflow-hidden flex flex-col"
+      className="w-full h-full flex-1 p-5 border border-(--line) rounded-2xl bg-(--bg-card) shadow-xs overflow-hidden flex flex-col"
       aria-labelledby="wallet-transactions-heading"
     >
-      <div className="flex flex-col items-start justify-between pb-4 px-2 gap-2.5">
+      <div className="flex flex-col items-start justify-between pb-4 sm:px-2 gap-2.5">
         <div className="flex flex-row items-center justify-between w-full">
           <h2
             id="wallet-transactions-heading"
@@ -215,7 +215,10 @@ const TransactionList = ({
               </div>
             )}
 
-            <ul className="flex flex-col" aria-label="Transaction list">
+            <ul
+              className="flex flex-col max-lg:max-h-168 max-lg:overflow-y-auto"
+              aria-label="Transaction list"
+            >
               {transactions.map((tx, index) => {
                 const {
                   Icon,
@@ -253,14 +256,14 @@ const TransactionList = ({
                     className={cn(
                       "grid grid-cols-[1fr_auto] items-center gap-4 transition-colors hover:bg-(--line-soft)/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--accent) focus-visible:ring-inset cursor-pointer",
                       compact
-                        ? "py-3 px-2 sm:px-4 xl:px-2 xl:-mx-2 xl:rounded-lg"
-                        : "px-2 sm:px-4 py-3 sm:rounded-lg",
+                        ? "py-3 sm:px-4 xl:px-2 xl:-mx-2 xl:rounded-lg"
+                        : "sm:px-4 py-3 sm:rounded-lg",
                       !compact &&
                         (context === "global" || context === "dashboard"
                           ? "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
                           : "md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"),
                       index !== transactions.length - 1 &&
-                        "border-b border-(--line)",
+                        "md:border-b border-(--line)",
                     )}
                   >
                     {/* Payment Name */}
@@ -357,7 +360,7 @@ const TransactionList = ({
       </div>
 
       {paginationNode && (
-        <div className="border-t border-(--line) shrink-0 mt-auto">
+        <div className="md:border-t border-(--line) shrink-0 mt-auto">
           {paginationNode}
         </div>
       )}
